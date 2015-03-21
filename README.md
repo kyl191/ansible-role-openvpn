@@ -25,8 +25,6 @@ Does not depend on any other roles
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
     - hosts: vpn
       roles:
         - {role: kyl191.openvpn, clients: [client1, client2],
