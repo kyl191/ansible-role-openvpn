@@ -29,7 +29,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: vpn
       roles:
-        - {kyl191.openvpn, clients: [client1, client2],
+        - {role: kyl191.openvpn, clients: [client1, client2],
                             openvpn_port: 4300}
 
 License
