@@ -12,7 +12,9 @@ Role Variables
 --------------
 
 openvpn_port: The port you want OpenVPN to run on.
+
 openvpn_proto: The protocol you want OpenVPN to use (UDP by default)
+
 openvpn\_config\_file: The config file name you want to use (By default "openvpn\_{{ openvpn\_proto }}\_{{ openvpn\_port }}", located in vars/main.yml)
 
 Dependencies
