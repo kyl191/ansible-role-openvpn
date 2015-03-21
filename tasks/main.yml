@@ -1,0 +1,63 @@
+---
+# tasks file for openvpn
+
+- name: Check for systemd
+  command: pidof systemd
+  register: systemd
+  always_run: yes
+  changed_when: false
+
+- name: set openvpn service name - systemd
+  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
+  when: systemd.rc == 0
+
+- name: set openvpn service name - sysvinit/standard services
+  set_fact: openvpn_service_name="openvpn"
+  when: systemd.rc != 0
+
+- name: install openvpn
+  yum: name=openvpn state=present
+
+- name: Setup server keys
+  include: server_keys.yml
+  tags:
+    - server_keys
+
+- name: copy openvpn config file
+  template: src=server.conf.j2 dest=/etc/openvpn/{{openvpn_config_file}}.conf owner=root group=root
+  notify:
+    - restart openvpn
+
+# ignoreerrors is required for CentOS/RHEL 6
+# http://serverfault.com/questions/477718/sysctl-p-etc-sysctl-conf-returns-error
+- name: enable ipv4 forwarding
+  sysctl: name=net.ipv4.ip_forward value=1 ignoreerrors=yes
+
+- name: Check for firewalld/iptables
+  command: firewall-cmd --state
+  register: firewalld
+  always_run: yes
+  changed_when: false  # Never report as changed
+  tags:
+    - firewall
+
+- name: Add port rules (iptables)
+  include: iptables.yml
+  when: firewalld.rc!=0
+  tags:
+    - firewall
+
+- name: Add port rules (firewalld)
+  include: firewalld.yml
+  when: firewalld.rc==0
+  tags:
+    - firewall
+
+- name: generate client configs
+  include: client_keys.yml
+  when: clients
+  tags:
+    - client_keys
+
+- name: setup openvpn auto-start
+  service: name={{openvpn_service_name}} enabled=yes state=started

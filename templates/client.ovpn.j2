@@ -1,0 +1,21 @@
+client
+tls-client
+dev tun
+proto {{openvpn_proto}}
+remote {{ansible_fqdn}} {{openvpn_port}}
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca ca.crt
+cert {{item}}.crt
+key {{item}}.key
+tls-auth ta.key 1
+cipher AES-256-CBC
+remote-cert-tls server
+comp-lzo
+verb 3
+keepalive 10 120
+route-method exe
+route-delay 2
+register-dns

@@ -1,0 +1,37 @@
+# from http://www.hashbangcode.com/blog/adding-iptables-rules-ansible
+- name: get iptables rules
+  command: iptables -L
+  register: iptablesrules
+  always_run: yes
+  changed_when: false  # Never report as changed
+
+- name: iptables - Allow VPN forwarding
+  command: /sbin/iptables -A FORWARD -s 10.9.0.0/24 -j ACCEPT -m comment --comment "Allow VPN forwarding"
+  sudo: true
+  when: iptablesrules.stdout.find("Allow VPN forwarding") == -1
+
+- name: iptables - Allow incoming VPN connection
+  command: /sbin/iptables -A INPUT -p {{openvpn_proto}} --dport {{openvpn_port}} -j ACCEPT -m comment --comment "Allow incoming VPN"
+  sudo: true
+  when: iptablesrules.stdout.find("Allow incoming VPN") == -1
+
+- name: iptables - Accept VPN tunnel adaptor
+  command: /sbin/iptables -A INPUT -i tun0 -j ACCEPT -m comment --comment "Accept VPN tunnel adaptor"
+  sudo: true
+  when: iptablesrules.stdout.find("Accept VPN tunnel adaptor") == -1
+
+- name: get iptables nat table rules
+  command: iptables -L -t nat
+  register: ipnattablesrules
+  always_run: yes
+  changed_when: false  # Never report as changed
+
+- name: iptables - Perform NAT readdressing
+  command: /sbin/iptables -t nat -A POSTROUTING -s 10.9.0.0/24 -j SNAT --to-source {{ansible_default_ipv4.address}} -m comment --comment "Perform NAT readdressing"
+  sudo: true
+  when: ipnattablesrules.stdout.find("Perform NAT readdressing") == -1
+
+- name: iptables - save everything
+  shell: iptables-save > /etc/sysconfig/iptables
+  sudo: yes
+

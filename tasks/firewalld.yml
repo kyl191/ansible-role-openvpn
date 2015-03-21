@@ -1,0 +1,23 @@
+- name: Enable OpenVPN Port (firewalld)
+  firewalld: port={{openvpn_port}}/{{openvpn_proto}} state=enabled permanent=yes zone=external # immediate=yes only on ansible>=1.9
+  sudo: true
+
+- name: Set tun0 interface to internal
+  command: firewall-cmd --zone=internal --change-interface=tun0
+  sudo: true
+
+- name: Persist tun0 settings
+  command: firewall-cmd --zone=internal --change-interface=tun0 --permanent
+  sudo: true
+
+- name: Set default interface to external
+  command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}}
+  sudo: true
+
+- name: Persist tun0 settings
+  command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}} --permanent
+  sudo: true
+
+- name: Enable masquerading on external zone
+  command: firewall-cmd --zone=external --add-masquerade
+  sudo: true

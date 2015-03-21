@@ -1,0 +1,4 @@
+---
+# vars file for openvpn
+openvpn_proto: udp
+openvpn_config_file: "openvpn_{{ openvpn_proto }}_{{ openvpn_port }}"

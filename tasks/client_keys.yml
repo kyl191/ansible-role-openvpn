@@ -1,0 +1,37 @@
+# generate client keys
+---
+- name: generate client key
+  command: openssl req -nodes -newkey rsa:4096 -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
+    chdir=/etc/openvpn/keys
+    creates={{item}}.key
+  with_items: clients
+
+- name: sign client key
+  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -days 3650
+    chdir=/etc/openvpn/keys
+    creates={{item}}.crt
+  with_items: clients
+
+- name: generate client config
+  template: src=client.ovpn.j2 dest=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn owner=root group=root
+  with_items: clients
+
+- name: fetch ca key
+  fetch: src=/etc/openvpn/keys/ca.crt dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/ca.crt flat=yes
+  with_items: clients
+
+- name: fetch tls-auth key
+  fetch: src=/etc/openvpn/keys/ta.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/ta.key flat=yes
+  with_items: clients
+
+- name: fetch client key
+  fetch: src=/etc/openvpn/keys/{{item}}.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.key flat=yes
+  with_items: clients
+
+- name: fetch client cert
+  fetch: src=/etc/openvpn/keys/{{item}}.crt dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.crt flat=yes
+  with_items: clients
+
+- name: fetch client config
+  fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn flat=yes
+  with_items: clients

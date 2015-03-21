@@ -1,0 +1,34 @@
+# {{ ansible_managed }}
+
+local {{ansible_default_ipv4.address}}
+port {{openvpn_port}}
+proto {{openvpn_proto}}
+dev tun
+
+ca keys/ca.crt
+cert keys/server.crt
+key keys/server.key
+dh keys/dh4096.pem
+tls-auth keys/ta.key 0
+
+tls-server
+cipher AES-256-CBC
+
+server 10.9.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 208.67.222.222"
+push "dhcp-option DNS 208.67.220.220"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+keepalive 5 30
+comp-lzo
+persist-key
+persist-tun
+user nobody
+group nobody
+
+status openvpn-status.log
+log-append  /var/log/openvpn.log
+verb 3
