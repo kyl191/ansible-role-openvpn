@@ -6,6 +6,7 @@
   register: systemd
   always_run: yes
   changed_when: false
+  ignore_errors: yes
 
 - name: set openvpn service name - systemd
   set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
@@ -38,6 +39,7 @@
   register: firewalld
   always_run: yes
   changed_when: false  # Never report as changed
+  ignore_errors: yes
   tags:
     - firewall
 
