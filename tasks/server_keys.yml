@@ -17,7 +17,7 @@
     creates=server.key
 
 - name: generate CA serial
-  command: echo "01" > ca.srl
+  shell: echo "01" > ca.srl
     chdir=/etc/openvpn/keys
     creates=ca.srl
 
