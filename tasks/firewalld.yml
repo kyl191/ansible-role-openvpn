@@ -14,7 +14,7 @@
   command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}}
   sudo: true
 
-- name: Persist tun0 settings
+- name: Persist default interface to external
   command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}} --permanent
   sudo: true
 
