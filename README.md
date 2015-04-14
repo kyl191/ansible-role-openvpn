@@ -6,16 +6,17 @@ This role installs OpenVPN, configures it as a server, sets up networking (eithe
 Requirements
 ------------
 
-openvpn must be available as a package in yum! For CentOS users, this means running `yum install epel-release` *prior* to running this playbook.
+openvpn must be available as a package in yum/apt! For CentOS users, this means running `yum install epel-release` *prior* to running this playbook.
 
 Role Variables
 --------------
 
 openvpn_port: The port you want OpenVPN to run on.
+If you have different ports on different servers, I suggest you set the port in your inventory file.
 
 openvpn_proto: The protocol you want OpenVPN to use (UDP by default)
 
-openvpn\_config\_file: The config file name you want to use (By default "openvpn\_{{ openvpn\_proto }}\_{{ openvpn\_port }}", located in vars/main.yml)
+openvpn\_config\_file: The config file name you want to use (By default `openvpn\_{{ openvpn\_proto }}\_{{ openvpn\_port }}`, located in vars/main.yml)
 
 Dependencies
 ------------
