@@ -16,8 +16,14 @@
   set_fact: openvpn_service_name="openvpn"
   when: systemd.rc != 0
 
-- name: install openvpn
+- name: install openvpn (yum)
   yum: name=openvpn state=present
+  when: ansible_pkg_mgr == "yum"
+
+- name: install openvpn (apt)
+  apt: name=openvpn state=present
+  when: ansible_pkg_mgr == "apt"
+
 
 - name: Setup server keys
   include: server_keys.yml
