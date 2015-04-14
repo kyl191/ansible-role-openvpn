@@ -31,7 +31,11 @@
   sudo: true
   when: ipnattablesrules.stdout.find("Perform NAT readdressing") == -1
 
-- name: iptables - save everything
+- name: iptables - save everything (CentOS/RHEL/Fedora)
   shell: iptables-save > /etc/sysconfig/iptables
   sudo: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
 
+- name: iptables - save everything (Debian/Ubuntu)
+  include: iptables-persistent.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
