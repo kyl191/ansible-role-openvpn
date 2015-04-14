@@ -34,7 +34,7 @@
 - name: iptables - save everything (CentOS/RHEL/Fedora)
   shell: iptables-save > /etc/sysconfig/iptables
   sudo: yes
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+  when: ansible_os_family == 'RedHat'
 
 - name: iptables - save everything (Debian/Ubuntu)
   command: /etc/init.d/iptables-persistent save
