@@ -29,7 +29,7 @@ galaxy_info:
   #  - quantal
   #  - raring
   #  - saucy
-  #  - trusty
+    - trusty
   #- name: Debian
   #  versions:
   #  - all
