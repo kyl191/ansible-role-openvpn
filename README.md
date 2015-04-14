@@ -3,10 +3,23 @@ openvpn
 
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
+Tested OSes:
+- Fedora 20/21
+- CentOS 6
+- Ubuntu trusty (14.04)
+
+Should be working OSes:
+- All Fedora
+- CentOS 6/7
+- Ubuntu trusty & later
+
+
 Requirements
 ------------
 
 openvpn must be available as a package in yum/apt! For CentOS users, this means running `yum install epel-release` *prior* to running this playbook.
+
+Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptables-persistent/+bug/1002078) that might make the iptables-persistent install fail. There is a [workaround](https://forum.linode.com/viewtopic.php?p=58233#p58233).
 
 Role Variables
 --------------
