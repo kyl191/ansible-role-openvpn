@@ -16,7 +16,7 @@ If you have different ports on different servers, I suggest you set the port in 
 
 openvpn_proto: The protocol you want OpenVPN to use (UDP by default)
 
-openvpn\_config\_file: The config file name you want to use (By default `openvpn\_{{ openvpn\_proto }}\_{{ openvpn\_port }}`, located in vars/main.yml)
+openvpn\_config\_file: The config file name you want to use (By default `openvpn_{{ openvpn_proto }}_{{ openvpn_port }}`, located in vars/main.yml)
 
 Dependencies
 ------------
