@@ -1,6 +1,0 @@
-- name: install iptables-persistent (apt)
-  apt: name=iptables-persistent state=present
-  when: ansible_pkg_mgr == "apt"
-
-- name: Save iptables rules with iptables-persistent
-  command: /etc/init.d/iptables-persistent save
