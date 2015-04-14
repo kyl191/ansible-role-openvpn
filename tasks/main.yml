@@ -24,6 +24,9 @@
   apt: name=openvpn state=present
   when: ansible_pkg_mgr == "apt"
 
+# RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
+- name: Ensure group 'nogroup' is present
+  group: name=nogroup state=present
 
 - name: Setup server keys
   include: server_keys.yml
