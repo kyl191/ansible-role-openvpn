@@ -18,7 +18,7 @@
 
 - name: register tls-auth key
   command: cat /etc/openvpn/keys/ta.crt
-  register: tls-auth
+  register: tls_auth
 
 - name: generate client config
   template: src=client.ovpn.j2 dest=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn owner=root group=root
