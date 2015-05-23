@@ -1,6 +1,5 @@
 ---
 # tasks file for openvpn
-
 - name: Check for systemd
   command: pidof systemd
   register: systemd
