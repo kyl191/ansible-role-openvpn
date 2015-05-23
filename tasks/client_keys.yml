@@ -12,10 +12,10 @@
     creates={{item}}.crt
   with_items: clients
 
+- name: register server ca key
+  command: cat /etc/openvpn/keys/ca.crt
+  register: ca_cert
 
-- name: fetch ca key
-  fetch: src=/etc/openvpn/keys/ca.crt dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/ca.crt flat=yes
-  with_items: clients
 
 - name: fetch tls-auth key
   fetch: src=/etc/openvpn/keys/ta.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/ta.key flat=yes
