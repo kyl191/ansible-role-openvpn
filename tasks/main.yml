@@ -77,12 +77,10 @@
   service: name={{openvpn_service_name}} enabled=yes state=started
   when: systemd.rc != 0
 
-# This separation is necessary because systemd doesn't allow individual unit files
-# to be auto-started
-# systemctl enable openvpn@openvpn_udp_15501.service doesn't work
-# systemctl enable openvpn@.service does works
+# This separation is necessary because systemd doesn't allow individual unit files to be auto-started
+# systemctl enable openvpn@.service does work, but that results in a service named openvpn@multi-user.service
 - name: setup openvpn auto-start (systemd)
-  service: name=openvpn@.service enabled=yes
+  file: src=/lib/systemd/system/openvpn\@.service dest=/etc/systemd/system/multi-user.target.wants/{{openvpn_service_name}} state=link owner=root group=root
   when: systemd.rc == 0
 
 # systemctl start openvpn@.service returns
