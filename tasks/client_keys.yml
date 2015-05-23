@@ -15,10 +15,12 @@
 - name: register server ca key
   command: cat /etc/openvpn/keys/ca.crt
   register: ca_cert
+  changed_when: false
 
 - name: register tls-auth key
   command: cat /etc/openvpn/keys/ta.crt
   register: tls_auth
+  changed_when: false
 
 - name: generate client config
   template: src=client.ovpn.j2 dest=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn owner=root group=root
