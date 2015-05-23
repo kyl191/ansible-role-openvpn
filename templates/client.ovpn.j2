@@ -20,7 +20,17 @@ route-method exe
 route-delay 2
 register-dns
 
-ca ca.crt
-cert {{item}}.crt
-key {{item}}.key
-tls-auth ta.key 1
+key-direction 1
+<ca>
+{{ ca_cert }}
+</ca>
+<cert>
+{{ cert }}
+</cert>
+<key>
+{{ key }}
+</key>
+<tls-auth>
+{{ tls-auth }}
+</tls-auth>
+
