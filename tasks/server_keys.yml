@@ -16,6 +16,9 @@
     chdir=/etc/openvpn/keys
     creates=server.key
 
+- name: protect server key
+  file: /etc/openvpn/keys/server.key mode=0400
+
 # This might be duplicated by the -CAcreateserial option when signing the CA key...
 - name: generate CA serial
   shell: echo "01" > ca.srl
