@@ -22,10 +22,6 @@
   register: tls_auth
   changed_when: false
 
-- name: generate client config
-  template: src=client.ovpn.j2 dest=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn owner=root group=root
-  with_items: clients
-
 - name: fetch client key
   fetch: src=/etc/openvpn/keys/{{item}}.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.key flat=yes
 - name: register client certs
@@ -37,6 +33,9 @@
 - name: fetch client cert
   fetch: src=/etc/openvpn/keys/{{item}}.crt dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.crt flat=yes
   with_items: clients
+- name: generate client config
+  template: src=client.ovpn.j2 dest=/etc/openvpn/{{item.item}}-{{ansible_fqdn}}.ovpn owner=root group=root
+  with_items: client_certs.results
 
 - name: fetch client config
   fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn flat=yes
