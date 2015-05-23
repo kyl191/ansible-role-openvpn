@@ -8,7 +8,7 @@ proto {{openvpn_proto}}
 remote {{ansible_fqdn}} {{openvpn_port}}
 dev tun
 
-resolv-retry infinite
+resolv-retry 5
 nobind
 keepalive 5 30
 comp-lzo
@@ -24,4 +24,3 @@ ca ca.crt
 cert {{item}}.crt
 key {{item}}.key
 tls-auth ta.key 1
-
