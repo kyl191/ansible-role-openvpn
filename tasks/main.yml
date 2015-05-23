@@ -38,7 +38,7 @@
 
 - name: generate client configs
   include: client_keys.yml
-  when: clients
+  when: clients is defined
   tags:
     - client_keys
 
