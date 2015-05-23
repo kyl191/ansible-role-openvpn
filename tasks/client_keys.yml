@@ -28,7 +28,11 @@
 
 - name: fetch client key
   fetch: src=/etc/openvpn/keys/{{item}}.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.key flat=yes
+- name: register client certs
+  shell: echo \<ca\> && cat /etc/openvpn/keys/{{item}}.crt && echo \</ca\> && echo \<key\> && cat /etc/openvpn/keys/{{item}}.key && echo \</key\>
   with_items: clients
+  register: client_certs
+  changed_when: false
 
 - name: fetch client cert
   fetch: src=/etc/openvpn/keys/{{item}}.crt dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.crt flat=yes
