@@ -2,7 +2,7 @@
   file: path=/etc/openvpn/keys state=directory
 
 - name: generate CA key
-  command: openssl req -nodes -newkey rsa:4096 -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA/
     chdir=/etc/openvpn/keys
     creates=ca-key.pem
 
@@ -12,10 +12,11 @@
     creates=ca.crt
 
 - name: generate server key
-  command: openssl req -nodes -newkey rsa:4096 -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN/
     chdir=/etc/openvpn/keys
     creates=server.key
 
+# This might be duplicated by the -CAcreateserial option when signing the CA key...
 - name: generate CA serial
   shell: echo "01" > ca.srl
     chdir=/etc/openvpn/keys

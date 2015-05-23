@@ -2,3 +2,4 @@
 # defaults file for openvpn
 openvpn_port: 1194
 openvpn_proto: udp
+openvpn_rsa_bits: 4096
