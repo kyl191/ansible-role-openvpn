@@ -17,7 +17,7 @@
     creates=server.key
 
 - name: protect server key
-  file: /etc/openvpn/keys/server.key mode=0400
+  file: path=/etc/openvpn/keys/server.key mode=0400
 
 # This might be duplicated by the -CAcreateserial option when signing the CA key...
 - name: generate CA serial
