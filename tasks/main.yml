@@ -15,20 +15,10 @@
   set_fact: openvpn_service_name="openvpn"
   when: systemd.rc != 0
 
-- name: install openvpn (yum)
-  yum: name=openvpn state=present
-  when: ansible_pkg_mgr == "yum"
-
-- name: install openvpn (apt)
-  apt: name={{ item }} state=present
-  when: ansible_pkg_mgr == "apt"
-  with_items:
-    - openvpn
-    - iptables-persistent
-
-# RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
-- name: Ensure group 'nogroup' is present
-  group: name=nogroup state=present
+- name: Install OpenVPN
+  include: install.yml
+  tags:
+    - install
 
 - name: Setup server keys
   include: server_keys.yml
