@@ -39,3 +39,11 @@
 # per http://security.stackexchange.com/questions/42415/openvpn-dhparam/42418#42418
 - name: copy pre-generated DH params
   copy: src=dh.pem dest=/etc/openvpn/keys owner=root group=root mode=0400
+  when: openvpn_use_pregenerated_dh_params
+
+# Alternatively, if you're concerned about logjam attacks
+- name: generate dh params
+  command: openssl dhparam -out /etc/openvpn/keys/dh.pem {{openvpn_rsa_bits}}
+    chdir=/etc/openvpn/keys
+    creates=dh.pem
+  when: not openvpn_use_pregenerated_dh_params
