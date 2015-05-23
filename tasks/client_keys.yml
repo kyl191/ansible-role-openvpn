@@ -16,9 +16,10 @@
   command: cat /etc/openvpn/keys/ca.crt
   register: ca_cert
 
+- name: register tls-auth key
+  command: cat /etc/openvpn/keys/ta.crt
+  register: tls-auth
 
-- name: fetch tls-auth key
-  fetch: src=/etc/openvpn/keys/ta.key dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/ta.key flat=yes
 - name: generate client config
   template: src=client.ovpn.j2 dest=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn owner=root group=root
   with_items: clients
