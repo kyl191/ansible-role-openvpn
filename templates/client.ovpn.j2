@@ -24,13 +24,7 @@ key-direction 1
 <ca>
 {{ ca_cert.stdout }}
 </ca>
-<cert>
-{{ cert }}
-</cert>
-<key>
-{{ key }}
-</key>
 <tls-auth>
 {{ tls_auth.stdout }}
 </tls-auth>
-
+{{ item.stdout }}
