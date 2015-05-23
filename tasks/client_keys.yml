@@ -18,7 +18,7 @@
   changed_when: false
 
 - name: register tls-auth key
-  command: cat /etc/openvpn/keys/ta.crt
+  command: cat /etc/openvpn/keys/ta.key
   register: tls_auth
   changed_when: false
 
