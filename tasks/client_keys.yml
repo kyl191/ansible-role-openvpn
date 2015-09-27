@@ -33,5 +33,5 @@
   with_items: client_certs.results
 
 - name: fetch client config
-  fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn flat=yes
+  fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}.ovpn flat=yes
   with_items: clients
