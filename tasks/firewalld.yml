@@ -11,13 +11,13 @@
   sudo: true
 
 - name: Set default interface to external
-  command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}}
+  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --change-interface={{ansible_default_ipv4.interface}}
   sudo: true
 
 - name: Persist default interface to external
-  command: firewall-cmd --zone=external --change-interface={{ansible_default_ipv4.interface}} --permanent
+  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --change-interface={{ansible_default_ipv4.interface}} --permanent
   sudo: true
 
 - name: Enable masquerading on external zone
-  command: firewall-cmd --zone=external --add-masquerade
+  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --add-masquerade
   sudo: true
