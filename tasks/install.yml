@@ -1,6 +1,9 @@
 - name: install openvpn (yum)
-  yum: name=openvpn state=present
+  yum: name={{item}} state=present
   when: ansible_pkg_mgr == "yum"
+  with_items:
+    - openvpn
+    - openssl
 
 - name: install openvpn (apt)
   apt: name={{ item }} state=present
@@ -8,6 +11,7 @@
   with_items:
     - openvpn
     - iptables-persistent
+    - openssl
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 - name: Ensure group 'nogroup' is present
