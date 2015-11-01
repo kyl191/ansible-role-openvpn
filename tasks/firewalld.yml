@@ -21,3 +21,17 @@
 - name: Enable masquerading on external zone
   command: firewall-cmd --zone={{firewalld_default_interface_zone}} --add-masquerade
   sudo: true
+
+# workaround for --permanent not working on non-NetworkManager managed ifaces
+# https://bugzilla.redhat.com/show_bug.cgi?id=1112742
+- name: Check if ifcfg-{{ansible_default_ipv4.interface}} exists
+  stat: path=/etc/sysconfig/network-scripts/ifcfg-{{ansible_default_ipv4.interface}}
+  register: ifcfg
+
+- name: Persist default interface in ifcfg file
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ansible_default_ipv4.interface}}
+    regexp: "^ZONE="
+    line: "ZONE={{firewalld_default_interface_zone}}"
+  sudo: true
+  when: ifcfg.stat.exists
