@@ -1,5 +1,5 @@
 - name: Check for systemd
-  command: pidof systemd
+  command: pidof systemd-journald
   register: systemd
   always_run: yes
   changed_when: false
