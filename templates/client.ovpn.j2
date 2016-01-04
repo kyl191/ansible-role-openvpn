@@ -5,7 +5,7 @@ cipher AES-256-CBC
 remote-cert-tls server
 
 proto {{openvpn_proto}}
-remote {{ansible_fqdn}} {{openvpn_port}}
+remote {{inventory_hostname}} {{openvpn_port}}
 dev tun
 
 resolv-retry 5
@@ -18,7 +18,6 @@ verb 3
 
 route-method exe
 route-delay 2
-register-dns
 
 key-direction 1
 <ca>
