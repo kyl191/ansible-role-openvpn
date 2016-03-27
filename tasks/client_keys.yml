@@ -29,9 +29,17 @@
   changed_when: false
 
 - name: generate client config
-  template: src=client.ovpn.j2 dest=/etc/openvpn/{{item.item}}-{{ansible_fqdn}}.ovpn owner=root group=root
+  template: >
+    src=client.ovpn.j2
+    dest=/etc/openvpn/{{item.item}}-{{inventory_hostname}}.ovpn
+    owner=root
+    group=root
+    mode=0400
   with_items: client_certs.results
 
 - name: fetch client config
-  fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}.ovpn flat=yes
+  fetch: >
+    src=/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn
+    dest=/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn
+    flat=yes
   with_items: clients

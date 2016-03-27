@@ -5,7 +5,7 @@ cipher AES-256-CBC
 remote-cert-tls server
 
 proto {{openvpn_proto}}
-remote {{ansible_fqdn}} {{openvpn_port}}
+remote {{inventory_hostname}} {{openvpn_port}}
 dev tun
 
 resolv-retry 5
