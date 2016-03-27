@@ -9,7 +9,7 @@
     creates=ca-key.pem
 
 - name: sign CA key
-  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -days 3650
+  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650
     chdir=/etc/openvpn/keys
     creates=ca.crt
 
@@ -38,7 +38,7 @@
     mode=0400
 
 - name: sign server key
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -days 3650 -extfile openssl-server.ext
+  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-server.ext
     chdir=/etc/openvpn/keys
     creates=server.crt
 

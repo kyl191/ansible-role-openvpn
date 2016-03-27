@@ -7,7 +7,7 @@
   with_items: clients
 
 - name: sign client key
-  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -days 3650
+  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650
     chdir=/etc/openvpn/keys
     creates={{item}}.crt
   with_items: clients
