@@ -14,5 +14,9 @@
     - openssl
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
+# standardize on 'nogroup'
 - name: Ensure group 'nogroup' is present
-  group: name=nogroup state=present
+  group: >
+    name=nogroup
+    state=present
+    system=yes
