@@ -22,9 +22,18 @@ register-dns
 
 key-direction 1
 <ca>
-{{ ca_cert.stdout }}
+{{ ca_cert.content|b64decode }}
 </ca>
+
 <tls-auth>
-{{ tls_auth.stdout }}
+{{ tls_auth.content|b64decode }}
 </tls-auth>
-{{ item.stdout }}
+
+<cert>
+{{ item.0.content|b64decode }}
+</cert>
+
+<key>
+{{ item.1.content|b64decode }}
+</key>
+
