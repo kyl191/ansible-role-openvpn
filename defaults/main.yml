@@ -4,5 +4,6 @@ openvpn_port: 1194
 openvpn_proto: udp
 openvpn_use_pregenerated_dh_params: true
 openvpn_rsa_bits: 4096
+opevpn_service_name: openvpn
 # Used in firewalld
 firewalld_default_interface_zone: public
