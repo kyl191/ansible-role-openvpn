@@ -1,3 +1,9 @@
+- name: Install EPEL
+  package: >
+    name=epel-release
+    state=present
+  when: ansible_distribution == "CentOS" or ansible_distribution=="RHEL"
+
 - name: Install openvpn
   package: >
    name={{item}}
