@@ -19,22 +19,8 @@
     group=root
     mode=0400
 
-- name: setup openvpn auto-start (init-style) & start
+- name: setup openvpn auto-start & start
   service: >
     name={{openvpn_service_name}}
     enabled=yes
     state=started
-  when: ansible_service_mgr != "systemd"
-
-# This separation is necessary because systemd doesn't allow individual unit files to be auto-started
-# systemctl enable openvpn@.service does work, but that results in a service named openvpn@multi-user.service
-- name: setup openvpn auto-start (systemd)
-  file: src=/lib/systemd/system/openvpn\@.service dest=/etc/systemd/system/multi-user.target.wants/{{openvpn_service_name}} state=link owner=root group=root
-  when: ansible_service_mgr == "systemd"
-
-# systemctl start openvpn@.service returns
-# Failed to issue method call: Unit name openvpn@.service is not valid.
-# systemctl start openvpn@openvpn_udp_15501.service works
-- name: start openvpn now (systemd)
-  service: name={{openvpn_service_name}} state=started
-  when: ansible_service_mgr == "systemd"
