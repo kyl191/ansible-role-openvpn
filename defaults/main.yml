@@ -6,5 +6,6 @@ openvpn_use_pregenerated_dh_params: true
 openvpn_rsa_bits: 2048
 openvpn_service_name: openvpn
 openvpn_erase_keys: false
+openvpn_key_dir: /etc/openvpn/keys
 # Used in firewalld
 firewalld_default_interface_zone: public

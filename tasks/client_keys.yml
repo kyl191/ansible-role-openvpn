@@ -3,38 +3,38 @@
 - name: Copy openssl extensions
   copy: >
     src=openssl-client.ext
-    dest=/etc/openvpn/keys
+    dest="{{openvpn_key_dir}}"
     owner=root
     group=root
     mode=0400
 
 - name: generate client key
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
-    chdir=/etc/openvpn/keys
+    chdir="{{openvpn_key_dir}}"
     creates={{item}}.key
   with_items: "{{clients}}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
-    chdir=/etc/openvpn/keys
+    chdir="{{openvpn_key_dir}}"
     creates={{item}}.crt
   with_items: "{{clients}}"
 
 - name: register server ca key
-  slurp: src=/etc/openvpn/keys/ca.crt
+  slurp: src="{{openvpn_key_dir}}"/ca.crt
   register: ca_cert
 
 - name: register tls-auth key
-  slurp: src=/etc/openvpn/keys/ta.key
+  slurp: src="{{openvpn_key_dir}}"/ta.key
   register: tls_auth
 
 - name: register client certs
-  slurp: src=/etc/openvpn/keys/{{item}}.crt
+  slurp: src="{{openvpn_key_dir}}"/{{item}}.crt
   with_items: "{{clients}}"
   register: client_certs
 
 - name: register client keys
-  slurp: src=/etc/openvpn/keys/{{item}}.key
+  slurp: src="{{openvpn_key_dir}}"/{{item}}.key
   with_items: "{{clients}}"
   register: client_keys
 

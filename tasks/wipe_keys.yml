@@ -1,4 +1,4 @@
 - name: Wipe out keys
   file:
-    path=/etc/openvpn/keys
+    path="{{openvpn_key_dir}}"
     state=absent
