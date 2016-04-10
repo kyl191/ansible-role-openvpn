@@ -3,13 +3,24 @@
     path=/etc/openvpn/keys
     state=directory
 
+- name: Copy openssl extensions
+  copy: >
+    src="{{item}}"
+    dest=/etc/openvpn/keys
+    owner=root
+    group=root
+    mode=0400
+  with_items:
+    - openssl-server.ext
+    - openssl-ca.ext
+
 - name: generate CA key
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA/
     chdir=/etc/openvpn/keys
     creates=ca-key.pem
 
 - name: sign CA key
-  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650
+  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
     chdir=/etc/openvpn/keys
     creates=ca.crt
 
@@ -28,14 +39,6 @@
   shell: echo "01" > ca.srl
     chdir=/etc/openvpn/keys
     creates=ca.srl
-
-- name: copy openssl server extension config
-  copy: >
-    src=openssl-server.ext
-    dest=/etc/openvpn/keys
-    owner=root
-    group=root
-    mode=0400
 
 - name: sign server key
   command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-server.ext
