@@ -1,10 +1,10 @@
 ---
 # tasks file for openvpn
-- name: Wipe out keys
-  include: wipe_keys.yml
-  when: openvpn_erase_keys
+- name: Uninstall OpenVPN
+  include: uninstall.yml
+  when: openvpn_uninstall
   tags:
-    - erase
+    - uninstall
 
 - name: Install OpenVPN
   include: install.yml
