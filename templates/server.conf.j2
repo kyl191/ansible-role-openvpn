@@ -36,3 +36,8 @@ group nogroup
 status openvpn-status.log
 log-append  /var/log/openvpn.log
 verb 3
+
+{% if openvpn_verify_cn %}
+verify-x509-name OpenVPN-Client-{{inventory_hostname}} name-prefix
+remote-cert-tls client
+{% endif %}
