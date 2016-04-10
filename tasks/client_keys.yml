@@ -12,13 +12,13 @@
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
     chdir=/etc/openvpn/keys
     creates={{item}}.key
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
     chdir=/etc/openvpn/keys
     creates={{item}}.crt
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: register server ca key
   slurp: src=/etc/openvpn/keys/ca.crt
@@ -30,12 +30,12 @@
 
 - name: register client certs
   slurp: src=/etc/openvpn/keys/{{item}}.crt
-  with_items: clients
+  with_items: "{{clients}}"
   register: client_certs
 
 - name: register client keys
   slurp: src=/etc/openvpn/keys/{{item}}.key
-  with_items: clients
+  with_items: "{{clients}}"
   register: client_keys
 
 - name: generate client config
@@ -54,4 +54,4 @@
     src=/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn
     dest=/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn
     flat=yes
-  with_items: clients
+  with_items: "{{clients}}"
