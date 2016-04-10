@@ -1,5 +1,13 @@
 # generate client keys
 ---
+- name: Copy openssl extensions
+  copy: >
+    src=openssl-client.ext
+    dest=/etc/openvpn/keys
+    owner=root
+    group=root
+    mode=0400
+
 - name: generate client key
   command: openssl req -nodes -newkey rsa:4096 -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
     chdir=/etc/openvpn/keys
@@ -7,7 +15,7 @@
   with_items: clients
 
 - name: sign client key
-  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650
+  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
     chdir=/etc/openvpn/keys
     creates={{item}}.crt
   with_items: clients
