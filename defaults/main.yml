@@ -5,5 +5,6 @@ openvpn_proto: udp6
 openvpn_use_pregenerated_dh_params: true
 openvpn_rsa_bits: 4096
 opevpn_service_name: openvpn
+openvpn_erase_keys: false
 # Used in firewalld
 firewalld_default_interface_zone: public

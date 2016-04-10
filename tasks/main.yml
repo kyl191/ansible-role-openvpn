@@ -1,5 +1,11 @@
 ---
 # tasks file for openvpn
+- name: Wipe out keys
+  include: wipe_keys.yml
+  when: openvpn_erase_keys
+  tags:
+    - erase
+
 - name: Install OpenVPN
   include: install.yml
   tags:

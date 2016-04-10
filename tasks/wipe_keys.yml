@@ -1,0 +1,4 @@
+- name: Wipe out keys
+  file:
+    path=/etc/openvpn/keys
+    state=absent
