@@ -34,14 +34,8 @@
     path=/etc/openvpn/keys/server.key
     mode=0400
 
-# This might be duplicated by the -CAcreateserial option when signing the CA key...
-- name: generate CA serial
-  shell: echo "01" > ca.srl
-    chdir=/etc/openvpn/keys
-    creates=ca.srl
-
 - name: sign server key
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-server.ext
+  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
     chdir=/etc/openvpn/keys
     creates=server.crt
 
