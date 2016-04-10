@@ -9,7 +9,7 @@
     mode=0400
 
 - name: generate client key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/
     chdir="{{openvpn_key_dir}}"
     creates={{item}}.key
   with_items: "{{clients}}"
