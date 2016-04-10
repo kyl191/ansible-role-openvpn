@@ -21,20 +21,20 @@
   with_items: "{{clients}}"
 
 - name: register server ca key
-  slurp: src="{{openvpn_key_dir}}"/ca.crt
+  slurp: src="{{openvpn_key_dir}}/ca.crt"
   register: ca_cert
 
 - name: register tls-auth key
-  slurp: src="{{openvpn_key_dir}}"/ta.key
+  slurp: src="{{openvpn_key_dir}}/ta.key"
   register: tls_auth
 
 - name: register client certs
-  slurp: src="{{openvpn_key_dir}}"/{{item}}.crt
+  slurp: src="{{openvpn_key_dir}}/{{item}}.crt"
   with_items: "{{clients}}"
   register: client_certs
 
 - name: register client keys
-  slurp: src="{{openvpn_key_dir}}"/{{item}}.key
+  slurp: src="{{openvpn_key_dir}}/{{item}}.key"
   with_items: "{{clients}}"
   register: client_keys
 
@@ -46,8 +46,8 @@
     group=root
     mode=0400
   with_together:
-    - client_certs.results
-    - client_keys.results
+    - "{{client_certs.results}}"
+    - "{{client_keys.results}}"
 
 - name: fetch client config
   fetch: >

@@ -31,7 +31,7 @@
 
 - name: protect server key
   file: >
-    path="{{openvpn_key_dir}}"/server.key
+    path="{{openvpn_key_dir}}/server.key"
     mode=0400
 
 - name: sign server key
