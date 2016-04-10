@@ -2,7 +2,7 @@
 # defaults file for openvpn
 openvpn_port: 1194
 openvpn_proto: udp6
-openvpn_use_pregenerated_dh_params: true
+openvpn_use_pregenerated_dh_params: false
 openvpn_rsa_bits: 2048
 openvpn_service_name: openvpn
 openvpn_uninstall: false
