@@ -1,8 +1,7 @@
 # {{ ansible_managed }}
 
-local {{ansible_default_ipv4.address}}
 port {{openvpn_port}}
-proto {{openvpn_proto}}
+proto {{openvpn_proto}}6
 dev tun
 
 ca keys/ca.crt
@@ -12,7 +11,13 @@ dh keys/dh.pem
 tls-auth keys/ta.key 0
 
 tls-server
+auth SHA256
 cipher AES-256-CBC
+{% if openvpn_use_modern_tls %}
+{# Using Mozilla's modern cipher list + DHE for older clients #}
+tls-version-min 1.2
+tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+{% endif %}
 
 server 10.9.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt
@@ -30,5 +35,10 @@ user nobody
 group nogroup
 
 status openvpn-status.log
-log-append  /var/log/openvpn.log
+log-append /var/log/openvpn.log
 verb 3
+
+{% if openvpn_verify_cn %}
+verify-x509-name OpenVPN-Client-{{inventory_hostname}} name-prefix
+remote-cert-tls client
+{% endif %}

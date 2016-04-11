@@ -1,8 +1,13 @@
 ---
 # defaults file for openvpn
+openvpn_key_dir: /etc/openvpn/keys
 openvpn_port: 1194
 openvpn_proto: udp
-openvpn_use_pregenerated_dh_params: true
-openvpn_rsa_bits: 4096
+openvpn_rsa_bits: 2048
+openvpn_service_name: openvpn
+openvpn_uninstall: false
+openvpn_use_pregenerated_dh_params: false
+openvpn_use_modern_tls: true
+openvpn_verify_cn: false
 # Used in firewalld
-firewalld_default_interface_zone: external
+firewalld_default_interface_zone: public

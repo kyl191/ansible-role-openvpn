@@ -1,39 +1,26 @@
-- name: Check for systemd
-  command: pidof systemd-journald
-  register: systemd
-  always_run: yes
-  changed_when: false
-  ignore_errors: yes
-
 - name: set openvpn service name - systemd
   set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
-  when: systemd.rc == 0
-
-- name: set openvpn service name - sysvinit/standard services
-  set_fact: openvpn_service_name="openvpn"
-  when: systemd.rc != 0
+  when: ansible_service_mgr == "systemd"
 
 - name: create openvpn config file
-  template: src=server.conf.j2 dest=/etc/openvpn/{{openvpn_config_file}}.conf owner=root group=root
+  template: >
+    src=server.conf.j2
+    dest=/etc/openvpn/{{openvpn_config_file}}.conf
+    owner=root
+    group=root
   notify:
     - restart openvpn
 
 - name: copy openvpn logrotate config file
-  copy: src=openvpn_logrotate.conf dest=/etc/logrotate.d/openvpn.conf owner=root group=root mode=0400
+  copy: >
+    src=openvpn_logrotate.conf
+    dest=/etc/logrotate.d/openvpn.conf
+    owner=root
+    group=root
+    mode=0400
 
-- name: setup openvpn auto-start (init-style) & start
-  service: name={{openvpn_service_name}} enabled=yes state=started
-  when: systemd.rc != 0
-
-# This separation is necessary because systemd doesn't allow individual unit files to be auto-started
-# systemctl enable openvpn@.service does work, but that results in a service named openvpn@multi-user.service
-- name: setup openvpn auto-start (systemd)
-  file: src=/lib/systemd/system/openvpn\@.service dest=/etc/systemd/system/multi-user.target.wants/{{openvpn_service_name}} state=link owner=root group=root
-  when: systemd.rc == 0
-
-# systemctl start openvpn@.service returns
-# Failed to issue method call: Unit name openvpn@.service is not valid.
-# systemctl start openvpn@openvpn_udp_15501.service works
-- name: start openvpn now (systemd)
-  service: name={{openvpn_service_name}} state=started
-  when: systemd.rc == 0
+- name: setup openvpn auto-start & start
+  service: >
+    name={{openvpn_service_name}}
+    enabled=yes
+    state=started

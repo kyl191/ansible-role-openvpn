@@ -1,37 +1,57 @@
 # generate client keys
 ---
+- name: Copy openssl extensions
+  copy: >
+    src=openssl-client.ext
+    dest="{{openvpn_key_dir}}"
+    owner=root
+    group=root
+    mode=0400
+
 - name: generate client key
-  command: openssl req -nodes -newkey rsa:4096 -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{item}}/
-    chdir=/etc/openvpn/keys
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/
+    chdir="{{openvpn_key_dir}}"
     creates={{item}}.key
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: sign client key
-  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -days 3650
-    chdir=/etc/openvpn/keys
+  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
+    chdir="{{openvpn_key_dir}}"
     creates={{item}}.crt
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: register server ca key
-  command: cat /etc/openvpn/keys/ca.crt
+  slurp: src="{{openvpn_key_dir}}/ca.crt"
   register: ca_cert
-  changed_when: false
 
 - name: register tls-auth key
-  command: cat /etc/openvpn/keys/ta.key
+  slurp: src="{{openvpn_key_dir}}/ta.key"
   register: tls_auth
-  changed_when: false
 
 - name: register client certs
-  shell: echo \<cert\> && cat /etc/openvpn/keys/{{item}}.crt && echo \</cert\> && echo \<key\> && cat /etc/openvpn/keys/{{item}}.key && echo \</key\>
-  with_items: clients
+  slurp: src="{{openvpn_key_dir}}/{{item}}.crt"
+  with_items: "{{clients}}"
   register: client_certs
-  changed_when: false
+
+- name: register client keys
+  slurp: src="{{openvpn_key_dir}}/{{item}}.key"
+  with_items: "{{clients}}"
+  register: client_keys
 
 - name: generate client config
-  template: src=client.ovpn.j2 dest=/etc/openvpn/{{item.item}}-{{ansible_fqdn}}.ovpn owner=root group=root
-  with_items: client_certs.results
+  template: >
+    src=client.ovpn.j2
+    dest=/etc/openvpn/{{item.0.item}}-{{inventory_hostname}}.ovpn
+    owner=root
+    group=root
+    mode=0400
+  with_together:
+    - "{{client_certs.results}}"
+    - "{{client_keys.results}}"
 
 - name: fetch client config
-  fetch: src=/etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn dest=/tmp/ansible/{{item}}/{{ansible_fqdn}}.ovpn flat=yes
-  with_items: clients
+  fetch: >
+    src=/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn
+    dest=/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn
+    flat=yes
+  with_items: "{{clients}}"

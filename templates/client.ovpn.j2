@@ -1,11 +1,15 @@
 client
 
 tls-client
+auth SHA256
 cipher AES-256-CBC
 remote-cert-tls server
+{% if openvpn_use_modern_tls %}
+tls-version-min 1.2
+{% endif %}
 
 proto {{openvpn_proto}}
-remote {{ansible_fqdn}} {{openvpn_port}}
+remote {{inventory_hostname}} {{openvpn_port}}
 dev tun
 
 resolv-retry 5
@@ -22,9 +26,21 @@ register-dns
 
 key-direction 1
 <ca>
-{{ ca_cert.stdout }}
+{{ ca_cert.content|b64decode }}
 </ca>
+
 <tls-auth>
-{{ tls_auth.stdout }}
+{{ tls_auth.content|b64decode }}
 </tls-auth>
-{{ item.stdout }}
+
+<cert>
+{{ item.0.content|b64decode }}
+</cert>
+
+<key>
+{{ item.1.content|b64decode }}
+</key>
+
+{% if openvpn_verify_cn %}
+verify-x509-name OpenVPN-Server-{{inventory_hostname}} name
+{% endif %}
