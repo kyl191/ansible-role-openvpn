@@ -14,12 +14,12 @@
     - openssl-server.ext
     - openssl-ca.ext
 
-- name: generate CA key
+- name: Generate CA key
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname}}/
     chdir="{{openvpn_key_dir}}"
     creates=ca-key.pem
 
-- name: sign CA key
+- name: Sign CA key
   command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
     chdir="{{openvpn_key_dir}}"
     creates=ca.crt
