@@ -1,12 +1,12 @@
 # generate client keys
 ---
 - name: Copy openssl extensions
-  copy: >
-    src=openssl-client.ext
-    dest="{{openvpn_key_dir}}"
-    owner=root
-    group=root
-    mode=0400
+  copy:
+    src: openssl-client.ext
+    dest: "{{openvpn_key_dir}}"
+    owner: root
+    group: root
+    mode: 0400
 
 - name: generate client key
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/
