@@ -14,6 +14,6 @@ openvpn_set_dns: true
 openvpn_enable_management: false
 openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
-
+openvpn_generate_unified_client_conf: true
 # Used in firewalld
 firewalld_default_interface_zone: public

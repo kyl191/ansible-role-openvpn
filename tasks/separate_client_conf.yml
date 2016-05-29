@@ -1,0 +1,41 @@
+- name: fetch ca key
+  fetch:
+    src: /etc/openvpn/keys/ca.crt
+    dest: /tmp/ansible/{{item}}/{{ansible_fqdn}}/ca.crt
+    flat: yes
+  with_items: clients
+
+- name: fetch tls-auth key
+  fetch:
+    src: /etc/openvpn/keys/ta.key
+    dest: /tmp/ansible/{{item}}/{{ansible_fqdn}}/ta.key
+    flat: yes
+
+- name: fetch client key
+  fetch:
+    src: /etc/openvpn/keys/{{item}}.key
+    dest: /tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.key
+    flat: yes
+  with_items: clients
+
+- name: fetch client cert
+  fetch:
+    src: /etc/openvpn/keys/{{item}}.crt
+    dest: /tmp/ansible/{{item}}/{{ansible_fqdn}}/{{item}}.crt
+    flat: yes
+  with_items: clients
+
+- name: generate client config
+  template:
+    src: client.ovpn_separate.j2
+    dest: /etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn
+    owner: root
+    group: root
+  with_items: clients
+
+- name: fetch client config
+  fetch:
+    src: /etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn
+    dest: /tmp/ansible/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn
+    flat: yes
+  with_items: clients
