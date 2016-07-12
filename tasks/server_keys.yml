@@ -57,7 +57,7 @@
 
 # Alternatively, if you're concerned about logjam attacks
 - name: generate dh params
-  command: openssl dhparam -out /etc/openvpn/keys/dh.pem {{openvpn_rsa_bits}}
+  command: openssl dhparam -out {{openvpn_key_dir}}/dh.pem {{openvpn_rsa_bits}}
     chdir="{{openvpn_key_dir}}"
     creates=dh.pem
   when: not openvpn_use_pregenerated_dh_params
