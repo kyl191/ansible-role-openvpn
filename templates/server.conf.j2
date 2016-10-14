@@ -19,7 +19,10 @@ tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 {% endif %}
 
-server 10.9.0.0 255.255.255.0
+server {{openvpn_server_network}} {{openvpn_server_netmask}}
+{% if openvpn_server_ipv6_network is defined %}
+server-ipv6 {{openvpn_server_ipv6_network}}
+{% endif %}
 ifconfig-pool-persist ipp.txt
 
 {% if openvpn_redirect_gateway %}
