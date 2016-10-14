@@ -29,7 +29,7 @@
 
 - name: iptables - save everything (CentOS/RHEL/Fedora)
   shell: iptables-save > /etc/sysconfig/iptables
-  sudo: yes
+  become: yes
   when: ansible_os_family == 'RedHat'
 
 - name: iptables - save everything (Debian/Ubuntu)
