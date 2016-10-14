@@ -23,6 +23,9 @@ server {{openvpn_server_network}} {{openvpn_server_netmask}}
 {% if openvpn_server_ipv6_network is defined %}
 server-ipv6 {{openvpn_server_ipv6_network}}
 {% endif %}
+{% if openvpn_topology is defined %}
+topology {{openvpn_topology}}
+{% endif %}
 ifconfig-pool-persist ipp.txt
 
 {% if openvpn_redirect_gateway %}
