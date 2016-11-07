@@ -15,5 +15,10 @@ openvpn_enable_management: false
 openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
 
+#force to use ipv6 on server end
+openvpn_server_ipv6: true
+#use provided client name as CN in client cert
+client_key_short_cn: false
+
 # Used in firewalld
 firewalld_default_interface_zone: public
