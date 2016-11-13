@@ -24,6 +24,7 @@ route-method exe
 route-delay 2
 register-dns
 
+{% if openvpn_generate_unified_client_conf %}
 key-direction 1
 <ca>
 {{ ca_cert.content|b64decode }}
@@ -40,6 +41,12 @@ key-direction 1
 <key>
 {{ item.1.content|b64decode }}
 </key>
+{% else %}
+ca ca.crt
+tls-auth ta.key 1
+cert {{item}}.crt
+key {{item}}.key
+{% endif %}
 
 {% if openvpn_verify_cn %}
 verify-x509-name OpenVPN-Server-{{inventory_hostname}} name
