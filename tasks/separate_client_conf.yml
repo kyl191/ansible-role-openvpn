@@ -1,41 +1,42 @@
 - name: fetch ca key
   fetch:
     src: /etc/openvpn/keys/ca.crt
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/ca.crt
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/ca.crt"
     flat: yes
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: fetch tls-auth key
   fetch:
     src: /etc/openvpn/keys/ta.key
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/ta.key
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/ta.key"
     flat: yes
+  with_items: "{{clients}}"
 
 - name: fetch client key
   fetch:
     src: /etc/openvpn/keys/{{item}}.key
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{item}}.key
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{item}}.key"
     flat: yes
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: fetch client cert
   fetch:
     src: /etc/openvpn/keys/{{item}}.crt
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{item}}.crt
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{item}}.crt"
     flat: yes
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: generate client config
   template:
-    src: client.ovpn_separate.j2
+    src: client.ovpn.j2
     dest: /etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn
     owner: root
     group: root
-  with_items: clients
+  with_items: "{{clients}}"
 
 - name: fetch client config
   fetch:
     src: /etc/openvpn/{{item}}-{{ansible_fqdn}}.ovpn
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{ansible_fqdn}}/{{ansible_fqdn}}.ovpn"
     flat: yes
-  with_items: clients
+  with_items: "{{clients}}"

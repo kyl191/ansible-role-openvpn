@@ -2,7 +2,7 @@
 - name: get iptables rules
   command: iptables -L
   register: iptablesrules
-  always_run: yes
+  check_mode: no
   changed_when: false  # Never report as changed
 
 - name: iptables - Allow VPN forwarding
@@ -20,7 +20,7 @@
 - name: get iptables nat table rules
   command: iptables -L -t nat
   register: ipnattablesrules
-  always_run: yes
+  check_mode: no
   changed_when: false  # Never report as changed
 
 - name: iptables - Perform NAT readdressing

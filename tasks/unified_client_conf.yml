@@ -15,7 +15,8 @@
   register: client_certs
 
 - name: register client keys
-  slurp: src: "{{openvpn_key_dir}}/{{item}}.key"
+  slurp:
+    src: "{{openvpn_key_dir}}/{{item}}.key"
   with_items: "{{clients}}"
   register: client_keys
 
@@ -33,6 +34,6 @@
 - name: fetch client config
   fetch:
     src: /etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn
-    dest: {{openvpn_local_dest_dir}}/{{item}}/{{inventory_hostname}}.ovpn
+    dest: "{{openvpn_local_dest_dir}}/{{item}}/{{inventory_hostname}}.ovpn"
     flat: yes
   with_items: "{{clients}}"
