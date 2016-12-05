@@ -12,6 +12,14 @@
     - openvpn
     - openssl
 
+- name: Install LDAP plugin
+  package: >
+   name={{item}}
+   state=present
+  with_items:
+    - openvpn-auth-ldap
+  when: openvpn_use_ldap
+
 - name: Install iptables-persistent (Debian/Ubuntu)
   apt: >
     name=iptables-persistent

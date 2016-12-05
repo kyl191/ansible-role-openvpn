@@ -11,6 +11,14 @@
   notify:
     - restart openvpn
 
+- name: Install LDAP config
+  template:
+    src: ldap.conf.j2
+    dest: /etc/openvpn/auth/ldap.conf
+    owner: root
+    group: root
+  when: openvpn_use_ldap
+
 - name: copy openvpn logrotate config file
   copy: >
     src=openvpn_logrotate.conf
