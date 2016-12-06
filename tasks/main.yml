@@ -19,10 +19,10 @@
 # ignoreerrors is required for CentOS/RHEL 6
 # http://serverfault.com/questions/477718/sysctl-p-etc-sysctl-conf-returns-error
 - name: enable ipv4 forwarding
-  sysctl: >
-    name=net.ipv4.ip_forward
-    value=1
-    ignoreerrors=yes
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    ignoreerrors: yes
 
 - name: Check for firewalld/iptables
   command: firewall-cmd --state

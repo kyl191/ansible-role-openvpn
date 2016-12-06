@@ -1,25 +1,26 @@
 - name: set openvpn service name - systemd
-  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
+  set_fact:
+    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
   when: ansible_service_mgr == "systemd"
 
 - name: disable openvpn auto-start & start
-  service: >
-    name={{openvpn_service_name}}
-    enabled=no
-    state=stopped
+  service:
+    name: "{{openvpn_service_name}}"
+    enabled: no
+    state: stopped
 
 - name: Wipe out config directory
-  file: >
-    path=/etc/openvpn
-    state=absent
+  file:
+    path: /etc/openvpn
+    state: absent
 
 - name: Remove openvpn logrotate config file
-  file: >
-    path=/etc/logrotate.d/openvpn.conf
-    state=absent
+  file:
+    path: /etc/logrotate.d/openvpn.conf
+    state: absent
 
 - name: Uninstall OpenVPN
-  package: >
-    name=openvpn
-    state=absent
+  package:
+    name: openvpn
+    state: absent
 
