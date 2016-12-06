@@ -34,6 +34,8 @@ openvpn_redirect_gateway: Whether to push config to the client to redirect its d
 
 openvpn_set_dns: Whether to set the DNS servers on the client. Default true.
 
+openvpn_push: A list of config options for the server to push to the client.
+
 openvpn_enable_management: Boolean indicating whether to open a UNIX domain socket for managing openvpn on /var/run/openvpn/management.
 
 openvpn_server_network: The network address from which you want OpenVPN to choose the addresses for clients. Default 10.9.0.0.
