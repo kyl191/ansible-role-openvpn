@@ -62,6 +62,10 @@ management-client-user root
 
 {% if openvpn_use_ldap %}
 ### LDAP AUTH ###
+{% if ansible_machine == "x86_64" %}
 plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+{% else %}
+plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+{% endif %}
 client-cert-not-required
 {% endif %}

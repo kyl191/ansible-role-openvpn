@@ -2,7 +2,7 @@
 	# LDAP server URL
 	URL		{{ ldap.url }}
 
-	{% if ldap.anonymous_bind == false %}
+	{% if not ldap.anonymous_bind %}
 	# Bind DN (If your LDAP server doesn't support anonymous binds)
 	BindDN		{{ ldap.bind_dn }}
 	# Bind Password

@@ -16,7 +16,7 @@ Should be working OSes:
 Requirements
 ------------
 
-penvpn must be available as a package in yum/apt! For CentOS users, this role will run `yum install epel-release` to ensure openvpn is available.
+Openvpn must be available as a package in yum/apt! For CentOS users, this role will run `yum install epel-release` to ensure openvpn is available.
 
 Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptables-persistent/+bug/1002078) that might make the iptables-persistent install fail. There is a [workaround](https://forum.linode.com/viewtopic.php?p=58233#p58233).
 
@@ -40,10 +40,10 @@ Role Variables
 | openvpn_enable_management          | boolean | true | false | true                                           |                                                                                                                                             |
 | openvpn_server_network             | string  |              | 10.9.0.0                                       | Private network used by OpenVPN service                                                                                                     |
 | openvpn_server_netmask             | string  |              | 255.255.255.0                                  | Netmask of the private network                                                                                                              |
-| tls_auth_required                  | boolean | true | false | true                                           | Ask the client to push the generated ta.key of the server durring the   connection                                                          |
+| tls_auth_required                  | boolean | true | false | true                                           | Ask the client to push the generated ta.key of the server during the   connection                                                           |
 | firewalld_default_interface_zone   | string  |              | public                                         | Firewalld zone where the "ansible_default_ipv4.interface" will   be pushed into                                                             |
 | openvpn_use_ldap                   | boolean | true | false | false                                          | Active LDAP backend for authentication. Client certificate not needed   anymore                                                             |
-| ldap                               | dict    |              |                                                | Dictionnary that contain LDAP configuration                                                                                                 |
+| ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                  |
 
 LDAP object
 
@@ -70,9 +70,12 @@ Example Playbook
 ----------------
 
     - hosts: vpn
+      gather_facts: true
       roles:
         - {role: kyl191.openvpn, clients: [client1, client2],
                             openvpn_port: 4300}
+
+> **Note:** As the role will need to know the remote used platform (32 or 64 bits), you must set `gather_facts` to `true` in your play.
 
 License
 -------
