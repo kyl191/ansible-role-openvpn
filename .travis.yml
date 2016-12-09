@@ -1,0 +1,30 @@
+---
+language: python
+sudo: required
+
+services:
+  - docker
+
+env:
+  - OS_VERSION=7
+  - OS_VERSION=6
+
+before_install:
+  - sudo docker pull centos:${OS_VERSION}
+
+install:
+  - sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name centos-${OS_VERSION} centos:${OS_VERSION} sleep 300
+  - sudo docker exec centos-${OS_VERSION} yum -y install epel-release
+  - sudo docker exec centos-${OS_VERSION} yum -y install ansible
+
+script:
+  # Check syntax of ansible playbook
+  - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+  # Run ansible playbook
+  - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml
+
+after_script:
+  - sudo docker stop centos-${OS_VERSION}
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
