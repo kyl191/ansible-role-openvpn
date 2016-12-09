@@ -6,7 +6,7 @@
 - name: Check systemd existence as Docker Guest
   stat:
     path: /bin/systemctl
-  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == guest"
+  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == "guest"
   register: stat_result
 
 - name: Set openvpn service name - Docker + systemd
