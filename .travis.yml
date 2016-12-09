@@ -21,7 +21,7 @@ script:
   # Check syntax of ansible playbook
   - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
   # Run ansible playbook
-  - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml
+  - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --extra-vars "ci_build=true"
 
 after_script:
   - sudo docker stop centos-${OS_VERSION}

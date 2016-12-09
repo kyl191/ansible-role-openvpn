@@ -24,13 +24,14 @@
     value: 1
     ignoreerrors: yes
   failed_when: false
+  when: not ci_build
 
 - name: enable ipv6 forwarding
   sysctl: >
     name=net.ipv6.conf.all.forwarding
     value=1
     ignoreerrors=yes
-  when: openvpn_server_ipv6_network is defined
+  when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Check for firewalld/iptables
   command: firewall-cmd --state
@@ -43,13 +44,13 @@
 
 - name: Add port rules (iptables)
   include: iptables.yml
-  when: firewalld.rc!=0
+  when: firewalld.rc != 0 and not ci_build
   tags:
     - firewall
 
 - name: Add port rules (firewalld)
   include: firewalld.yml
-  when: firewalld.rc==0
+  when: firewalld.rc == 0 and not ci_build
   tags:
     - firewall
 
