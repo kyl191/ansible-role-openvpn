@@ -18,6 +18,7 @@ install:
   - sudo docker exec centos-${OS_VERSION} yum -y install ansible
 
 script:
+  - sudo docker exec centos-${OS_VERSION} ansible -m setup -c local -i 127.0.0.1, all
   # Check syntax of ansible playbook
   - sudo docker exec centos-${OS_VERSION} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
   # Run ansible playbook
