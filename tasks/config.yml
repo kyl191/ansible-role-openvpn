@@ -9,7 +9,7 @@
     owner: root
     group: root
   notify:
-    - restart openvpn
+    - Restart openvpn
 
 - name: copy openvpn logrotate config file
   copy:
