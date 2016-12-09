@@ -23,6 +23,7 @@
     name: net.ipv4.ip_forward
     value: 1
     ignoreerrors: yes
+  failed_when: false
 
 - name: enable ipv6 forwarding
   sysctl: >
