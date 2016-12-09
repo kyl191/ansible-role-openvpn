@@ -39,6 +39,11 @@ push "dhcp-option DNS 208.67.220.220"
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
 {%endif %}
+{% if openvpn_push is defined %}
+{% for opt in openvpn_push %}
+push {{ opt }}
+{% endfor %}
+{% endif %}
 keepalive 5 30
 comp-lzo
 persist-key

@@ -1,7 +1,7 @@
 openvpn
 =========
 
-This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates or define a LDAP backend authentication.
+This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
 Tested OSes:
 - Fedora 20/21
