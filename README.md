@@ -42,8 +42,13 @@ Role Variables
 | openvpn_server_netmask             | string  |              | 255.255.255.0                                  | Netmask of the private network                                                                                                              |
 | tls_auth_required                  | boolean | true | false | true                                           | Ask the client to push the generated ta.key of the server during the   connection                                                           |
 | firewalld_default_interface_zone   | string  |              | public                                         | Firewalld zone where the "ansible_default_ipv4.interface" will   be pushed into                                                             |
+| openvpn_server_ipv6_network        | boolean | true | false | false                                          | If set, the network address and prefix of an IPv6 network to assign to   clients. If True, IPv4 still used too.                             |
+| openvpn_ca_key                     | dict    |              |                                                | Contain "crt" and "key". If not set, CA cert and key   will be automatically generated on the target system.                                |
+| openvpn_tls_auth_key               | string  |              |                                                | Single item with a pre-generated TLS authentication key.                                                                                    |
+| openvpn_topology                   | boolean | true | false | false                                          | the "topology" keyword will be set in the server config with   the specified value.                                                         |
 | openvpn_use_ldap                   | boolean | true | false | false                                          | Active LDAP backend for authentication. Client certificate not needed   anymore                                                             |
 | ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                  |
+|                                    |         |              |                                                |                                                                                                                                             |
 
 LDAP object
 
