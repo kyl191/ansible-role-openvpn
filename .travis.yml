@@ -27,6 +27,7 @@ script:
   - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv --extra-vars "ci_build=true"
 
 after_script:
+  - sudo docker exec ${OS_TAG} ls -lR /etc/systemd/system/
   - sudo docker stop ${OS_TAG}
 
 notifications:
