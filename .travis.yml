@@ -14,6 +14,13 @@ env:
     - DOCKER_TAG=centos:6
       OS_TAG=centos-6
       COMMAND=/sbin/init
+    - DOCKER_TAG=fedora:latest
+      OS_TAG=fedora-latest
+    - DOCKER_TAG=fedora:25
+      OS_TAG=fedora-25
+    - DOCKER_TAG=fedora:24
+      OS_TAG=fedora-24
+
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
