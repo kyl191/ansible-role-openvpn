@@ -1,15 +1,24 @@
 - name: set openvpn service name - systemd
-  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
+  set_fact:
+    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
   when: ansible_service_mgr == "systemd"
 
 - name: create openvpn config file
   template:
     src: server.conf.j2
-    dest: /etc/openvpn/{{openvpn_config_file}}.conf
+    dest: "/etc/openvpn/{{openvpn_config_file}}.conf"
     owner: root
     group: root
   notify:
     - Restart openvpn
+
+- name: Install LDAP config
+  template:
+    src: ldap.conf.j2
+    dest: /etc/openvpn/auth/ldap.conf
+    owner: root
+    group: root
+  when: openvpn_use_ldap
 
 - name: copy openvpn logrotate config file
   copy:

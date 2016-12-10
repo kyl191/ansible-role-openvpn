@@ -1,5 +1,6 @@
 - name: set openvpn service name - systemd
-  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
+  set_fact:
+    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
   when: ansible_service_mgr == "systemd"
 
 - name: disable openvpn auto-start & start
@@ -22,4 +23,3 @@
   package:
     name: openvpn
     state: absent
-

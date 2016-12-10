@@ -9,15 +9,17 @@
     mode: 0400
 
 - name: generate client key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/
-    chdir="{{openvpn_key_dir}}"
-    creates={{item}}.key
+  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/"
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{item}}.key"
   with_items: "{{clients}}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
-    chdir="{{openvpn_key_dir}}"
-    creates={{item}}.crt
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: "{{item}}.crt"
   with_items: "{{clients}}"
 
 - name: Generate unified client conf
