@@ -6,16 +6,20 @@ services:
   - docker
 
 env:
-  - DOCKER_TAG=centos:7
-    OS_TAG=centos-7
-  - DOCKER_TAG=centos:6
-    OS_TAG=centos-6
+  global:
+    COMMAND=/usr/lib/systemd/systemd
+  matrix:
+    - DOCKER_TAG=centos:7
+      OS_TAG=centos-7
+    - DOCKER_TAG=centos:6
+      OS_TAG=centos-6
+      COMMAND=/sbin/init
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
 
 install:
-  - sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} /usr/lib/systemd/systemd
+  - sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
   - sudo docker exec ${OS_TAG} yum -y install epel-release
   - sudo docker exec ${OS_TAG} yum -y install ansible
 
