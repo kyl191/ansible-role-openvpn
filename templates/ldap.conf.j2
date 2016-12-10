@@ -1,0 +1,58 @@
+<LDAP>
+    # LDAP server URL
+    URL		{{ ldap.url }}
+
+    {% if not ldap.anonymous_bind %}
+    # Bind DN (If your LDAP server doesn't support anonymous binds)
+    BindDN		{{ ldap.bind_dn }}
+    # Bind Password
+    Password	{{ ldap.bind_password }}
+    {% endif %}
+
+    # Network timeout (in seconds)
+    Timeout		15
+
+    # Enable Start TLS
+    TLSEnable	{{ ldap.tls_enable }}
+
+    # Follow LDAP Referrals (anonymously)
+    FollowReferrals no
+
+    # TLS CA Certificate File
+    TLSCACertFile	{{ ldap.tls_ca_cert_file }}
+
+    # TLS CA Certificate Directory
+    TLSCACertDir	/etc/ssl/certs
+
+    # Client Certificate and key
+    # If TLS client authentication is required
+    #TLSCertFile	/usr/local/etc/ssl/client-cert.pem
+    #TLSKeyFile	/usr/local/etc/ssl/client-key.pem
+
+    # Cipher Suite
+    # The defaults are usually fine here
+    # TLSCipherSuite	ALL:!ADH:@STRENGTH
+</LDAP>
+
+<Authorization>
+    # Base DN
+    BaseDN		"{{ ldap.base_dn }}"
+
+    # User Search Filter
+    SearchFilter	"{{ ldap.search_filter }}"
+
+    # Require Group Membership
+    {% if ldap.require_group %}
+    RequireGroup	True
+    # Add non-group members to a PF table (disabled)
+    #PFTable	ips_vpn_users
+
+    <Group>
+        BaseDN		"{{ ldap.group_base_dn }}"
+        SearchFilter	"{{ ldap.group_search_filter }}"
+        MemberAttribute	uniqueMember
+        # Add group members to a PF table (disabled)
+        #PFTable	ips_vpn_eng
+        </Group>
+    {%endif %}
+</Authorization>

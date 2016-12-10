@@ -14,6 +14,22 @@ openvpn_set_dns: true
 openvpn_enable_management: false
 openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
+tls_auth_required: true
 
 # Used in firewalld
 firewalld_default_interface_zone: public
+
+# LDAP configuration
+openvpn_use_ldap: false
+ldap:
+  url: ldap://host.example.com
+  anonymous_bind: False
+  bind_dn: uid=Manager,ou=People,dc=example,dc=com
+  bind_password: mysecretpassword
+  tls_enable: no
+  tls_ca_cert_file: /etc/openvpn/auth/ca.pem
+  base_dn: ou=People,dc=example,dc=com
+  search_filter: (&(uid=%u)(accountStatus=active))
+  require_group: False
+  group_base_dn: ou=Groups,dc=example,dc=com
+  group_search_filter: (|(cn=developers)(cn=artists))

@@ -8,7 +8,9 @@ ca {{openvpn_key_dir}}/ca.crt
 cert {{openvpn_key_dir}}/server.crt
 key {{openvpn_key_dir}}/server.key
 dh {{openvpn_key_dir}}/dh.pem
+{% if tls_auth_required %}
 tls-auth {{openvpn_key_dir}}/ta.key 0
+{% endif %}
 
 tls-server
 auth SHA256
@@ -61,4 +63,14 @@ remote-cert-tls client
 {% if openvpn_enable_management %}
 management /var/run/openvpn/management unix
 management-client-user root
+{% endif %}
+
+{% if openvpn_use_ldap %}
+### LDAP AUTH ###
+{% if ansible_machine == "x86_64" %}
+plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+{% else %}
+plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+{% endif %}
+client-cert-not-required
 {% endif %}

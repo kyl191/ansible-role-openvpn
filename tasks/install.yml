@@ -1,27 +1,35 @@
 - name: Install EPEL
-  package: >
-    name=epel-release
-    state=present
+  package:
+    name: epel-release
+    state: present
   when: ansible_distribution == "CentOS" or ansible_distribution=="RedHat"
 
 - name: Install openvpn
-  package: >
-   name={{item}}
-   state=present
+  package:
+   name: "{{ item }}"
+   state: present
   with_items:
     - openvpn
     - openssl
 
+- name: Install LDAP plugin
+  package:
+   name: "{{ item }}"
+   state: present
+  with_items:
+    - openvpn-auth-ldap
+  when: openvpn_use_ldap
+
 - name: Install iptables-persistent (Debian/Ubuntu)
-  apt: >
-    name=iptables-persistent
-    state=present
+  apt:
+    name: iptables-persistent
+    state: present
   when: ansible_pkg_mgr == "apt"
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
 - name: Ensure group 'nogroup' is present
-  group: >
-    name=nogroup
-    state=present
-    system=yes
+  group:
+    name: nogroup
+    state: present
+    system: yes

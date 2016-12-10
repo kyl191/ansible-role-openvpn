@@ -1,57 +1,63 @@
 # generate client keys
 ---
 - name: Copy openssl extensions
-  copy: >
-    src=openssl-client.ext
-    dest="{{openvpn_key_dir}}"
-    owner=root
-    group=root
-    mode=0400
+  copy:
+    src: openssl-client.ext
+    dest: "{{openvpn_key_dir}}"
+    owner: root
+    group: root
+    mode: 0400
 
 - name: generate client key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/
-    chdir="{{openvpn_key_dir}}"
-    creates={{item}}.key
+  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/"
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{item}}.key"
   with_items: "{{clients}}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
-    chdir="{{openvpn_key_dir}}"
-    creates={{item}}.crt
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: "{{item}}.crt"
   with_items: "{{clients}}"
 
 - name: register server ca key
-  slurp: src="{{openvpn_key_dir}}/ca.crt"
+  slurp:
+    src: "{{openvpn_key_dir}}/ca.crt"
   register: ca_cert
 
 - name: register tls-auth key
-  slurp: src="{{openvpn_key_dir}}/ta.key"
+  slurp:
+    src: "{{openvpn_key_dir}}/ta.key"
   register: tls_auth
 
 - name: register client certs
-  slurp: src="{{openvpn_key_dir}}/{{item}}.crt"
+  slurp:
+    src: "{{openvpn_key_dir}}/{{item}}.crt"
   with_items: "{{clients}}"
   register: client_certs
 
 - name: register client keys
-  slurp: src="{{openvpn_key_dir}}/{{item}}.key"
+  slurp:
+    src: "{{openvpn_key_dir}}/{{item}}.key"
   with_items: "{{clients}}"
   register: client_keys
 
 - name: generate client config
-  template: >
-    src=client.ovpn.j2
-    dest=/etc/openvpn/{{item.0.item}}-{{inventory_hostname}}.ovpn
-    owner=root
-    group=root
-    mode=0400
+  template:
+    src: client.ovpn.j2
+    dest: "/etc/openvpn/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    owner: root
+    group: root
+    mode: 0400
   with_together:
     - "{{client_certs.results}}"
     - "{{client_keys.results}}"
 
 - name: fetch client config
-  fetch: >
-    src=/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn
-    dest=/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn
-    flat=yes
+  fetch:
+    src: "/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn"
+    dest: "/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn"
+    flat: yes
   with_items: "{{clients}}"
