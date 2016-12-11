@@ -3,6 +3,16 @@
     openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
   when: ansible_service_mgr == "systemd"
 
+- name: Check systemd existence as Docker Guest
+  stat:
+    path: /bin/systemctl
+  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == guest"
+  register: stat_result
+
+- name: Set openvpn service name - Docker + systemd
+  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
+  when: stat_result and stat_result.stat.exists == False
+
 - name: disable openvpn auto-start & start
   service:
     name: "{{openvpn_service_name}}"
@@ -23,4 +33,3 @@
   package:
     name: openvpn
     state: absent
-

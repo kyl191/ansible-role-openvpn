@@ -1,0 +1,48 @@
+---
+language: python
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    COMMAND=/usr/lib/systemd/systemd
+  matrix:
+    - DOCKER_TAG=centos:7
+      OS_TAG=centos-7
+      OS=centos
+    - DOCKER_TAG=centos:6
+      OS_TAG=centos-6
+      OS=centos
+      COMMAND=/sbin/init
+    - DOCKER_TAG=fedora:latest
+      OS_TAG=fedora-latest
+      OS=fedora
+    - DOCKER_TAG=fedora:25
+      OS_TAG=fedora-25
+      OS=fedora
+    - DOCKER_TAG=fedora:24
+      OS_TAG=fedora-24
+      OS=fedora
+
+
+before_install:
+  - sudo docker pull ${DOCKER_TAG}
+
+install:
+  - sudo docker run --detach -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add SYS_ADMIN --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
+  - ./tests/setup-${OS}
+  - sudo docker exec ${OS_TAG} ansible -m setup -c local -i 127.0.0.1, all
+
+script:
+  # Check syntax of ansible playbook
+  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+  # Run ansible playbook
+  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv --extra-vars "ci_build=true"
+
+after_script:
+  - sudo docker stop ${OS_TAG}
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
