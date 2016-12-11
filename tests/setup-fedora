@@ -1,0 +1,3 @@
+#!/bin/bash
+set -ev
+sudo docker exec ${OS_TAG} dnf -y install ansible

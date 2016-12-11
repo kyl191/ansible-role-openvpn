@@ -4,6 +4,10 @@
     state: present
   when: ansible_distribution == "CentOS" or ansible_distribution=="RedHat"
 
+- name: Install python2-dnf for Fedora dnf support
+  raw: dnf install -y python2-dnf
+  when: ansible_distribution == "Fedora" and ansible_pkg_mgr == "dnf"
+
 - name: Install openvpn
   package:
    name: "{{ item }}"
