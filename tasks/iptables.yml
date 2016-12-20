@@ -4,6 +4,7 @@
   register: iptablesrules
   always_run: yes
   changed_when: false  # Never report as changed
+  become: yes
 
 - name: iptables - Allow VPN forwarding
   command: /sbin/iptables -A FORWARD -s 10.9.0.0/24 -j ACCEPT -m comment --comment "Allow VPN forwarding"
