@@ -11,7 +11,7 @@
 
 - name: Set openvpn service name - Docker + systemd
   set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
-  when: stat_result and stat_result.stat.exists == True
+  when: stat_result is defined and stat_result.stat.exists == True
 
 - name: create openvpn config file
   template:
