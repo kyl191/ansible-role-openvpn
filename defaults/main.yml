@@ -15,6 +15,8 @@ openvpn_enable_management: false
 openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
 tls_auth_required: true
+ci_build: false
+clients: []
 
 # Used in firewalld
 firewalld_default_interface_zone: public

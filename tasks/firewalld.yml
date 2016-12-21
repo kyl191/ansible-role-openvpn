@@ -1,10 +1,10 @@
 - name: Enable OpenVPN Port (firewalld)
-  firewalld: >
-    port={{openvpn_port}}/{{openvpn_proto}}
-    state=enabled
-    permanent=yes
-    zone={{firewalld_default_interface_zone}}
-    immediate=yes
+  firewalld:
+    port: "{{openvpn_port}}/{{openvpn_proto}}"
+    state: "enabled"
+    permanent: yes
+    zone: "{{firewalld_default_interface_zone}}"
+    immediate: yes
 
 - name: Set tun0 interface to internal
   command: firewall-cmd --zone=internal --change-interface=tun0
