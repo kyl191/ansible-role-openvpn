@@ -11,7 +11,6 @@ dh {{openvpn_key_dir}}/dh.pem
 {% if tls_auth_required %}
 tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}
-
 tls-server
 auth SHA256
 cipher AES-256-CBC
@@ -41,7 +40,7 @@ push "dhcp-option DNS 8.8.4.4"
 {%endif %}
 {% if openvpn_push is defined %}
 {% for opt in openvpn_push %}
-push {{ opt }}
+push "{{ opt }}"
 {% endfor %}
 {% endif %}
 keepalive 5 30

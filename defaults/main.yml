@@ -17,6 +17,7 @@ openvpn_server_netmask: 255.255.255.0
 tls_auth_required: true
 ci_build: false
 clients: []
+openvpn_push: []
 
 # Used in firewalld
 firewalld_default_interface_zone: public
