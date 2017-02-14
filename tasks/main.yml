@@ -44,13 +44,19 @@
 
 - name: Add port rules (iptables)
   include: iptables.yml
-  when: firewalld.rc != 0 and not ci_build
+  when:
+    - firewalld.rc != 0
+    - not ci_build
+    - manage_firewall_rules
   tags:
     - firewall
 
 - name: Add port rules (firewalld)
   include: firewalld.yml
-  when: firewalld.rc == 0 and not ci_build
+  when:
+    - firewalld.rc == 0
+    - not ci_build
+    - manage_firewall_rules
   tags:
     - firewall
 
