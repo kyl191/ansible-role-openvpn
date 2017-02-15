@@ -14,6 +14,14 @@
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
   with_items: "{{clients}}"
+  when: not client_key_short_cn
+
+- name: generate client key
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN={{item}}/
+    chdir="{{openvpn_key_dir}}"
+    creates={{item}}.key
+  with_items: "{{clients}}"
+  when: client_key_short_cn
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext

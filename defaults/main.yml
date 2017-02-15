@@ -19,6 +19,11 @@ ci_build: false
 clients: []
 openvpn_push: []
 
+#force to use ipv6 on server end
+openvpn_server_ipv6: true
+#use provided client name as CN in client cert
+client_key_short_cn: false
+
 # Used in firewalld
 firewalld_default_interface_zone: public
 
