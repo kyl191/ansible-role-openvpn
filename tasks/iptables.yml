@@ -7,7 +7,7 @@
   become: yes
 
 - name: iptables - Allow VPN forwarding
-  command: /sbin/iptables -A FORWARD -s 10.9.0.0/24 -j ACCEPT -m comment --comment "Allow VPN forwarding"
+  command: /sbin/iptables -A FORWARD -s {{openvpn_server_network}}/24 -j ACCEPT -m comment --comment "Allow VPN forwarding"
   when: iptablesrules.stdout.find("Allow VPN forwarding") == -1
 
 - name: iptables - Allow incoming VPN connection
@@ -25,7 +25,7 @@
   changed_when: false  # Never report as changed
 
 - name: iptables - Perform NAT readdressing
-  command: /sbin/iptables -t nat -A POSTROUTING -s 10.9.0.0/24 -j SNAT --to-source {{ansible_default_ipv4.address}} -m comment --comment "Perform NAT readdressing"
+  command: /sbin/iptables -t nat -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}} -m comment --comment "Perform NAT readdressing"
   when: ipnattablesrules.stdout.find("Perform NAT readdressing") == -1
 
 - name: iptables - save everything (CentOS/RHEL/Fedora)
