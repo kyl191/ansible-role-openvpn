@@ -3,6 +3,7 @@
 openvpn_key_dir: /etc/openvpn/keys
 openvpn_port: 1194
 openvpn_proto: udp
+openvpn_dualstack: true
 openvpn_rsa_bits: 2048
 openvpn_service_name: openvpn
 openvpn_uninstall: false
