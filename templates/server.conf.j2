@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 port {{openvpn_port}}
-proto {{openvpn_proto}}6
+proto {{openvpn_proto}}{% if openvpn_use_ipv6 %}6{% endif %}
 dev tun
 
 ca {{openvpn_key_dir}}/ca.crt

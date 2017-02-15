@@ -49,6 +49,7 @@ Role Variables
 | openvpn_push                       | list    |              | empty                                          | Set here a list of string that will be placed as "push   "<string>". E.g `- route 10.20.30.0 255.255.255.0` will generate push "route 10.20.30.0 255.255.255.0"   |
 | openvpn_use_ldap                   | boolean | true , false | false                                          | Active LDAP backend for authentication. Client certificate not needed   anymore                                                                                   |
 | ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                                        |
+| openvpn_use_ipv6                   | boolean | true , false | true                                           | Whether to use IPv6 for openvpn server proto                                                                                                                      |
 
 LDAP object
 
