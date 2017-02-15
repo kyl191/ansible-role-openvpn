@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 port {{openvpn_port}}
-{% if opevpn_dualstack %}
+{% if openvpn_dualstack %}
 proto {{openvpn_proto}}6
 {% else %}
 proto {{openvpn_proto}}
