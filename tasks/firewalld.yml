@@ -1,28 +1,35 @@
+- name: Enable firewalld
+  service:
+    name: firewalld
+    enabled: true
+    state: started
+
 - name: Enable OpenVPN Port (firewalld)
   firewalld:
     port: "{{openvpn_port}}/{{openvpn_proto}}"
-    state: "enabled"
+    state: enabled
     permanent: yes
     zone: "{{firewalld_default_interface_zone}}"
     immediate: yes
 
 - name: Set tun0 interface to internal
-  command: firewall-cmd --zone=internal --change-interface=tun0
-
-- name: Persist tun0 settings
-  command: firewall-cmd --zone=internal --change-interface=tun0 --permanent
+  firewalld:
+    interface: tun0
+    zone: internal
+    permanent: true
 
 - name: Set default interface to external
-  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --change-interface={{ansible_default_ipv4.interface}}
-
-- name: Persist default interface to external
-  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --change-interface={{ansible_default_ipv4.interface}} --permanent
+  firewalld:
+    interface: "{{ansible_default_ipv4.interface}}"
+    zone: "{{firewalld_default_interface_zone}}"
+    permanent: true
 
 - name: Enable masquerading on external zone
-  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --add-masquerade
-
-- name: Persist masquerading on external zone
-  command: firewall-cmd --zone={{firewalld_default_interface_zone}} --add-masquerade --permanent
+  firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: true
+    zone: "{{firewalld_default_interface_zone}}"
 
 # workaround for --permanent not working on non-NetworkManager managed ifaces
 # https://bugzilla.redhat.com/show_bug.cgi?id=1112742
