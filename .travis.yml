@@ -8,6 +8,7 @@ services:
 env:
   global:
     COMMAND=/usr/lib/systemd/systemd
+    ANSIBLE_VARS=empty.yml
   matrix:
     - DOCKER_TAG=centos:7
       OS_TAG=centos-7
@@ -29,6 +30,11 @@ env:
       OS_TAG=ubuntu-16.04
       OS=ubuntu
       COMMAND=/bin/systemd
+    - DOCKER_TAG=ubuntu:14.04
+      OS_TAG=ubuntu-14.04
+      OS=ubuntu
+      COMMAND=/sbin/init
+      ANSIBLE_VARS=no-modern-tls.yml
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
@@ -42,7 +48,7 @@ script:
   # Check syntax of ansible playbook
   - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
   # Run ansible playbook
-  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv --extra-vars @/etc/ansible/roles/ansible-role-openvpn/tests/vars/${ANSIBLE_VARS}
 
 after_script:
   - sudo docker stop ${OS_TAG}
