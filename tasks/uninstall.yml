@@ -30,6 +30,12 @@
     name: openvpn
     state: absent
 
+- name: Uninstall LDAP plugin
+  package:
+   name: openvpn-auth-ldap
+   state: absent
+  when: openvpn_use_ldap
+
 - name: Terminate playbook
   fail:
     msg: "OpenVPN uninstalled, playbook stopped"
