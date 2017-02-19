@@ -3,7 +3,7 @@
     path: "{{openvpn_key_dir}}"
     state: directory
 
-- name: Copy openssl extensions
+- name: Copy openssl server/ca extensions
   copy:
     src: "{{item}}"
     dest: "{{openvpn_key_dir}}"

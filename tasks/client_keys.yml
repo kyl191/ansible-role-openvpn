@@ -1,6 +1,6 @@
 # generate client keys
 ---
-- name: Copy openssl extensions
+- name: Copy openssl client extensions
   copy:
     src: openssl-client.ext
     dest: "{{openvpn_key_dir}}"
