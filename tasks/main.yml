@@ -33,28 +33,9 @@
     ignoreerrors: yes
   when: openvpn_server_ipv6_network is defined and not ci_build
 
-- name: Check for firewalld/iptables
-  command: which firewall-cmd
-  register: firewalld
-  check_mode: no
-  changed_when: false  # Never report as changed
-  ignore_errors: yes
-  tags:
-    - firewall
-
-- name: Add port rules (iptables)
-  include: iptables.yml
+- name: Detect firewall
+  include: firewall.yml
   when:
-    - firewalld.rc != 0
-    - not ci_build
-    - manage_firewall_rules
-  tags:
-    - firewall
-
-- name: Add port rules (firewalld)
-  include: firewalld.yml
-  when:
-    - firewalld.rc == 0
     - not ci_build
     - manage_firewall_rules
   tags:
