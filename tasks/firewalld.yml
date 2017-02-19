@@ -10,7 +10,7 @@
     state: present
   when:
     - ansible_distribution == "Fedora"
-    - ansible_python_interpreter is not defined or "python3" not in ansible_python_interpreter
+    - ansible_python.version.major == 2
 
 - name: Enable OpenVPN Port (firewalld)
   firewalld:

@@ -8,7 +8,7 @@
   raw: dnf install -y python2-dnf
   when:
     - ansible_distribution == "Fedora"
-    - ansible_python_interpreter is not defined or "python3" not in ansible_python_interpreter
+    - ansible_python.version.major == 2
   register: fedora_dnf
   changed_when: '"Nothing to do." not in fedora_dnf.stdout'
 
