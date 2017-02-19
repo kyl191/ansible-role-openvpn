@@ -1,6 +1,8 @@
 ---
 - hosts: 127.0.0.1
   connection: local
+  vars:
+    ci_build: true
   roles:
     - {role: ansible-role-openvpn,
       clients: [alpha, omega]}
