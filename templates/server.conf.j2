@@ -18,7 +18,7 @@ tls-auth {{openvpn_key_dir}}/ta.key 0
 tls-server
 auth SHA256
 cipher AES-256-CBC
-{% if openvpn_use_modern_tls %}
+{% if openvpn_use_modern_tls|bool %}
 {# Using Mozilla's modern cipher list + DHE for older clients #}
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
@@ -33,7 +33,7 @@ topology {{openvpn_topology}}
 {% endif %}
 ifconfig-pool-persist ipp.txt
 
-{% if openvpn_redirect_gateway %}
+{% if openvpn_redirect_gateway|bool %}
 push "redirect-gateway def1 bypass-dhcp"
 {% endif %}
 {% if openvpn_set_dns %}
@@ -58,17 +58,17 @@ status openvpn-status.log
 log-append /var/log/openvpn.log
 verb 3
 
-{% if openvpn_verify_cn %}
+{% if openvpn_verify_cn|bool %}
 verify-x509-name OpenVPN-Client-{{inventory_hostname}} name-prefix
 remote-cert-tls client
 {% endif %}
 
-{% if openvpn_enable_management %}
+{% if openvpn_enable_management|bool %}
 management /var/run/openvpn/management unix
 management-client-user root
 {% endif %}
 
-{% if openvpn_use_ldap %}
+{% if openvpn_use_ldap|bool %}
 ### LDAP AUTH ###
 {% if ansible_machine == "x86_64" %}
 plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
