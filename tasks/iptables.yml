@@ -40,6 +40,12 @@
   become: yes
   when: ansible_os_family == 'RedHat'
 
+- name: Install iptables-persistent (Debian/Ubuntu)
+  package:
+    name: iptables-persistent
+    state: present
+  when: ansible_pkg_mgr == "Debian"
+
 - name: iptables - save everything (Debian/Ubuntu)
   command: /etc/init.d/iptables-persistent save
   when: ansible_os_family == 'Debian'
