@@ -34,7 +34,7 @@
   when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Check for firewalld/iptables
-  command: firewall-cmd --state
+  command: which firewall-cmd
   register: firewalld
   check_mode: no
   changed_when: false  # Never report as changed
