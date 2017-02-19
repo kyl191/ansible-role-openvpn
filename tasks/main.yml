@@ -27,16 +27,16 @@
   when: not ci_build
 
 - name: enable ipv6 forwarding
-  sysctl: >
-    name=net.ipv6.conf.all.forwarding
-    value=1
-    ignoreerrors=yes
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: 1
+    ignoreerrors: yes
   when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Check for firewalld/iptables
   command: firewall-cmd --state
   register: firewalld
-  always_run: yes
+  check_mode: no
   changed_when: false  # Never report as changed
   ignore_errors: yes
   tags:
