@@ -1,3 +1,4 @@
 #!/bin/bash
 set -ev
-sudo docker exec ${OS_TAG} apt -y install ansible
+sudo docker exec ${OS_TAG} apt -y install python-pip libssl-dev
+sudo docker exec ${OS_TAG} pip install ansible
