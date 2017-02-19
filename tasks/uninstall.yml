@@ -33,3 +33,7 @@
   package:
     name: openvpn
     state: absent
+
+- name: Terminate playbook
+  fail:
+    msg: "OpenVPN uninstalled, playbook stopped"
