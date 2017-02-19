@@ -18,10 +18,8 @@
 
 - name: Install LDAP plugin
   package:
-   name: "{{ item }}"
+   name: openvpn-auth-ldap
    state: present
-  with_items:
-    - openvpn-auth-ldap
   when: openvpn_use_ldap
 
 - name: Install iptables-persistent (Debian/Ubuntu)
