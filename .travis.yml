@@ -28,7 +28,7 @@ env:
     - DOCKER_TAG=ubuntu:16.04
       OS_TAG=ubuntu-16.04
       OS=ubuntu
-
+      COMMAND=/bin/systemd
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
