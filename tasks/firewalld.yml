@@ -4,6 +4,12 @@
     enabled: true
     state: started
 
+- name: Install python2-firewall (Fedora)
+  package:
+    name: python-firewall
+    state: present
+  when: ansible_distribution == "Fedora"
+
 - name: Enable OpenVPN Port (firewalld)
   firewalld:
     port: "{{openvpn_port}}/{{openvpn_proto}}"
