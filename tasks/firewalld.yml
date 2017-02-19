@@ -8,7 +8,9 @@
   package:
     name: python-firewall
     state: present
-  when: ansible_distribution == "Fedora"
+  when:
+    - ansible_distribution == "Fedora"
+    - ansible_python_interpreter is not defined or "python3" not in ansible_python_interpreter
 
 - name: Enable OpenVPN Port (firewalld)
   firewalld:
