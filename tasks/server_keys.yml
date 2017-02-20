@@ -82,7 +82,7 @@
     owner: root
     group: root
     mode: 0400
-  when: openvpn_use_pregenerated_dh_params
+  when: openvpn_use_pregenerated_dh_params|bool
 
 # Alternatively, if you're concerned about logjam attacks
 - name: generate dh params
@@ -90,4 +90,4 @@
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: dh.pem
-  when: not openvpn_use_pregenerated_dh_params
+  when: not (openvpn_use_pregenerated_dh_params|bool)
