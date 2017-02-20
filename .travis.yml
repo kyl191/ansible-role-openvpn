@@ -29,7 +29,7 @@ env:
     - DOCKER_TAG=ubuntu:16.10
       OS_TAG=ubuntu-16.10
       OS=ubuntu
-      COMMAND=/bin/bash
+      COMMAND="-t /bin/bash"
     - DOCKER_TAG=ubuntu:16.04
       OS_TAG=ubuntu-16.04
       OS=ubuntu
