@@ -29,7 +29,7 @@ env:
     - DOCKER_TAG=ubuntu:16.10
       OS_TAG=ubuntu-16.10
       OS=ubuntu
-      COMMAND="-t /bin/bash"
+      COMMAND=tail -f /dev/null
     - DOCKER_TAG=ubuntu:16.04
       OS_TAG=ubuntu-16.04
       OS=ubuntu
