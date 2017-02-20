@@ -45,7 +45,7 @@ before_install:
   - sudo docker pull ${DOCKER_TAG}
 
 install:
-  - sudo docker run --detach ${DOCKER_ARGS} -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
+  - sudo docker run --detach ${DOCKER_ARGS} -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --net=host --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
   - ./tests/setup-${OS}
   - sudo docker exec ${OS_TAG} ansible -m setup -c local -i 127.0.0.1, all
 
