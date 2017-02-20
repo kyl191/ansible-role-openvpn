@@ -8,7 +8,6 @@ services:
 env:
   global:
     COMMAND=/usr/lib/systemd/systemd --system
-    ANSIBLE_VARS=empty
   matrix:
     - DOCKER_TAG=centos:7
       OS_TAG=centos-7
@@ -35,17 +34,12 @@ env:
       OS_TAG=ubuntu-16.04
       OS=ubuntu
       COMMAND=/bin/systemd --system
-    - DOCKER_TAG=ubuntu:14.04
-      OS_TAG=ubuntu-14.04
-      OS=ubuntu
-      COMMAND=/sbin/init
-      ANSIBLE_VARS=no-modern-tls
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
 
 install:
-  - sudo docker run --detach ${DOCKER_ARGS} -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --net=host --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
+  - sudo docker run --detach ${DOCKER_ARGS} -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
   - ./tests/setup-${OS}
   - sudo docker exec ${OS_TAG} ansible -m setup -c local -i 127.0.0.1, all
 
@@ -53,7 +47,7 @@ script:
   # Check syntax of ansible playbook
   - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
   # Run ansible playbook
-  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv --extra-vars @/etc/ansible/roles/ansible-role-openvpn/tests/vars/${ANSIBLE_VARS}.json
+  - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
 
 after_script:
   - sudo docker exec ${OS_TAG} cat /var/log/openvpn.log
