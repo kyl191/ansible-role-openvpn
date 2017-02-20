@@ -55,6 +55,7 @@ script:
   - sudo docker exec ${OS_TAG} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv --extra-vars @/etc/ansible/roles/ansible-role-openvpn/tests/vars/${ANSIBLE_VARS}.json
 
 after_script:
+  - sudo docker exec ${OS_TAG} cat /var/log/openvpn.log
   - sudo docker stop ${OS_TAG}
 
 notifications:
