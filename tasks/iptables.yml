@@ -1,37 +1,50 @@
-# from http://www.hashbangcode.com/blog/adding-iptables-rules-ansible
-- name: get iptables rules
-  command: iptables -L
-  register: iptablesrules
-  always_run: yes
-  changed_when: false  # Never report as changed
-  become: yes
+- name: Enable iptables
+  service:
+    name: iptables
+    enabled: true
+    state: started
 
 - name: iptables - Allow VPN forwarding
-  command: /sbin/iptables -A FORWARD -s {{openvpn_server_network}}/24 -j ACCEPT -m comment --comment "Allow VPN forwarding"
-  when: iptablesrules.stdout.find("Allow VPN forwarding") == -1
+  iptables:
+    chain: FORWARD
+    source: "{{openvpn_server_network}}/24"
+    policy: ACCEPT
+    comment: "Allow VPN forwarding"
 
 - name: iptables - Allow incoming VPN connection
-  command: /sbin/iptables -A INPUT -p {{openvpn_proto}} --dport {{openvpn_port}} -j ACCEPT -m comment --comment "Allow incoming VPN"
-  when: iptablesrules.stdout.find("Allow incoming VPN") == -1
+  iptables:
+    chain: INPUT
+    protocol: "{{openvpn_proto}}"
+    destination_port: "{{openvpn_port}}"
+    policy: ACCEPT
+    comment: "Allow incoming VPN connection"
 
-- name: iptables - Accept VPN tunnel adaptor
-  command: /sbin/iptables -A INPUT -i tun0 -j ACCEPT -m comment --comment "Accept VPN tunnel adaptor"
-  when: iptablesrules.stdout.find("Accept VPN tunnel adaptor") == -1
-
-- name: get iptables nat table rules
-  command: iptables -L -t nat
-  register: ipnattablesrules
-  always_run: yes
-  changed_when: false  # Never report as changed
+- name: iptables - Accept packets from VPN tunnel adaptor
+  iptables:
+    chain: INPUT
+    in_interface: tun0
+    policy: ACCEPT
+    comment: "Accept packets from VPN tunnel adaptor"
 
 - name: iptables - Perform NAT readdressing
-  command: /sbin/iptables -t nat -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}} -m comment --comment "Perform NAT readdressing"
-  when: ipnattablesrules.stdout.find("Perform NAT readdressing") == -1
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{openvpn_server_network}}/24"
+    to_source: "{{ansible_default_ipv4.address}}"
+    jump: SNAT
+    comment: "Perform NAT readdressing"
 
 - name: iptables - save everything (CentOS/RHEL/Fedora)
   shell: iptables-save > /etc/sysconfig/iptables
   become: yes
   when: ansible_os_family == 'RedHat'
+
+- name: Install iptables-persistent (Debian/Ubuntu)
+  package:
+    name: iptables-persistent
+    state: present
+  when: ansible_pkg_mgr == "Debian"
 
 - name: iptables - save everything (Debian/Ubuntu)
   command: /etc/init.d/iptables-persistent save

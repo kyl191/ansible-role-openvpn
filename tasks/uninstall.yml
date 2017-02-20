@@ -1,17 +1,13 @@
-- name: set openvpn service name - systemd
-  set_fact:
-    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
-  when: ansible_service_mgr == "systemd"
-
 - name: Check systemd existence as Docker Guest
   stat:
     path: /bin/systemctl
-  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == guest"
-  register: stat_result
+  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == "guest"
+  register: docker_stat_result
 
-- name: Set openvpn service name - Docker + systemd
-  set_fact: openvpn_service_name=openvpn@{{openvpn_config_file}}.service
-  when: stat_result and stat_result.stat.exists == False
+- name: set openvpn service name - systemd
+  set_fact:
+    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
+  when: ansible_service_mgr == "systemd" or (docker_stat_result is defined and docker_stat_result.stat.exists == True)
 
 - name: disable openvpn auto-start & start
   service:
@@ -33,3 +29,13 @@
   package:
     name: openvpn
     state: absent
+
+- name: Uninstall LDAP plugin
+  package:
+   name: openvpn-auth-ldap
+   state: absent
+  when: openvpn_use_ldap
+
+- name: Terminate playbook
+  fail:
+    msg: "OpenVPN uninstalled, playbook stopped"

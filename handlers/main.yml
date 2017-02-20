@@ -1,5 +1,20 @@
 ---
 - name: restart openvpn
-  service: >
-    name="{{openvpn_service_name}}"
-    state=restarted
+  service:
+    name: "{{openvpn_service_name}}"
+    state: restarted
+
+- name: restart iptables
+  service:
+    name: iptables
+    state: restarted
+
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+
+- name: restart ufw
+  service:
+    name: ufw
+    state: restarted
