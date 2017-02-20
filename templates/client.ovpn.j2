@@ -41,6 +41,6 @@ key-direction 1
 {{ item.1.content|b64decode }}
 </key>
 
-{% if openvpn_verify_cn %}
+{% if openvpn_verify_cn|bool %}
 verify-x509-name OpenVPN-Server-{{inventory_hostname}} name
 {% endif %}

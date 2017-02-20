@@ -1,5 +1,5 @@
 #!/bin/bash
 set -ev
 sudo docker exec ${OS_TAG} apt update
-sudo docker exec ${OS_TAG} apt -y install python-pip libssl-dev libffi-dev python-dev
-sudo docker exec ${OS_TAG} pip install ansible
+sudo docker exec ${OS_TAG} apt -yq install python-pip libssl-dev libffi-dev python-dev
+sudo docker exec ${OS_TAG} pip install ansible --quiet
