@@ -4,6 +4,7 @@
   vars:
     ci_build: true
     openvpn_use_pregenerated_dh_params: true
+    openvpn_port: {{ 65000|random(start=1025) }}
   roles:
     - {role: ansible-role-openvpn,
       clients: [alpha, omega]}
