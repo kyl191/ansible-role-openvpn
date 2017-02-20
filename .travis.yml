@@ -29,6 +29,7 @@ env:
     - DOCKER_TAG=ubuntu:16.10
       OS_TAG=ubuntu-16.10
       OS=ubuntu
+      COMMAND=/bin/bash
     - DOCKER_TAG=ubuntu:16.04
       OS_TAG=ubuntu-16.04
       OS=ubuntu
@@ -43,7 +44,7 @@ before_install:
   - sudo docker pull ${DOCKER_TAG}
 
 install:
-  - sudo docker run --detach -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add SYS_ADMIN --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
+  - sudo docker run --detach -t -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add SYS_ADMIN --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS_TAG} ${DOCKER_TAG} ${COMMAND}
   - ./tests/setup-${OS}
   - sudo docker exec ${OS_TAG} ansible -m setup -c local -i 127.0.0.1, all
 
