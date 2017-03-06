@@ -67,7 +67,7 @@ remote-cert-tls client
 {% endif %}
 
 {% if openvpn_enable_management|bool %}
-management /var/run/openvpn/management unix
+management {{openvpn_management_bind}}
 management-client-user root
 {% endif %}
 
