@@ -12,6 +12,9 @@ ca {{openvpn_key_dir}}/ca.crt
 cert {{openvpn_key_dir}}/server.crt
 key {{openvpn_key_dir}}/server.key
 dh {{openvpn_key_dir}}/dh.pem
+{% if crl_path is defined %}
+crl-verify {{crl_path}}
+{% endif %}
 {% if tls_auth_required %}
 tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}

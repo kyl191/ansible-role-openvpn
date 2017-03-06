@@ -22,7 +22,9 @@ verb 3
 
 route-method exe
 route-delay 2
+{% if openvpn_client_register_dns %}
 register-dns
+{% endfi %}
 
 key-direction 1
 <ca>

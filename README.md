@@ -51,6 +51,8 @@ Role Variables
 | openvpn_use_ldap                   | boolean | true , false | false                                          | Active LDAP backend for authentication. Client certificate not needed   anymore                                                                                   |
 | ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                                        |
 | manage_firewall_rules              | boolean | true , false | true                                           | Allow playbook to manage iptables                                                                                                                                 |
+| crl_path                           | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                       |
+| openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                      |
 
 LDAP object
 
