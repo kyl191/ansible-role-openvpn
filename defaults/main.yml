@@ -20,6 +20,7 @@ ci_build: false
 clients: []
 openvpn_push: []
 manage_firewall_rules: true
+openvpn_client_register_dns: true
 
 # Used in firewalld
 firewalld_default_interface_zone: public
