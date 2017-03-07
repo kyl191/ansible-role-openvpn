@@ -68,7 +68,9 @@ remote-cert-tls client
 
 {% if openvpn_enable_management|bool %}
 management {{openvpn_management_bind}}
-management-client-user root
+{% if openvpn_management_client_user %}
+management-client-user {{openvpn_management_client_user}}
+{% endif %}
 {% endif %}
 
 {% if openvpn_use_ldap|bool %}
