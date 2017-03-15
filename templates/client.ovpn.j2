@@ -9,7 +9,7 @@ tls-version-min 1.2
 {% endif %}
 
 proto {{openvpn_proto}}
-remote {{openvpn_server_ip}} {{openvpn_port}}
+remote {{openvpn_server_hostname}} {{openvpn_port}}
 dev tun
 
 resolv-retry 5
@@ -22,7 +22,9 @@ verb 3
 
 route-method exe
 route-delay 2
+{% if openvpn_client_register_dns %}
 register-dns
+{% endif %}
 
 key-direction 1
 <ca>
