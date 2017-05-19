@@ -31,6 +31,7 @@ Role Variables
 | openvpn_proto | string  | udp, tcp | udp | The protocol you want OpenVPN to use |
 | openvpn_dualstack | boolean | | true | Whether or not to use a dualstack (IPv4 + v6) socket |
 | openvpn_config_file                | string  |              | openvpn_{{ openvpn\_proto }}_{{ openvpn_port }} |  The config file name you want to   use                                                                                                                          |
+| openvpn_client_template            | string  |              | client.ovpn.j2 |  Location of template for clients ovpn file                                                                                                                          |
 | openvpn_rsa_bits                   | int     |              | 2048                                           | Number of bit used to protect generated certificates                                                                                                              |
 | openvpn_service_name               | string  |              | openvpn                                        | Name of the service. Used by systemctl to start the service                                                                                                       |
 | openvpn_uninstall                  | boolean | true , false | false                                          | Set to true to uninstall the OpenVPN service                                                                                                                      |

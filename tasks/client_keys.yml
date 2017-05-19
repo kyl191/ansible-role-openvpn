@@ -46,7 +46,7 @@
 
 - name: generate client config
   template:
-    src: client.ovpn.j2
+    src: {{openvpn_client_template}}
     dest: "/etc/openvpn/{{item.0.item}}-{{inventory_hostname}}.ovpn"
     owner: root
     group: root
