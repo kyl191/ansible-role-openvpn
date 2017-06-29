@@ -56,6 +56,7 @@ Role Variables
 | manage_firewall_rules              | boolean | true , false | true                                           | Allow playbook to manage iptables                                                                                                                                 |
 | openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                       |
 | openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                      |
+| client_config_dir                  | boolean | true , false | false                                          | Enable directory "/etc/openvpn/ccd" for custom client config files.                                                                                               |
 
 LDAP object
 
