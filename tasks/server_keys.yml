@@ -35,6 +35,11 @@
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
 
+- name: protect CA key
+  file:
+    path: "{{openvpn_key_dir}}/ca-key.pem"
+    mode: 0400
+
 - name: Sign CA key
   command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
   args:
