@@ -47,6 +47,12 @@
   tags:
     - client_keys
 
+- name: generate revocation list and clean up
+  include: revocation.yml
+  when: certificate_revocation_list is defined
+  tags:
+    - revocation
+
 - name: configure OpenVPN
   include: config.yml
   tags:

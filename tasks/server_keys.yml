@@ -35,6 +35,11 @@
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
 
+- name: protect CA key
+  file:
+    path: "{{openvpn_key_dir}}/ca-key.pem"
+    mode: 0400
+
 - name: Sign CA key
   command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
   args:
@@ -91,3 +96,16 @@
     chdir: "{{openvpn_key_dir}}"
     creates: dh.pem
   when: not (openvpn_use_pregenerated_dh_params|bool)
+- name: install revocation script
+  template:
+    src: revoke.sh.j2
+    dest: "{{openvpn_key_dir}}/revoke.sh"
+    owner: root
+    group: root
+    mode: 744
+- name: set up certificate revocation list
+  command: sh revoke.sh
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+

@@ -9,6 +9,7 @@ proto {{openvpn_proto}}
 dev tun
 
 ca {{openvpn_key_dir}}/ca.crt
+crl-verify {{openvpn_key_dir}}/ca-crl.pem
 cert {{openvpn_key_dir}}/server.crt
 key {{openvpn_key_dir}}/server.key
 dh {{openvpn_key_dir}}/dh.pem
