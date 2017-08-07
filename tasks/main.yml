@@ -49,7 +49,7 @@
 
 - name: generate revocation list and clean up
   include: revocation.yml
-  when: certificate_revocation_list is defined
+  when: openvpn_revoke_these_certs is defined
   tags:
     - revocation
 

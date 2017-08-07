@@ -31,33 +31,6 @@ crl_verify () {
   rm -f ${temp_pem}
 }
 
-
-if ! [ -r "ca.conf" ]
-then
-  cat >> ca.conf <<- 'EOT'
-  [ ca ]
-  default_ca = CA_default
-
-  [ CA_default ]
-  dir = {{ openvpn_key_dir }}
-  certs = $dir/
-  new_certs_dir = $dir/
-  database = $dir/index.txt
-  crlnumber = $dir/crl_number
-  certificate = $dir/ca.crt
-  private_key = $dir/ca-key.pem
-  default_days = 3650
-  default_crl_days = 30
-  default_md = sha256
-  preserve = no
-
-  [ crl_ext ]
-  authorityKeyIdentifier=keyid:always,issuer:always
-EOT
-  echo 00 > crl_number
-fi
-
-
 gen_crl
 
 if [ "${1}" ]
@@ -65,10 +38,6 @@ then
   revoke "${1}"
   gen_crl
 fi
-
-
-
-
 
 
 # vim: autoindent expandtab shiftwidth=2
