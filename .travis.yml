@@ -12,10 +12,6 @@ env:
     - DOCKER_TAG=centos:7
       OS_TAG=centos-7
       OS=centos
-    - DOCKER_TAG=centos:6
-      OS_TAG=centos-6
-      OS=centos
-      COMMAND=/sbin/init
     - DOCKER_TAG=fedora:latest
       OS_TAG=fedora-latest
       OS=fedora
