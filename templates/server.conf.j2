@@ -77,6 +77,10 @@ management-client-user {{openvpn_management_client_user}}
 client-config-dir /etc/openvpn/ccd
 {% endif %}
 
+{% if client_to_client %}
+client-to-client
+{% endif %}
+
 {% if openvpn_use_ldap|bool %}
 ### LDAP AUTH ###
 {% if ansible_machine == "x86_64" %}
