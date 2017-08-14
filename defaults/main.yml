@@ -24,6 +24,7 @@ clients: []
 openvpn_push: []
 manage_firewall_rules: true
 openvpn_client_register_dns: true
+openvpn_use_crl: false
 
 # Used in firewalld
 firewalld_default_interface_zone: public

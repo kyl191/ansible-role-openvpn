@@ -1,5 +1,3 @@
 ---
 # vars file for openvpn
 openvpn_config_file: "openvpn_{{ openvpn_proto }}_{{ openvpn_port }}"
-openvpn_use_crl: true
-

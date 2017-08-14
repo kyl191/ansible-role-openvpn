@@ -55,6 +55,7 @@ Role Variables
 | ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                                        |
 | manage_firewall_rules              | boolean | true , false | true                                           | Allow playbook to manage iptables                                                                                                                                 |
 | openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                       |
+| openvpn_use_crl                    | boolean | true, false  |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
 | openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                      |
 
 LDAP object
