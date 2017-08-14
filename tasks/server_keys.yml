@@ -107,7 +107,9 @@
     mode: 744
 
 - name: create initial certificate revocation list squence number
-  command: echo 00 > crl_number
+  shell: "echo 00 > crl_number"
+  args:
+    chdir: "{{openvpn_key_dir}}"
     creates: crl_number
 
 - name: generate tls-auth key
