@@ -49,5 +49,5 @@ after_script:
   - sudo docker exec ${OS_TAG} cat /var/log/openvpn.log
   - sudo docker stop ${OS_TAG}
 
-notifications:
-  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+# notifications:
+#   webhooks: https://galaxy.ansible.com/api/v1/notifications/
