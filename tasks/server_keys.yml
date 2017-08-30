@@ -127,9 +127,13 @@
     group: root
     mode: 744
 
+- name: ensure certificate revocation list database exists
+  file:
+    path: "{{openvpn_key_dir}}/index.txt"
+    state: touch
+
 - name: set up certificate revocation list
   command: sh revoke.sh
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ openvpn_key_dir }}/ca-crl.pem"
-
