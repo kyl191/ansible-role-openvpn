@@ -8,7 +8,7 @@
   iptables:
     chain: FORWARD
     source: "{{openvpn_server_network}}/24"
-    policy: ACCEPT
+    jump: ACCEPT
     comment: "Allow VPN forwarding"
 
 - name: iptables - Allow incoming VPN connection
@@ -16,14 +16,14 @@
     chain: INPUT
     protocol: "{{openvpn_proto}}"
     destination_port: "{{openvpn_port}}"
-    policy: ACCEPT
+    jump: ACCEPT
     comment: "Allow incoming VPN connection"
 
 - name: iptables - Accept packets from VPN tunnel adaptor
   iptables:
     chain: INPUT
     in_interface: tun0
-    policy: ACCEPT
+    jump: ACCEPT
     comment: "Accept packets from VPN tunnel adaptor"
 
 - name: iptables - Perform NAT readdressing
