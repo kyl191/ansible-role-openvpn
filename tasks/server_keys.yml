@@ -29,7 +29,7 @@
   when: openvpn_ca_key is defined
 
 - name: Generate CA key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname}}/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname[:53]}}/
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: ca-key.pem
@@ -49,7 +49,7 @@
   when: openvpn_ca_key is not defined
 
 - name: generate server key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname}}/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname[:49]}}/
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: server.key
