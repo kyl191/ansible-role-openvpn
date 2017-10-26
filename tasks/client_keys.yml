@@ -9,10 +9,16 @@
     mode: 0400
 
 - name: generate client key
-  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/"
+  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/"
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
+  with_items: "{{clients}}"
+
+- name: protect client keys
+  file:
+    path: "{{openvpn_key_dir}}/{{item}}.key"
+    mode: 0400
   with_items: "{{clients}}"
 
 - name: sign client key

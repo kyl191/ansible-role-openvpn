@@ -1,0 +1,43 @@
+#!/bin/sh
+
+
+CADIR="{{ openvpn_key_dir }}"
+
+cd ${CADIR}
+
+gen_crl () {
+  # regenerate the certificate revocation list
+  openssl ca -gencrl -config ca.conf -out ca-crl.pem
+}
+
+revoke () {
+  # revoke a client certificate
+  openssl ca -config ca.conf -revoke "${1}"
+}
+
+crl_out () {
+  # show certificate revocation list
+  openssl crl -in ca-crl.pem -noout -text
+}
+
+crl_verify () {
+  # verify that a certificate has been revoked
+  temp_pem="${mktemp}"
+  
+  cat ca.crt ca-crl.pem > ${temp_pem}
+  
+  openssl verify -extended_crl -verbose -CAfile ${temp_pem} -crl_check "${1}"
+  
+  rm -f ${temp_pem}
+}
+
+gen_crl
+
+if [ "${1}" ]
+then
+  revoke "${1}"
+  gen_crl
+fi
+
+
+# vim: autoindent expandtab shiftwidth=2

@@ -15,6 +15,9 @@ dh {{openvpn_key_dir}}/dh.pem
 {% if openvpn_crl_path is defined %}
 crl-verify {{openvpn_crl_path}}
 {% endif %}
+{% if openvpn_use_crl is defined %}
+crl-verify {{openvpn_key_dir}}/ca-crl.pem
+{% endif %}
 {% if tls_auth_required %}
 tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}
@@ -62,7 +65,7 @@ log-append /var/log/openvpn.log
 verb 3
 
 {% if openvpn_verify_cn|bool %}
-verify-x509-name OpenVPN-Client-{{inventory_hostname}} name-prefix
+verify-x509-name OpenVPN-Client-{{inventory_hostname[:24]}} name-prefix
 remote-cert-tls client
 {% endif %}
 

@@ -29,10 +29,16 @@
   when: openvpn_ca_key is defined
 
 - name: Generate CA key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname}}/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname[:53]}}/
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: ca-key.pem
+  when: openvpn_ca_key is not defined
+
+- name: protect CA key
+  file:
+    path: "{{openvpn_key_dir}}/ca-key.pem"
+    mode: 0400
   when: openvpn_ca_key is not defined
 
 - name: Sign CA key
@@ -43,7 +49,7 @@
   when: openvpn_ca_key is not defined
 
 - name: generate server key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname}}/
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname[:49]}}/
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: server.key
@@ -91,3 +97,43 @@
     chdir: "{{openvpn_key_dir}}"
     creates: dh.pem
   when: not (openvpn_use_pregenerated_dh_params|bool)
+
+- name: install ca.conf config file
+  template:
+    src: ca.conf.j2
+    dest: "{{openvpn_key_dir}}/ca.conf"
+    owner: root
+    group: root
+    mode: 744
+
+- name: create initial certificate revocation list squence number
+  shell: "echo 00 > crl_number"
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: crl_number
+
+- name: generate tls-auth key
+  command: openvpn --genkey --secret ta.key
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: ta.key
+  when: openvpn_tls_auth_key is not defined
+
+- name: install revocation script
+  template:
+    src: revoke.sh.j2
+    dest: "{{openvpn_key_dir}}/revoke.sh"
+    owner: root
+    group: root
+    mode: 744
+
+- name: ensure certificate revocation list database exists
+  file:
+    path: "{{openvpn_key_dir}}/index.txt"
+    state: touch
+
+- name: set up certificate revocation list
+  command: sh revoke.sh
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{ openvpn_key_dir }}/ca-crl.pem"
