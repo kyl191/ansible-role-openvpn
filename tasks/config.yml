@@ -12,7 +12,7 @@
 - name: create openvpn config file
   template:
     src: server.conf.j2
-    dest: "{{ openvpn_base_dir }}/etc/openvpn/{{openvpn_config_file}}.conf"
+    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}.conf"
     owner: root
     group: root
   notify:
@@ -21,7 +21,7 @@
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
-    dest: "{{ openvpn_base_dir }}/etc/openvpn/auth/ldap.conf"
+    dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
     owner: root
     group: root
   when: openvpn_use_ldap
