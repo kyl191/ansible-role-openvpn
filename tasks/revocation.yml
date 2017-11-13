@@ -4,7 +4,7 @@
 ---
 - name: remove client config
   file:
-    path: "/etc/openvpn/{{item}}-{{ansible_hostname}}.ovpn"
+    path: "{{ openvpn_base_dir }}/{{item}}-{{ansible_hostname}}.ovpn"
     state: absent
     force: yes
   with_items: '{{ openvpn_revoke_these_certs }}'
