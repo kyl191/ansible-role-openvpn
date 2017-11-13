@@ -29,6 +29,9 @@ cipher AES-256-CBC
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 {% endif %}
+{% if openvpn_duplicate_cn|bool %}
+duplicate-cn
+{% endif %}
 
 server {{openvpn_server_network}} {{openvpn_server_netmask}}
 {% if openvpn_server_ipv6_network is defined %}
