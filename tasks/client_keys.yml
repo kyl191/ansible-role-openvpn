@@ -9,7 +9,7 @@
     mode: 0400
 
 - name: generate client key
-  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{inventory_hostname}}-{{item}}/"
+  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/"
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
@@ -53,7 +53,7 @@
 - name: generate client config
   template:
     src: client.ovpn.j2
-    dest: "/etc/openvpn/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_base_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
     owner: root
     group: root
     mode: 0400
@@ -63,7 +63,7 @@
 
 - name: fetch client config
   fetch:
-    src: "/etc/openvpn/{{item}}-{{inventory_hostname}}.ovpn"
+    src: "{{ openvpn_base_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
     dest: "/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn"
     flat: yes
   with_items: "{{clients}}"

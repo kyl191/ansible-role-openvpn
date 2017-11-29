@@ -1,7 +1,7 @@
 - name: Check systemd existence as Docker Guest
   stat:
     path: /bin/systemctl
-  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == "guest"
+  when: ansible_virtualization_role is defined and ansible_virtualization_type == "docker" and ansible_virtualization_role == "guest"
   register: docker_stat_result
 
 - name: set openvpn service name - systemd
@@ -12,7 +12,7 @@
 - name: create openvpn config file
   template:
     src: server.conf.j2
-    dest: "/etc/openvpn/{{openvpn_config_file}}.conf"
+    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}.conf"
     owner: root
     group: root
   notify:
@@ -21,7 +21,7 @@
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
-    dest: /etc/openvpn/auth/ldap.conf
+    dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
     owner: root
     group: root
   when: openvpn_use_ldap
@@ -33,6 +33,7 @@
     owner: root
     group: root
     mode: 0400
+  when: ansible_os_family != 'Solaris'
 
 - name: setup openvpn auto-start & start
   service:

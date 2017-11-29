@@ -1,5 +1,11 @@
 ---
 # tasks file for openvpn
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_os_family }}.yml"
+    - "../vars/empty.yml"
+  tags: [always]
+
 - name: Uninstall OpenVPN
   include: uninstall.yml
   when: openvpn_uninstall

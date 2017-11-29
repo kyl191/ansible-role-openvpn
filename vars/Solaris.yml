@@ -1,0 +1,5 @@
+---
+openvpn_config_file: "openvpn"
+openvpn_base_dir: /opt/local/etc/openvpn
+openvpn_key_dir: /opt/local/etc/openvpn/keys
+openvpn_use_ldap: false

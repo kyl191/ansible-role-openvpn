@@ -1,5 +1,6 @@
 ---
 # defaults file for openvpn
+openvpn_base_dir: /etc/openvpn
 openvpn_key_dir: /etc/openvpn/keys
 openvpn_port: 1194
 openvpn_server_hostname: "{{inventory_hostname}}"
@@ -26,6 +27,7 @@ openvpn_push: []
 manage_firewall_rules: true
 openvpn_client_register_dns: true
 openvpn_use_crl: false
+openvpn_duplicate_cn: false
 
 # Used in firewalld
 firewalld_default_interface_zone: public
@@ -38,7 +40,7 @@ ldap:
   bind_dn: uid=Manager,ou=People,dc=example,dc=com
   bind_password: mysecretpassword
   tls_enable: no
-  tls_ca_cert_file: /etc/openvpn/auth/ca.pem
+  tls_ca_cert_file: "{{ openvpn_base_dir }}/auth/ca.pem"
   base_dn: ou=People,dc=example,dc=com
   search_filter: (&(uid=%u)(accountStatus=active))
   require_group: False
