@@ -59,6 +59,7 @@ Role Variables
 | openvpn_use_crl                    | boolean | true , false |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
 | openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                        |
 | openvpn_duplicate_cn               | boolean | true , false | false                                          | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key.                                                      |
+| openvpn_status_version             | int     | 1, 2, 3      | 1                                              | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                    |
 
 LDAP object
 
