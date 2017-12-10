@@ -8,7 +8,7 @@
   package:
     name: iptables-persistent
     state: present
-  when: ansible_pkg_mgr == "Debian"
+  when: ansible_os_family == "Debian"
 
 - name: Enable iptables
   service:
