@@ -1,4 +1,4 @@
-- name: Change facts for Debian >= 9 or Ubuntu >= 16
+- name: Change facts to use netfilter-persistent on Debian >= 9 or Ubuntu >= 16
   set_fact:
     iptables_save_command: "/usr/sbin/netfilter-persistent save"
     iptables_service: netfilter-persistent
