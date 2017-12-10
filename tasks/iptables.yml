@@ -15,6 +15,12 @@
     iptables_service: netfilter-service
   when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
 
+- name: Enable iptables
+  service:
+    name: "{{ iptables_service }}"
+    enabled: true
+    state: started
+
 - name: iptables - Allow VPN forwarding
   iptables:
     chain: FORWARD
@@ -60,9 +66,3 @@
 - name: iptables - save everything (Debian/Ubuntu)
   command: "{{ iptables_save_cmd }} save"
   when: ansible_os_family == 'Debian'
-
-- name: Enable iptables
-  service:
-    name: "{{ iptables_service }}"
-    enabled: true
-    state: started
