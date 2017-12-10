@@ -25,7 +25,6 @@ clients: []
 openvpn_push: []
 manage_firewall_rules: true
 iptables_service: iptables
-iptables_debian_save_command: "/etc/init.d/iptables-persistent save"
 openvpn_client_register_dns: true
 openvpn_use_crl: false
 openvpn_duplicate_cn: false
