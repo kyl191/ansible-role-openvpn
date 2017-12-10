@@ -1,8 +1,19 @@
-- name: Enable iptables
-  service:
-    name: iptables
-    enabled: true
-    state: started
+- name: setting facts for CentOS/RHEL/Fedora
+  set_fact:
+    iptables_service: iptables
+  when: ansible_os_family == 'RedHat'
+
+- name: setting facts for Debian < 9 or Ubuntu < 16
+  set_fact:
+    iptables_save_cmd: /etc/init.d/iptables-persistent
+    iptables_service: iptables
+  when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int < 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int < 16)
+
+- name: setting facts for Debian >= 9 or Ubuntu >= 16
+  set_fact:
+    iptables_save_cmd: /usr/sbin/netfilter-persistent
+    iptables_service: netfilter-service
+  when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
 
 - name: iptables - Allow VPN forwarding
   iptables:
@@ -47,5 +58,11 @@
   when: ansible_pkg_mgr == "Debian"
 
 - name: iptables - save everything (Debian/Ubuntu)
-  command: /etc/init.d/iptables-persistent save
+  command: "{{ iptables_save_cmd }} save"
   when: ansible_os_family == 'Debian'
+
+- name: Enable iptables
+  service:
+    name: "{{ iptables_service }}"
+    enabled: true
+    state: started
