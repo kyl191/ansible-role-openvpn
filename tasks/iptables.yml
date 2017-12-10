@@ -22,6 +22,7 @@
     source: "{{openvpn_server_network}}/24"
     jump: ACCEPT
     comment: "Allow VPN forwarding"
+  notify: "save iptables"
 
 - name: iptables - Allow incoming VPN connection
   iptables:
@@ -30,6 +31,7 @@
     destination_port: "{{openvpn_port}}"
     jump: ACCEPT
     comment: "Allow incoming VPN connection"
+  notify: "save iptables"
 
 - name: iptables - Accept packets from VPN tunnel adaptor
   iptables:
@@ -37,6 +39,7 @@
     in_interface: tun0
     jump: ACCEPT
     comment: "Accept packets from VPN tunnel adaptor"
+  notify: "save iptables"
 
 - name: iptables - Perform NAT readdressing
   iptables:
@@ -46,7 +49,4 @@
     to_source: "{{ansible_default_ipv4.address}}"
     jump: SNAT
     comment: "Perform NAT readdressing"
-
-- name: iptables - save everything (Debian/Ubuntu and CentOS/RHEL/Fedora)
-  command: "{{ iptables_save_command }}"
-  when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
+  notify: "save iptables"
