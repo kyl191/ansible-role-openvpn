@@ -24,6 +24,7 @@ ci_build: false
 clients: []
 openvpn_push: []
 manage_firewall_rules: true
+iptables_service: iptables
 openvpn_client_register_dns: true
 openvpn_use_crl: false
 openvpn_duplicate_cn: false
