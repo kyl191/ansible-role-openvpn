@@ -24,9 +24,6 @@ env:
     - DOCKER_TAG=fedora:25
       OS_TAG=fedora-25
       OS=fedora
-    - DOCKER_TAG=fedora:24
-      OS_TAG=fedora-24
-      OS=fedora
     - DOCKER_TAG=ubuntu:16.10
       DOCKER_ARGS=-t
       OS_TAG=ubuntu-16.10
