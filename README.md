@@ -4,12 +4,13 @@ openvpn
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
 Tested OSes:
-- Fedora 20/21
-- CentOS 6/7
-- Ubuntu trusty (14.04)
+- Fedora 25+
+- CentOS 7
+- Ubuntu 16.04/16.10
 
 Should be working OSes:
 - All Fedora
+- All RHEL/CentOS
 - Ubuntu trusty & later
 
 
