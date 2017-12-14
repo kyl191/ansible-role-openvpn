@@ -1,6 +1,7 @@
 ---
 # defaults file for openvpn
 openvpn_key_dir: /etc/openvpn/keys
+openvpn_client_config_dir: /etc/openvpn/ccd
 openvpn_port: 1194
 openvpn_server_hostname: "{{inventory_hostname}}"
 openvpn_proto: udp
@@ -17,6 +18,9 @@ openvpn_enable_management: false
 openvpn_management_bind: /var/run/openvpn/management unix
 openvpn_management_client_user: root
 openvpn_server_network: 10.9.0.0
+openvpn_admin_network: 19.9.1.0
+openvpn_clients_custom_config: []
+openvpn_whitelisted_ips: []
 openvpn_server_netmask: 255.255.255.0
 tls_auth_required: true
 ci_build: false
