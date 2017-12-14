@@ -34,6 +34,8 @@ duplicate-cn
 {% endif %}
 
 server {{openvpn_server_network}} {{openvpn_server_netmask}}
+route {{openvpn_admin_network}} {{openvpn_server_netmask}}
+
 {% if openvpn_server_ipv6_network is defined %}
 server-ipv6 {{openvpn_server_ipv6_network}}
 {% endif %}
@@ -89,3 +91,5 @@ plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/
 {% endif %}
 client-cert-not-required
 {% endif %}
+client-config-dir ccd
+

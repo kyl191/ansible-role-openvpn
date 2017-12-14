@@ -28,16 +28,15 @@
     interface: tun0
     rule: allow
 
-- name: ufw - setup nat table rules
-  blockinfile:
+- name: ufw - template rules.before
+  template:
+    src: before.rules.j2
     dest: /etc/ufw/before.rules
-    state: present
-    insertbefore: \*filter
-    block: |
-      # OpenVPN config
-      *nat
-      :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}}
-      COMMIT
+    owner: root
+    group: root
+    mode: 0644
   notify:
     - restart ufw
+
+- pause:
+    seconds: 5
