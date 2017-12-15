@@ -1,15 +1,4 @@
-- name: Check systemd existence as Docker Guest
-  stat:
-    path: /bin/systemctl
-  when: ansible_virtualization_type == "docker" and ansible_virtualization_role == "guest"
-  register: docker_stat_result
-
-- name: set openvpn service name - systemd
-  set_fact:
-    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
-  when: ansible_service_mgr == "systemd" or (docker_stat_result is defined and docker_stat_result.stat.exists == True)
-
-- name: disable openvpn auto-start & start
+- name: Disable openvpn auto-start & start
   service:
     name: "{{openvpn_service_name}}"
     enabled: no

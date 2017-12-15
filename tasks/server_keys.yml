@@ -1,4 +1,4 @@
-- name: create openvpn key directory
+- name: Create openvpn key directory
   file:
     path: "{{openvpn_key_dir}}"
     state: directory
@@ -35,7 +35,7 @@
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
 
-- name: protect CA key
+- name: Protect CA key
   file:
     path: "{{openvpn_key_dir}}/ca-key.pem"
     mode: 0400

@@ -2,23 +2,29 @@
 # tasks file for openvpn
 - include_vars: "{{ item }}"
   with_first_found:
+    - "../vars/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+    - "../vars/{{ ansible_distribution }}.yml"
     - "../vars/{{ ansible_os_family }}.yml"
     - "../vars/empty.yml"
   tags: [always]
 
+- name: Set facts
+  include_tasks: set_facts.yml
+  tags: [always]
+
 - name: Uninstall OpenVPN
-  include: uninstall.yml
+  include_tasks: uninstall.yml
   when: openvpn_uninstall
   tags:
     - uninstall
 
 - name: Install OpenVPN
-  include: install.yml
+  include_tasks: install.yml
   tags:
     - install
 
 - name: Copy or Generate server keys
-  include: server_keys.yml
+  include_tasks: server_keys.yml
   tags:
     - server_keys
 
@@ -39,27 +45,27 @@
     ignoreerrors: yes
   when: openvpn_server_ipv6_network is defined and not ci_build
 
-- name: Detect firewall
-  include: firewall.yml
+- name: Detect firewall type
+  include_tasks: firewall.yml
   when:
     - not ci_build
     - manage_firewall_rules
   tags:
     - firewall
 
-- name: generate client configs
-  include: client_keys.yml
+- name: Generate client configs
+  include_tasks: client_keys.yml
   when: clients is defined
   tags:
     - client_keys
 
-- name: generate revocation list and clean up
-  include: revocation.yml
+- name: Generate revocation list and clean up
+  include_tasks: revocation.yml
   when: openvpn_revoke_these_certs is defined
   tags:
     - revocation
 
-- name: configure OpenVPN
-  include: config.yml
+- name: Configure OpenVPN server
+  include_tasks: config.yml
   tags:
     - configure

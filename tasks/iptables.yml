@@ -1,6 +1,18 @@
+- name: Change facts to use netfilter-persistent on Debian >= 9 or Ubuntu >= 16
+  set_fact:
+    iptables_save_command: "/usr/sbin/netfilter-persistent save"
+    iptables_service: netfilter-persistent
+  when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
+
+- name: Install iptables-persistent (Debian/Ubuntu)
+  package:
+    name: iptables-persistent
+    state: present
+  when: ansible_os_family == "Debian"
+
 - name: Enable iptables
   service:
-    name: iptables
+    name: "{{ iptables_service }}"
     enabled: true
     state: started
 
@@ -10,6 +22,7 @@
     source: "{{openvpn_server_network}}/24"
     jump: ACCEPT
     comment: "Allow VPN forwarding"
+  notify: "save iptables"
 
 - name: iptables - Allow incoming VPN connection
   iptables:
@@ -18,6 +31,7 @@
     destination_port: "{{openvpn_port}}"
     jump: ACCEPT
     comment: "Allow incoming VPN connection"
+  notify: "save iptables"
 
 - name: iptables - Accept packets from VPN tunnel adaptor
   iptables:
@@ -25,6 +39,7 @@
     in_interface: tun0
     jump: ACCEPT
     comment: "Accept packets from VPN tunnel adaptor"
+  notify: "save iptables"
 
 - name: iptables - Perform NAT readdressing
   iptables:
@@ -34,18 +49,4 @@
     to_source: "{{ansible_default_ipv4.address}}"
     jump: SNAT
     comment: "Perform NAT readdressing"
-
-- name: iptables - save everything (CentOS/RHEL/Fedora)
-  shell: iptables-save > /etc/sysconfig/iptables
-  become: yes
-  when: ansible_os_family == 'RedHat'
-
-- name: Install iptables-persistent (Debian/Ubuntu)
-  package:
-    name: iptables-persistent
-    state: present
-  when: ansible_pkg_mgr == "Debian"
-
-- name: iptables - save everything (Debian/Ubuntu)
-  command: /etc/init.d/iptables-persistent save
-  when: ansible_os_family == 'Debian'
+  notify: "save iptables"
