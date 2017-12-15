@@ -4,12 +4,13 @@ openvpn
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
 Tested OSes:
-- Fedora 20/21
-- CentOS 6/7
-- Ubuntu trusty (14.04)
+- Fedora 25+
+- CentOS 7
+- Ubuntu 16.04/16.10
 
 Should be working OSes:
 - All Fedora
+- All RHEL/CentOS
 - Ubuntu trusty & later
 
 
@@ -25,6 +26,7 @@ Role Variables
 
 | Variable                           | Type    | Choices      | Default                                        | Comment                                                                                                                                                           |
 |------------------------------------|---------|--------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| openvpn_base_dir                   | string  |              | /etc/openvpn                                   | Path where your OpenVPN config will be stored                                                                                                                     |
 | openvpn_key_dir                    | string  |              | /etc/openvpn/keys                              | Path where your server private keys and CA will be stored                                                                                                         |
 | openvpn_port                       | int     |              | 1194                                           | The port you want OpenVPN to run on. If you have different ports on   different servers, I suggest you set the port in your inventory file.                       |
 | openvpn_server_hostname            | string  |              | `{{inventory_hostname}}`                       | The server name to place in the client configuration file (if different from the `inventory_hostname`             |
@@ -54,9 +56,11 @@ Role Variables
 | openvpn_use_ldap                   | boolean | true , false | false                                          | Active LDAP backend for authentication. Client certificate not needed   anymore                                                                                   |
 | ldap                               | dict    |              |                                                | Dictionary that contain LDAP configuration                                                                                                                        |
 | manage_firewall_rules              | boolean | true , false | true                                           | Allow playbook to manage iptables                                                                                                                                 |
-| openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                       |
-| openvpn_use_crl                    | boolean | true, false  |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
-| openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                      |
+| openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                                    |
+| openvpn_use_crl                    | boolean | true , false |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
+| openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                        |
+| openvpn_duplicate_cn               | boolean | true , false | false                                          | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key.                                                      |
+| openvpn_status_version             | int     | 1, 2, 3      | 1                                              | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                    |
 
 LDAP object
 

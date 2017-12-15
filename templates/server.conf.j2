@@ -29,6 +29,9 @@ cipher AES-256-CBC
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 {% endif %}
+{% if openvpn_duplicate_cn|bool %}
+duplicate-cn
+{% endif %}
 
 server {{openvpn_server_network}} {{openvpn_server_netmask}}
 {% if openvpn_server_ipv6_network is defined %}
@@ -61,6 +64,7 @@ user nobody
 group nogroup
 
 status openvpn-status.log
+status-version {{ openvpn_status_version }}
 log-append /var/log/openvpn.log
 verb 3
 
@@ -79,9 +83,9 @@ management-client-user {{openvpn_management_client_user}}
 {% if openvpn_use_ldap|bool %}
 ### LDAP AUTH ###
 {% if ansible_machine == "x86_64" %}
-plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% else %}
-plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% endif %}
 client-cert-not-required
 {% endif %}
