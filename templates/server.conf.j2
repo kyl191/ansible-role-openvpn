@@ -32,6 +32,9 @@ tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GC
 {% if openvpn_duplicate_cn|bool %}
 duplicate-cn
 {% endif %}
+{% if openvpn_client_to_client|bool %}
+client-to-client
+{% endif %}
 
 server {{openvpn_server_network}} {{openvpn_server_netmask}}
 {% if openvpn_server_ipv6_network is defined %}
