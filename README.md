@@ -4,12 +4,13 @@ openvpn
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
 Tested OSes:
-- Fedora 20/21
-- CentOS 6/7
-- Ubuntu trusty (14.04)
+- Fedora 25+
+- CentOS 7
+- Ubuntu 16.04/16.10
 
 Should be working OSes:
 - All Fedora
+- All RHEL/CentOS
 - Ubuntu trusty & later
 
 
@@ -59,7 +60,10 @@ Role Variables
 | openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                                    |
 | openvpn_use_crl                    | boolean | true , false |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
 | openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                        |
-| openvpn_duplicate_cn               | boolean | true , false | false                                          | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key.                                                      |
+| openvpn_duplicate_cn               | boolean | true , false | false                                          | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key. NOTE: client ip addresses won't be static anymore!   |
+| openvpn_status_version             | int     | 1, 2, 3      | 1                                              | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                   |
+| openvpn_resolv_retry               | int/string | any int, infinite | 5                                      | Hostname resolv failure retry seconds. Set "infinite" to retry indefinitely in case of poor connection or laptop sleep mode recovery etc.                         |
+| openvpn_client_to_client           | boolean | true, false  | false                                          | Set to true if you want clients to access each other.                                                                                                             |
 
 LDAP object
 

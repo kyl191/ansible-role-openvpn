@@ -15,11 +15,14 @@ env:
     - DOCKER_TAG=fedora:latest
       OS_TAG=fedora-latest
       OS=fedora
+    - DOCKER_TAG=fedora:27
+      OS_TAG=fedora-27
+      OS=fedora
+    - DOCKER_TAG=fedora:26
+      OS_TAG=fedora-26
+      OS=fedora
     - DOCKER_TAG=fedora:25
       OS_TAG=fedora-25
-      OS=fedora
-    - DOCKER_TAG=fedora:24
-      OS_TAG=fedora-24
       OS=fedora
     - DOCKER_TAG=ubuntu:16.10
       DOCKER_ARGS=-t

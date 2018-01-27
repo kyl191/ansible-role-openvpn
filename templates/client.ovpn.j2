@@ -12,7 +12,7 @@ proto {{openvpn_proto}}
 remote {{openvpn_server_hostname}} {{openvpn_port}}
 dev tun
 
-resolv-retry 5
+resolv-retry {{ openvpn_resolv_retry }}
 nobind
 keepalive 5 30
 comp-lzo

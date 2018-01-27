@@ -25,9 +25,13 @@ ci_build: false
 clients: []
 openvpn_push: []
 manage_firewall_rules: true
+iptables_service: iptables
 openvpn_client_register_dns: true
 openvpn_use_crl: false
 openvpn_duplicate_cn: false
+openvpn_status_version: 1
+openvpn_resolv_retry: 5
+openvpn_client_to_client: false
 
 # Used in firewalld
 firewalld_default_interface_zone: public
