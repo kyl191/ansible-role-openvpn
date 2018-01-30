@@ -21,6 +21,7 @@ openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
 tls_auth_required: true
 ci_build: false
+openvpn_fetch_config_dir: /tmp/ansible
 clients: []
 openvpn_push: []
 manage_firewall_rules: true
