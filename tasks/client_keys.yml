@@ -64,6 +64,6 @@
 - name: fetch client config
   fetch:
     src: "{{ openvpn_base_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
-    dest: "/tmp/ansible/{{item}}/{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}.ovpn"
     flat: yes
   with_items: "{{clients}}"
