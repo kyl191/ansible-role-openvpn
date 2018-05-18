@@ -63,6 +63,7 @@ Role Variables
 | openvpn_status_version             | int     | 1, 2, 3      | 1                                              | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                   |
 | openvpn_resolv_retry               | int/string | any int, infinite | 5                                      | Hostname resolv failure retry seconds. Set "infinite" to retry indefinitely in case of poor connection or laptop sleep mode recovery etc.                         |
 | openvpn_client_to_client           | boolean | true, false  | false                                          | Set to true if you want clients to access each other.                                                                                                             |
+| openvpn_masquerade_not_snat        | boolean | true, false  | false                                          | Set to true if you want to set up MASQUERADE instead of the default SNAT in iptables.                                                 |
 
 LDAP object
 
