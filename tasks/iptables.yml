@@ -49,4 +49,14 @@
     to_source: "{{ansible_default_ipv4.address}}"
     jump: SNAT
     comment: "Perform NAT readdressing"
+  when: not openvpn_masquerade_not_snat
+
+- name: iptables - Perform NAT readdressing with MASQUERADE
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{openvpn_server_network}}/24"
+    jump: MASQUERADE
+    comment: "Perform NAT readdressing"
+  when: openvpn_masquerade_not_snat
   notify: "save iptables"
