@@ -20,6 +20,10 @@ persist-key
 persist-tun
 verb 3
 
+{% for option in additional_client_options %}
+{{ option }}
+{% endfor %}
+
 route-method exe
 route-delay 2
 {% if openvpn_client_register_dns %}
