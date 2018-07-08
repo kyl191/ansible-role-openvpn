@@ -20,6 +20,6 @@
     state: restarted
 
 - name: save iptables rules (Debian/Ubuntu and CentOS/RHEL/Fedora)
-  command: "{{ iptables_save_command }}"
+  shell: "{{ iptables_save_command }}"
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "save iptables"
