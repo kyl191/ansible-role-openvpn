@@ -10,6 +10,7 @@ openvpn_rsa_bits: 2048
 openvpn_service_name: openvpn
 openvpn_uninstall: false
 openvpn_use_pregenerated_dh_params: false
+openvpn_use_hardened_tls: true
 openvpn_use_modern_tls: true
 openvpn_verify_cn: false
 openvpn_redirect_gateway: true

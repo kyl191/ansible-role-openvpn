@@ -24,9 +24,11 @@ tls-auth {{openvpn_key_dir}}/ta.key 0
 tls-server
 auth SHA256
 cipher AES-256-CBC
-{% if openvpn_use_modern_tls|bool %}
-{# Using Mozilla's modern cipher list + DHE for older clients #}
+{% if openvpn_use_hardened_tls|bool %}
 tls-version-min 1.2
+{% endif %}
+{# Using Mozilla's modern cipher list + DHE for older clients #}
+{% if openvpn_use_modern_tls|bool %}
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 {% endif %}
 {% if openvpn_duplicate_cn|bool %}
