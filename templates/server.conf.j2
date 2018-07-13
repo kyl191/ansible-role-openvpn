@@ -68,7 +68,7 @@ persist-tun
 user nobody
 group nogroup
 
-{% for option in additional_server_options %}
+{% for option in openvpn_addl_server_options %}
 {{ option }}
 {% endfor %}
 
