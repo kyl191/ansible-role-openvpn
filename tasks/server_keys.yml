@@ -137,3 +137,19 @@
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+
+- name: install crl-cron script
+  template:
+    src: crl-cron.sh.j2
+    dest: "{{ openvpn_base_dir }}/crl-cron.sh"
+    owner: root
+    group: root
+    mode: 744
+
+- name: Add cron to check every Saturday if the CRL needs to be renewed
+  cron:
+    name: "check if CRL will expire soon"
+    minute: "0"
+    hour: "5"
+    weekday: 6
+    job: "sh {{ openvpn_base_dir }}/crl-cron.sh"
