@@ -15,6 +15,9 @@ env:
     - DOCKER_TAG=fedora:latest
       OS_TAG=fedora-latest
       OS=fedora
+    - DOCKER_TAG=fedora:28
+      OS_TAG=fedora-28
+      OS=fedora
     - DOCKER_TAG=fedora:27
       OS_TAG=fedora-27
       OS=fedora
@@ -24,11 +27,10 @@ env:
     - DOCKER_TAG=fedora:25
       OS_TAG=fedora-25
       OS=fedora
-    - DOCKER_TAG=ubuntu:16.10
-      DOCKER_ARGS=-t
-      OS_TAG=ubuntu-16.10
+    - DOCKER_TAG=ubuntu:18.04
+      OS_TAG=ubuntu-18.04
       OS=ubuntu
-      COMMAND=/bin/bash
+      COMMAND=/bin/systemd --system
     - DOCKER_TAG=ubuntu:16.04
       OS_TAG=ubuntu-16.04
       OS=ubuntu
