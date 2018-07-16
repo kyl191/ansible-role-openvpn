@@ -149,7 +149,6 @@
 - name: Add cron to check every Saturday if the CRL needs to be renewed
   cron:
     name: "check if CRL will expire soon"
-    minute: "0"
-    hour: "5"
-    weekday: 6
+    special_time: weekly
     job: "sh {{ openvpn_base_dir }}/crl-cron.sh"
+  when: not ci_build
