@@ -28,6 +28,8 @@ openvpn_push: []
 manage_firewall_rules: true
 iptables_service: iptables
 openvpn_client_register_dns: true
+openvpn_custom_dns: false
+openvpn_dns_servers: []
 openvpn_use_crl: false
 openvpn_duplicate_cn: false
 openvpn_status_version: 1

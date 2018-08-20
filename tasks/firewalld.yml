@@ -2,6 +2,7 @@
   service:
     name: firewalld
     enabled: true
+    masked: false
     state: started
 
 - name: Install python2-firewall (Fedora)
