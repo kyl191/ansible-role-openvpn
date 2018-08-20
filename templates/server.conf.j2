@@ -60,7 +60,8 @@ push "dhcp-option DNS 1.0.0.1"
 push "dhcp-option DNS 1.1.1.1"
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
-{%endif %}
+{% endif %}
+{% endif %}
 {% if openvpn_push is defined %}
 {% for opt in openvpn_push %}
 push "{{ opt }}"
