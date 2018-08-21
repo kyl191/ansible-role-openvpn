@@ -51,11 +51,17 @@ ifconfig-pool-persist ipp.txt
 push "redirect-gateway def1 bypass-dhcp"
 {% endif %}
 {% if openvpn_set_dns %}
+{% if openvpn_custom_dns %}
+{% for srv in openvpn_dns_servers %}
+push "dhcp-option DNS {{ srv }}"
+{% endfor %}
+{% else %}
 push "dhcp-option DNS 1.0.0.1"
 push "dhcp-option DNS 1.1.1.1"
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
-{%endif %}
+{% endif %}
+{% endif %}
 {% if openvpn_push is defined %}
 {% for opt in openvpn_push %}
 push "{{ opt }}"
