@@ -74,6 +74,10 @@ persist-tun
 user nobody
 group nogroup
 
+{% for option in openvpn_addl_server_options %}
+{{ option }}
+{% endfor %}
+
 status openvpn-status.log
 status-version {{ openvpn_status_version }}
 log-append /var/log/openvpn.log

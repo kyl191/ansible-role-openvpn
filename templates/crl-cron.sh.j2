@@ -1,0 +1,8 @@
+#!/bin/sh
+
+lastUpdate=$(date --date "$(openssl crl -in ca-crl.pem -noout -lastupdate | cut -d'=' -f2)" +%s)
+nextUpdate=$(date --date "$(openssl crl -in ca-crl.pem -noout -nextupdate | cut -d'=' -f2)" +%s)
+
+if [ $(( (nextUpdate - lastUpdate) / 86400 )) -le 10 ]; then
+    sh {{ openvpn_key_dir }}/revoke.sh
+fi

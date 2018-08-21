@@ -36,6 +36,8 @@ openvpn_status_version: 1
 openvpn_resolv_retry: 5
 openvpn_client_to_client: false
 openvpn_masquerade_not_snat: false
+openvpn_addl_server_options: []
+openvpn_addl_client_options: []
 
 # Used in firewalld
 firewalld_default_interface_zone: public
