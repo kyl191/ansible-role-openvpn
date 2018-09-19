@@ -4,6 +4,12 @@
     iptables_service: netfilter-persistent
   when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
 
+- name: Install iptables-persistent (Redhat/CentOS)
+  package:
+    name: iptables-services
+    state: present
+  when: ansible_os_family == "RedHat"
+
 - name: Install iptables-persistent (Debian/Ubuntu)
   package:
     name: iptables-persistent
@@ -17,24 +23,29 @@
     state: started
 
 - name: iptables - Allow VPN forwarding
+  vars:
+    net_mask: "{{ openvpn_server_network }}/{{ openvpn_server_netmask }}"
   iptables:
+    action: insert
     chain: FORWARD
-    source: "{{openvpn_server_network}}/24"
+    source: "{{ openvpn_server_network }}/{{net_mask|ipaddr('prefix')}}"
     jump: ACCEPT
     comment: "Allow VPN forwarding"
   notify: "save iptables"
 
 - name: iptables - Allow incoming VPN connection
   iptables:
+    action: insert
     chain: INPUT
-    protocol: "{{openvpn_proto}}"
-    destination_port: "{{openvpn_port}}"
+    protocol: "{{ openvpn_proto }}"
+    destination_port: "{{ openvpn_port }}"
     jump: ACCEPT
     comment: "Allow incoming VPN connection"
   notify: "save iptables"
 
 - name: iptables - Accept packets from VPN tunnel adaptor
   iptables:
+    action: insert
     chain: INPUT
     in_interface: tun0
     jump: ACCEPT
@@ -42,20 +53,26 @@
   notify: "save iptables"
 
 - name: iptables - Perform NAT readdressing
+  vars:
+    net_mask: "{{ openvpn_server_network }}/{{ openvpn_server_netmask }}"
   iptables:
+    action: insert
     table: nat
     chain: POSTROUTING
-    source: "{{openvpn_server_network}}/24"
-    to_source: "{{ansible_default_ipv4.address}}"
+    source: "{{ openvpn_server_network }}/{{net_mask|ipaddr('prefix')}}"
+    to_source: "{{ ansible_default_ipv4.address }}"
     jump: SNAT
     comment: "Perform NAT readdressing"
   when: not openvpn_masquerade_not_snat
 
 - name: iptables - Perform NAT readdressing with MASQUERADE
+  vars:
+    net_mask: "{{ openvpn_server_network }}/{{ openvpn_server_netmask }}"
   iptables:
+    action: insert
     table: nat
     chain: POSTROUTING
-    source: "{{openvpn_server_network}}/24"
+    source: "{{ openvpn_server_network }}/{{net_mask|ipaddr('prefix')}}"
     jump: MASQUERADE
     comment: "Perform NAT readdressing"
   when: openvpn_masquerade_not_snat

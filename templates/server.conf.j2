@@ -84,7 +84,7 @@ log-append /var/log/openvpn.log
 verb 3
 
 {% if openvpn_verify_cn|bool %}
-verify-x509-name OpenVPN-Client-{{inventory_hostname[:24]}} name-prefix
+verify-x509-name {{inventory_hostname[:32]}} name-prefix
 remote-cert-tls client
 {% endif %}
 

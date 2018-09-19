@@ -15,8 +15,8 @@
 
 - name: Enable OpenVPN Port (firewalld)
   firewalld:
-    port: "{{openvpn_port}}/{{openvpn_proto}}"
-    zone: "{{firewalld_default_interface_zone}}"
+    port: "{{ openvpn_port }}/{{ openvpn_proto }}"
+    zone: "{{ firewalld_default_interface_zone }}"
     permanent: true
     immediate: true
     state: enabled
@@ -31,8 +31,8 @@
 
 - name: Set default interface to external
   firewalld:
-    interface: "{{ansible_default_ipv4.interface}}"
-    zone: "{{firewalld_default_interface_zone}}"
+    interface: "{{ ansible_default_ipv4.interface }}"
+    zone: "{{ firewalld_default_interface_zone }}"
     permanent: true
     immediate: true
     state: enabled
@@ -40,7 +40,7 @@
 - name: Enable masquerading on external zone
   firewalld:
     masquerade: true
-    zone: "{{firewalld_default_interface_zone}}"
+    zone: "{{ firewalld_default_interface_zone }}"
     permanent: true
     state: enabled
     #Workarround ansible issue: https://github.com/ansible/ansible/pull/21693
@@ -50,14 +50,14 @@
 
 # workaround for --permanent not working on non-NetworkManager managed ifaces
 # https://bugzilla.redhat.com/show_bug.cgi?id=1112742
-- name: Check if ifcfg-{{ansible_default_ipv4.interface}} exists
+- name: Check if ifcfg-{{ ansible_default_ipv4.interface }} exists
   stat:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ansible_default_ipv4.interface}}"
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
   register: ifcfg
 
 - name: Persist default interface in ifcfg file
   lineinfile:
-    dest: /etc/sysconfig/network-scripts/ifcfg-{{ansible_default_ipv4.interface}}
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     regexp: "^ZONE="
-    line: "ZONE={{firewalld_default_interface_zone}}"
+    line: "ZONE={{ firewalld_default_interface_zone }}"
   when: ifcfg.stat.exists

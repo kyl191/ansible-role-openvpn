@@ -1,0 +1,85 @@
+- name: Create tunnelblick wrapper
+  file:
+    path: "{{ openvpn_key_dir }}/tunnelblick"
+    state: directory
+
+- name: Create tunnelblick wrapper for each user
+  file:
+    path: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/"
+    state: directory
+    mode: 0400
+    recurse: True
+  with_items: "{{ clients }}"
+
+- name: Copy CA bundle
+  command: cp "{{ openvpn_key_dir }}/ca.crt" "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/"
+  with_items: "{{ clients }}"
+
+- name: Copy TA bundle
+  command: cp "{{ openvpn_key_dir }}/ta.key" "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/"
+  with_items: "{{ clients }}"
+
+- name: Copy user certs
+  command: cp "{{ openvpn_key_dir }}/{{ item.username }}.crt" "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/client.crt"
+  with_items:
+    - "{{ clients }}"
+
+- name: Copy user keys
+  command: cp "{{ openvpn_key_dir }}/{{ item.username }}.key" "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/client.key"
+  with_items:
+    - "{{ clients }}"
+
+- name: Copy user configs
+  command: cp "{{ openvpn_base_dir }}/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.ovpn" "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk/Contents/Resources/"
+  with_items:
+    - "{{ clients }}"
+
+- name: Set permissions on user configs
+  file:
+    path: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0744
+    recurse: True
+    state: "directory"
+  with_items:
+    - "{{ clients }}"
+
+- name: Creating directories
+  file:
+    path: "/home/{{ ansible_user }}/tunnelblick/"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0744
+    recurse: True
+    state: "directory"
+
+- name: Zipping user creds
+  archive:
+    path: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk"
+    dest: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk.zip"
+    format: zip
+  with_items: "{{ clients }}"
+
+- name: Set permissions on user configs
+  file:
+    path: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk.zip"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  with_items:
+    - "{{ clients }}"
+
+- name: Cleaning up
+  file:
+    path: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk"
+    state: "absent"
+  with_items:
+    - "{{ clients }}"
+
+- name: Cleaning up
+  file:
+    path: "{{ openvpn_base_dir }}/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.ovpn"
+    state: "absent"
+  with_items:
+    - "{{ clients }}"
