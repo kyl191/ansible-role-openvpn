@@ -1,0 +1,29 @@
+- name: fetch server files
+  fetch:
+    src: "{{ item }}"
+    dest: "{{ local_backup_location }}"
+    flat: True
+  with_items:
+    - "{{ openvpn_key_dir }}/ca.conf"
+    - "{{ openvpn_key_dir }}/ca-crl.pem"
+    - "{{ openvpn_key_dir }}/ca.crt"
+    - "{{ openvpn_key_dir }}/ca-csr.pem"
+    - "{{ openvpn_key_dir }}/ca-key.pem"
+    - "{{ openvpn_key_dir }}/ca.srl"
+    - "{{ openvpn_key_dir }}/crl_number"
+    - "{{ openvpn_key_dir }}/dh.pem"
+    - "{{ openvpn_key_dir }}/openssl-ca.ext"
+    - "{{ openvpn_key_dir }}/openssl-client.ext"
+    - "{{ openvpn_key_dir }}/openssl-server.ext"
+    - "{{ openvpn_key_dir }}/server.crt"
+    - "{{ openvpn_key_dir }}/server.csr"
+    - "{{ openvpn_key_dir }}/server.key"
+    - "{{ openvpn_key_dir }}/ta.key"
+
+- name: fetch tunnelblick config
+  fetch:
+    src: "{{ openvpn_key_dir }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk.zip"
+    dest: "{{ local_backup_location }}/tunnelblick/{{ item.username }}@{{ openvpn_server_hostname }}.{{ openvpn_port }}.tblk.zip"
+    flat: True
+  with_items: "{{ clients }}"
+  when: tunnelblick

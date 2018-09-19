@@ -31,22 +31,30 @@ register-dns
 {% endif %}
 
 key-direction 1
+{% if not tunnelblick %}
 <ca>
 {{ ca_cert.content|b64decode }}
 </ca>
+{% endif %}
 
+{% if not tunnelblick %}
 <tls-auth>
 {{ tls_auth.content|b64decode }}
 </tls-auth>
+{% endif %}
 
+{% if not tunnelblick %}
 <cert>
 {{ item.0.content|b64decode }}
 </cert>
+{% endif %}
 
+{% if not tunnelblick %}
 <key>
 {{ item.1.content|b64decode }}
 </key>
+{% endif %}
 
 {% if openvpn_verify_cn|bool %}
-verify-x509-name OpenVPN-Server-{{inventory_hostname[:49]}} name
+verify-x509-name {{inventory_hostname[:64]}} name
 {% endif %}

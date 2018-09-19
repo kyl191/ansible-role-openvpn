@@ -1,81 +1,101 @@
 - name: Create openvpn key directory
   file:
-    path: "{{openvpn_key_dir}}"
+    path: "{{ openvpn_key_dir }}"
     state: directory
 
 - name: Copy openssl server/ca extensions
   copy:
-    src: "{{item}}"
-    dest: "{{openvpn_key_dir}}"
+    src: "{{ item }}"
+    dest: "{{ openvpn_key_dir }}"
     owner: root
     group: root
     mode: 0400
   with_items:
-    - openssl-server.ext
-    - openssl-ca.ext
+    - "{{ openssl_server_ext }}"
+    - "{{ openssl_ca_ext }}"
+  when:
+    - openssl_server_ext is defined
+    - openssl_ca_ext is defined
 
 - name: Copy CA key
   copy:
-    content: "{{openvpn_ca_key.key}}"
-    dest: "{{openvpn_key_dir}}/ca-key.pem"
+    src: "{{ openvpn_ca_key.key }}"
+    dest: "{{ openvpn_key_dir }}/ca-key.pem"
     mode: 0400
   when: openvpn_ca_key is defined
 
 - name: Copy CA cert
   copy:
-    content: "{{openvpn_ca_key.crt}}"
-    dest: "{{openvpn_key_dir}}/ca.crt"
+    src: "{{ openvpn_ca_key.crt }}"
+    dest: "{{ openvpn_key_dir }}/ca.crt"
     mode: 0444
   when: openvpn_ca_key is defined
 
 - name: Generate CA key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname[:53]}}/
+  command: openssl req -utf8 -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj "/C={{ cert_country_name[:64] }}/ST={{ cert_state[:64] }}/L={{ cert_locality[:64] }}/O={{ cert_org_name[:64] }}/CN={{ inventory_hostname[:64] }}"
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
 
 - name: Protect CA key
   file:
-    path: "{{openvpn_key_dir}}/ca-key.pem"
+    path: "{{ openvpn_key_dir }}/ca-key.pem"
     mode: 0400
   when: openvpn_ca_key is not defined
 
 - name: Sign CA key
   command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: ca.crt
   when: openvpn_ca_key is not defined
 
+- name: Copy server key
+  copy:
+    src: "{{ openvpn_server_key.key }}"
+    dest: "{{ openvpn_key_dir }}/server.key"
+    mode: 0400
+  when: openvpn_server_key is defined
+
+- name: Copy server cert
+  copy:
+    src: "{{ openvpn_server_key.crt }}"
+    dest: "{{ openvpn_key_dir }}/server.crt"
+    mode: 0400
+  when: openvpn_server_key is defined
+
 - name: generate server key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname[:49]}}/
+  command: openssl req -utf8 -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout server.key -out server.csr -days 3650 -subj "/C={{ cert_country_name[:64] }}/ST={{ cert_state[:64] }}/L={{ cert_locality[:64] }}/O={{ cert_org_name[:64] }}/CN={{ inventory_hostname[:64] }}"
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: server.key
+  when: openvpn_server_key is not defined
 
 - name: protect server key
   file:
-    path: "{{openvpn_key_dir}}/server.key"
+    path: "{{ openvpn_key_dir }}/server.key"
     mode: 0400
+  when: openvpn_server_key is not defined
 
 - name: sign server key
   command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: server.crt
+  when: openvpn_server_key is not defined
 
 - name: Copy tls-auth key
   copy:
-    content: "{{openvpn_tls_auth_key}}"
-    dest: "{{openvpn_key_dir}}/ta.key"
+    src: "{{ openvpn_tls_auth_key }}"
+    dest: "{{ openvpn_key_dir }}/ta.key"
     mode: 0400
   when: openvpn_tls_auth_key is defined
 
 - name: generate tls-auth key
   command: openvpn --genkey --secret ta.key
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: ta.key
   when: openvpn_tls_auth_key is not defined
 
@@ -83,8 +103,8 @@
 # per http://security.stackexchange.com/questions/42415/openvpn-dhparam/42418#42418
 - name: copy pre-generated DH params
   copy:
-    src: dh.pem
-    dest: "{{openvpn_key_dir}}"
+    src: "{{ openvpn_dh_param_file }}"
+    dest: "{{ openvpn_key_dir }}/dh.pem"
     owner: root
     group: root
     mode: 0400
@@ -92,16 +112,16 @@
 
 # Alternatively, if you're concerned about logjam attacks
 - name: generate dh params
-  command: openssl dhparam -out {{openvpn_key_dir}}/dh.pem {{openvpn_rsa_bits}}
+  command: openssl dhparam -out {{ openvpn_key_dir }}/dh.pem {{ openvpn_rsa_bits }}
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: dh.pem
   when: not (openvpn_use_pregenerated_dh_params|bool)
 
 - name: install ca.conf config file
   template:
     src: ca.conf.j2
-    dest: "{{openvpn_key_dir}}/ca.conf"
+    dest: "{{ openvpn_key_dir }}/ca.conf"
     owner: root
     group: root
     mode: 744
@@ -109,27 +129,27 @@
 - name: create initial certificate revocation list squence number
   shell: "echo 00 > crl_number"
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: crl_number
 
 - name: generate tls-auth key
   command: openvpn --genkey --secret ta.key
   args:
-    chdir: "{{openvpn_key_dir}}"
+    chdir: "{{ openvpn_key_dir }}"
     creates: ta.key
   when: openvpn_tls_auth_key is not defined
 
 - name: install revocation script
   template:
     src: revoke.sh.j2
-    dest: "{{openvpn_key_dir}}/revoke.sh"
+    dest: "{{ openvpn_key_dir }}/revoke.sh"
     owner: root
     group: root
     mode: 744
 
 - name: ensure certificate revocation list database exists
   file:
-    path: "{{openvpn_key_dir}}/index.txt"
+    path: "{{ openvpn_key_dir }}/index.txt"
     state: touch
 
 - name: set up certificate revocation list

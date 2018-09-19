@@ -1,7 +1,7 @@
 - name: Create openvpn config file
   template:
     src: server.conf.j2
-    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}.conf"
+    dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}.conf"
     owner: root
     group: root
   notify:
@@ -26,6 +26,6 @@
 
 - name: Setup openvpn auto-start & start
   service:
-    name: "{{openvpn_service_name}}"
+    name: "{{ openvpn_service_name }}"
     enabled: yes
     state: started

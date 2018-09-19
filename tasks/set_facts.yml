@@ -6,13 +6,13 @@
 
 - name: Set systemd openvpn service name
   set_fact:
-    openvpn_service_name: "openvpn@{{openvpn_config_file}}.service"
+    openvpn_service_name: "openvpn@{{ openvpn_config_file }}.service"
   when: ansible_service_mgr == "systemd" or (docker_stat_result.stat is defined and docker_stat_result.stat.exists == True)
 
 # Fedora separates OpenVPN into client and server
 - name: Set Fedora 27+ service name
   set_fact:
-    openvpn_service_name: "openvpn-server@{{openvpn_config_file}}.service"
+    openvpn_service_name: "openvpn-server@{{ openvpn_config_file }}.service"
   when: ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27
 
 - name: Set Fedora 27+ OpenVPN base path

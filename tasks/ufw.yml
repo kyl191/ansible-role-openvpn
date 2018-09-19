@@ -18,8 +18,8 @@
 - name: ufw - Allow incoming VPN connection
   ufw:
     direction: in
-    proto: "{{openvpn_proto}}"
-    to_port: "{{openvpn_port}}"
+    proto: "{{ openvpn_proto }}"
+    to_port: "{{ openvpn_port }}"
     rule: allow
 
 - name: ufw - Accept packets from VPN tunnel adaptor
@@ -37,7 +37,7 @@
       # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}}
+      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j SNAT --to-source {{ ansible_default_ipv4.address }}
       COMMIT
   notify:
     - restart ufw

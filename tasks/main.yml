@@ -1,4 +1,3 @@
----
 # tasks file for openvpn
 - include_vars: "{{ item }}"
   with_first_found:
@@ -69,3 +68,15 @@
   include_tasks: config.yml
   tags:
     - configure
+
+- name: Prepare OpenVPN client config bundles
+  include_tasks: tunnelblick.yml
+  when:
+    - clients is defined
+    - tunnelblick
+  tags:
+    - configure
+
+- name: Pulling OpenVPN configs/keys
+  include_tasks: backup.yml
+  when: local_backup_location is defined
