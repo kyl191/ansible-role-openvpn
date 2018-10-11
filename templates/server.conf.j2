@@ -71,8 +71,8 @@ push "{{ opt }}"
 {% endfor %}
 {% endif %}
 keepalive 5 30
-{% if openvpn_compression %}
-compress lzo
+{% if openvpn_compression is not none %}
+compress {{ openvpn_compression }}
 {% endif %}
 persist-key
 persist-tun
