@@ -2,29 +2,57 @@
 #
 #
 ---
+- name: write client list to temp file for comparison with existing certs
+  copy:
+    content: "{{ clients | join('\n') }}"
+    dest: /tmp/client-list
+  when: openvpn_sync_certs
+
+- name: get existing certs
+  shell: ls {{openvpn_ovpn_dir}} | grep '\.csr' | grep -v 'server.csr' | sort | cut -f1 -d'.'
+  register: existing_certs
+  when: openvpn_sync_certs
+
+- name: get difference between 'clients' variable and existing certs
+  shell: diff <(cat /tmp/client-list | sort) <(cat {{existing_certs}}) | grep '>' | awk '{print $2}'
+  register: additional_certs_to_revoke
+  when: existing_certs
+
+- set_fact:
+    additional_certs_to_revoke: []
+  when: additional_certs_to_revoke is not defined
+
 - name: remove client config
   file:
-    path: "{{ openvpn_base_dir }}/{{item}}-{{ansible_hostname}}.ovpn"
+    path: "{{ openvpn_ovpn_dir }}/{{item}}-{{ansible_hostname}}.ovpn"
     state: absent
     force: yes
-  with_items: '{{ openvpn_revoke_these_certs }}'
+  with_items:
+    - '{{ openvpn_revoke_these_certs }}'
+    - '{{ additional_certs_to_revoke }}'
 
 - name: revoke certificates
   command: sh revoke.sh {{ item }}.crt
   args:
     chdir: "{{ openvpn_key_dir }}"
-  with_items: '{{ openvpn_revoke_these_certs }}'
+  with_items:
+    - '{{ openvpn_revoke_these_certs }}'
+    - '{{ additional_certs_to_revoke }}'
 
 - name: remove client key
   file:
     path: "{{ openvpn_key_dir }}/{{ item }}.key"
     state: absent
     force: yes
-  with_items: '{{ openvpn_revoke_these_certs }}'
+  with_items:
+    - '{{ openvpn_revoke_these_certs }}'
+    - '{{ additional_certs_to_revoke }}'
 
 - name: remove client csr
   file:
     path: "{{ openvpn_key_dir }}/{{ item }}.csr"
     state: absent
     force: yes
-  with_items: '{{ openvpn_revoke_these_certs }}'
+  with_items:
+    - '{{ openvpn_revoke_these_certs }}'
+    - '{{ additional_certs_to_revoke }}'

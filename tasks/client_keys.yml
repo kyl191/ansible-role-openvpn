@@ -1,5 +1,10 @@
 # generate client keys
 ---
+- name: Create openvpn ovpn file directory
+  file:
+    path: "{{openvpn_ovpn_dir}}"
+    state: directory
+
 - name: Copy openssl client extensions
   copy:
     src: openssl-client.ext
@@ -53,7 +58,7 @@
 - name: generate client config
   template:
     src: client.ovpn.j2
-    dest: "{{ openvpn_base_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_ovpn_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
     owner: root
     group: root
     mode: 0400
@@ -63,7 +68,7 @@
 
 - name: fetch client config
   fetch:
-    src: "{{ openvpn_base_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
+    src: "{{ openvpn_ovpn_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
     dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}.ovpn"
     flat: yes
   with_items: "{{clients}}"
