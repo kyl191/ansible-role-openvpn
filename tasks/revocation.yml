@@ -2,26 +2,9 @@
 #
 #
 ---
-- name: write client list to temp file for comparison with existing certs
-  copy:
-    content: "{{ clients | join('\n') }}"
-    dest: /tmp/client-list
+- name: Compare existing certs against 'clients' variable
+  import_tasks: common.yml
   when: openvpn_sync_certs
-
-- name: get existing certs
-  shell: ls {{ openvpn_key_dir }} | grep '\.csr' | grep -v 'server.csr' | sort | cut -f1 -d'.' > /tmp/existing-certs
-  when: openvpn_sync_certs
-
-- name: get difference between 'clients' variable and existing certs
-  shell: |
-      sort -o /tmp/client-list /tmp/client-list
-      diff /tmp/client-list /tmp/existing-certs | grep '>' | awk '{print $2}'
-  register: additional_certs_to_revoke
-  when: openvpn_sync_certs
-
-- set_fact:
-    additional_certs_to_revoke: []
-  when: additional_certs_to_revoke is not defined
 
 - name: remove client config
   file:

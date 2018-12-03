@@ -1,5 +1,9 @@
 # generate client keys
 ---
+- name: Compare existing certs against 'clients' variable
+  import_tasks: common.yml
+  when: openvpn_sync_certs
+
 - name: Create openvpn ovpn file directory
   file:
     path: "{{openvpn_ovpn_dir}}"
@@ -18,20 +22,27 @@
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
 
 - name: protect client keys
   file:
     path: "{{openvpn_key_dir}}/{{item}}.key"
     mode: 0400
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: "{{item}}.crt"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
+
 
 - name: register server ca key
   slurp:
@@ -46,13 +57,17 @@
 - name: register client certs
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.crt"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
   register: client_certs
 
 - name: register client keys
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.key"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
   register: client_keys
 
 - name: generate client config
@@ -71,4 +86,6 @@
     src: "{{ openvpn_ovpn_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
     dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}.ovpn"
     flat: yes
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
