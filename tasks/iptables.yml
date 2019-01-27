@@ -10,6 +10,12 @@
     state: present
   when: ansible_os_family == "Debian"
 
+- name: Install iptables-services (RedHat/CentOS)
+  package:
+    name: iptables-services
+    state: present
+  when: ansible_os_family == "RedHat"
+
 - name: Enable iptables
   service:
     name: "{{ iptables_service }}"
