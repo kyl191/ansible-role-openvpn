@@ -80,7 +80,7 @@
 - name: fetch client config
   fetch:
     src: "{{ openvpn_ovpn_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
-    dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}{{config_fetch_suffix | default('')}}.ovpn"
     flat: yes
   with_items:
     - "{{clients}}"
