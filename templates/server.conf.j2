@@ -22,8 +22,11 @@ crl-verify {{openvpn_key_dir}}/ca-crl.pem
 tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}
 tls-server
-auth SHA256
+auth {{ openvpn_auth_alg | default('SHA256') }}
 cipher AES-256-CBC
+{% if openvpn_tun_mtu is not none %}
+tun-mtu {{ openvpn_tun_mtu }}
+{% endif %}
 {% if openvpn_use_hardened_tls|bool %}
 tls-version-min 1.2
 {% endif %}
@@ -68,7 +71,9 @@ push "{{ opt }}"
 {% endfor %}
 {% endif %}
 keepalive 5 30
-compress lzo
+{% if openvpn_compression is not none %}
+compress {{ openvpn_compression }}
+{% endif %}
 persist-key
 persist-tun
 user nobody
