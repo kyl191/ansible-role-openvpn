@@ -2,13 +2,19 @@
   set_fact:
     iptables_save_command: "/usr/sbin/netfilter-persistent save"
     iptables_service: netfilter-persistent
-  when: (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version|int >= 9) or (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
 
 - name: Install iptables-persistent (Debian/Ubuntu)
   package:
     name: iptables-persistent
     state: present
   when: ansible_os_family == "Debian"
+
+- name: Install iptables-services (RedHat/CentOS)
+  package:
+    name: iptables-services
+    state: present
+  when: ansible_os_family == "RedHat"
 
 - name: Enable iptables
   service:

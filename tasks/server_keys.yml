@@ -127,10 +127,18 @@
     group: root
     mode: 744
 
-- name: ensure certificate revocation list database exists
+- name: check if certificate revocation list database exists
+  file:
+    path: "{{openvpn_key_dir}}/index.txt"
+    state: file
+  ignore_errors: true
+  register: file_result
+
+- name: create certificate revocation list database if required
   file:
     path: "{{openvpn_key_dir}}/index.txt"
     state: touch
+  when: file_result.state == 'absent'
 
 - name: set up certificate revocation list
   command: sh revoke.sh

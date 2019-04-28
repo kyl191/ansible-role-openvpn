@@ -6,6 +6,7 @@
 
 - name: Enable ufw
   ufw:
+    direction: incoming
     state: enabled
     policy: allow
 
