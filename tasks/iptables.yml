@@ -8,26 +8,33 @@
   package:
     name: iptables-persistent
     state: present
+  register: __iptables_installed
   when: ansible_os_family == "Debian"
 
 - name: Install iptables-services (RedHat/CentOS)
   package:
     name: iptables-services
     state: present
+  register: __iptables_installed
   when: ansible_os_family == "RedHat"
-
-- name: Enable iptables
-  service:
-    name: "{{ iptables_service }}"
-    enabled: true
-    state: started
 
 - name: iptables - Allow VPN forwarding
   iptables:
     chain: FORWARD
     source: "{{openvpn_server_network}}/24"
     jump: ACCEPT
+    action: insert
     comment: "Allow VPN forwarding"
+  notify: "save iptables"
+
+- name: iptables - Allow incoming SSH connection
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ ansible_port | default(22) }}"
+    jump: ACCEPT
+    action: insert
+    comment: "Allow incoming SSH connection"
   notify: "save iptables"
 
 - name: iptables - Allow incoming VPN connection
@@ -36,6 +43,7 @@
     protocol: "{{openvpn_proto}}"
     destination_port: "{{openvpn_port}}"
     jump: ACCEPT
+    action: insert
     comment: "Allow incoming VPN connection"
   notify: "save iptables"
 
@@ -44,6 +52,7 @@
     chain: INPUT
     in_interface: tun0
     jump: ACCEPT
+    action: insert
     comment: "Accept packets from VPN tunnel adaptor"
   notify: "save iptables"
 
@@ -54,6 +63,7 @@
     source: "{{openvpn_server_network}}/24"
     to_source: "{{ansible_default_ipv4.address}}"
     jump: SNAT
+    action: insert
     comment: "Perform NAT readdressing"
   when: not openvpn_masquerade_not_snat
 
@@ -63,6 +73,17 @@
     chain: POSTROUTING
     source: "{{openvpn_server_network}}/24"
     jump: MASQUERADE
+    action: insert
     comment: "Perform NAT readdressing"
   when: openvpn_masquerade_not_snat
   notify: "save iptables"
+
+- name: Save existing iptables rule before start iptables service
+  shell: "{{ iptables_save_command }}"
+  when: __iptables_installed.changed|bool
+
+- name: Enable iptables
+  service:
+    name: "{{ iptables_service }}"
+    enabled: true
+    state: started
