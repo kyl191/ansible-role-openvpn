@@ -24,7 +24,7 @@ tls-auth {{openvpn_key_dir}}/ta.key 0
 tls-server
 auth {{ openvpn_auth_alg | default('SHA256') }}
 cipher AES-256-CBC
-{% if openvpn_tun_mtu is not none %}
+{% if openvpn_tun_mtu %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
 {% if openvpn_use_hardened_tls|bool %}
@@ -71,7 +71,7 @@ push "{{ opt }}"
 {% endfor %}
 {% endif %}
 keepalive 5 30
-{% if openvpn_compression is not none %}
+{% if openvpn_compression %}
 compress {{ openvpn_compression }}
 {% endif %}
 persist-key
