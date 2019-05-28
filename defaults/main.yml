@@ -59,3 +59,15 @@ ldap:
   require_group: False
   group_base_dn: ou=Groups,dc=example,dc=com
   group_search_filter: (|(cn=developers)(cn=artists))
+
+# Logrotate configuration
+openvpn_log_dir: /var/log
+openvpn_log_file: openvpn.log
+openvpn_logrotate_config: |
+  rotate 4
+  weekly
+  missingok
+  notifempty
+  sharedscripts
+  copytruncate
+  delaycompress
