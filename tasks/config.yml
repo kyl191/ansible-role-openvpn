@@ -25,7 +25,7 @@
 - name: Copy openvpn logrotate config file
   template:
     src: openvpn_logrotate.conf.j2
-    dest: /etc/logrotate.d/openvpn.conf
+    dest: /etc/logrotate.d/openvpn-{{ openvpn_config_file }}.conf
     owner: root
     group: root
     mode: 0400
