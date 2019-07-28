@@ -15,18 +15,16 @@ env:
     - DOCKER_TAG=fedora:latest
       OS_TAG=fedora-latest
       OS=fedora
+    - DOCKER_TAG=fedora:30
+      OS_TAG=fedora-30
+      OS=fedora
+    - DOCKER_TAG=fedora:29
+      OS_TAG=fedora-29
+      OS=fedora
     - DOCKER_TAG=fedora:28
       OS_TAG=fedora-28
       OS=fedora
-    - DOCKER_TAG=fedora:27
-      OS_TAG=fedora-27
-      OS=fedora
-    - DOCKER_TAG=fedora:26
-      OS_TAG=fedora-26
-      OS=fedora
-    - DOCKER_TAG=fedora:25
-      OS_TAG=fedora-25
-      OS=fedora
+
 
 before_install:
   - sudo docker pull ${DOCKER_TAG}
