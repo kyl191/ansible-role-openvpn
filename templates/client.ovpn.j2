@@ -15,7 +15,9 @@ dev tun
 resolv-retry {{ openvpn_resolv_retry }}
 nobind
 keepalive 5 30
-compress lzo
+{% if openvpn_compression is not none %}
+compress {{ openvpn_compression }}
+{% endif %}
 persist-key
 persist-tun
 verb 3
