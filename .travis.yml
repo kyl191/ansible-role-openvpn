@@ -40,8 +40,8 @@ script:
 after_script:
   - sudo docker exec ${OS} cat /var/log/openvpn.log
   - sudo docker exec ${OS} ls /etc/openvpn
-  - sudo docker exec ${OS} cat /etc/openvpn/*.conf
-  - sudo docker exec ${OS} cat /etc/openvpn/*.ovpn
+  - sudo docker exec ${OS} cat /etc/openvpn/openvpn_udp_1194.conf
+  - sudo docker exec ${OS} cat /etc/openvpn/alpha-127.0.0.1.ovpn
   - sudo docker stop ${OS}
 
 notifications:
