@@ -83,9 +83,9 @@ group nogroup
 {{ option }}
 {% endfor %}
 
-status openvpn-status.log
+status status-{{ openvpn_config_file }}.log
 status-version {{ openvpn_status_version }}
-log-append /var/log/openvpn.log
+log-append {{ openvpn_log_dir }}/{{ openvpn_log_file }}
 verb 3
 
 {% if openvpn_verify_cn|bool %}
