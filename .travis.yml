@@ -39,6 +39,9 @@ script:
 
 after_script:
   - sudo docker exec ${OS} cat /var/log/openvpn.log
+  - sudo docker exec ${OS} ls /etc/openvpn
+  - sudo docker exec ${OS} cat /etc/openvpn/*.conf
+  - sudo docker exec ${OS} cat /etc/openvpn/*.ovpn
   - sudo docker stop ${OS}
 
 notifications:
