@@ -43,6 +43,8 @@ openvpn_auth_alg: SHA256
 openvpn_tun_mtu:
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
+openvpn_service_user: nobody
+openvpn_service_group: nogroup
 
 # Used in firewalld
 firewalld_default_interface_zone: public

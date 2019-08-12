@@ -77,6 +77,8 @@ Role Variables
 | openvpn_logrotate_config           | string  |              | See defaults/main.yml                          | Configure logrotate script.                                                                                                                                       |
 | openvpn_keepalive_ping             | int     |              | 5                                              | Set `keepalive` ping interval seconds.                                                                                                                            |
 | openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
+| openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
+| openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
 
 
 LDAP object
