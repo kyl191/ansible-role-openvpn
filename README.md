@@ -75,6 +75,8 @@ Role Variables
 | openvpn_log_dir                    | string  |              | /var/log                                       | Set location of openvpn log files. This parameter is a part of `log-append` configuration value.                                                                  |
 | openvpn_log_file                   | string  |              | openvpn.log                                    | Set log filename. This parameter is a part of `log-append` configuration value.                                                                                   |
 | openvpn_logrotate_config           | string  |              | See defaults/main.yml                          | Configure logrotate script.                                                                                                                                       |
+| openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
+| openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
 
 
 LDAP object
