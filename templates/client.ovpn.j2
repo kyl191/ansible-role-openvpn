@@ -14,7 +14,7 @@ dev tun
 
 resolv-retry {{ openvpn_resolv_retry }}
 nobind
-keepalive 5 30
+keepalive {{ openvpn_keepalive_ping }} {{ openvpn_keepalive_timeout }}
 {% if openvpn_compression is not none %}
 compress {{ openvpn_compression }}
 {% endif %}

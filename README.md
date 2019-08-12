@@ -75,6 +75,8 @@ Role Variables
 | openvpn_log_dir                    | string  |              | /var/log                                       | Set location of openvpn log files. This parameter is a part of `log-append` configuration value.                                                                  |
 | openvpn_log_file                   | string  |              | openvpn.log                                    | Set log filename. This parameter is a part of `log-append` configuration value.                                                                                   |
 | openvpn_logrotate_config           | string  |              | See defaults/main.yml                          | Configure logrotate script.                                                                                                                                       |
+| openvpn_keepalive_ping             | int     |              | 5                                              | Set `keepalive` ping interval seconds.                                                                                                                            |
+| openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
 
 
 LDAP object
