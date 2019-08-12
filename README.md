@@ -4,15 +4,9 @@ openvpn
 
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
-Tested OSes:
-- Fedora 25+
+Tested OSes [(TravisCI)](https://travis-ci.org/kyl191/ansible-role-openvpn):
+- Fedora 28+
 - CentOS 7
-- Ubuntu 16.04/16.10
-
-Should be working OSes:
-- All Fedora
-- All RHEL/CentOS
-- Ubuntu trusty & later
 
 
 Requirements
