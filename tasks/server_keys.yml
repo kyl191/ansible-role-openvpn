@@ -64,6 +64,17 @@
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: server.crt
+  when: openvpn_ca_key_pass is not defined
+
+- name: sign server key with pass phrase
+  expect:
+    command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+    responses:
+      Enter pass phrase for ca-key.pem: "{{ openvpn_ca_key_pass }}"
+    chdir: "{{ openvpn_key_dir }}"
+    creates: server.crt
+  no_log: true
+  when: openvpn_ca_key_pass is defined
 
 - name: Copy tls-auth key
   copy:
