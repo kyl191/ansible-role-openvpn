@@ -2,12 +2,12 @@
     # LDAP server URL
     URL {{ ldap.url }}
 
-    {% if not ldap.anonymous_bind %}
+{% if not ldap.anonymous_bind %}
     # Bind DN (If your LDAP server doesn't support anonymous binds)
     BindDN {{ ldap.bind_dn }}
     # Bind Password
     Password {{ ldap.bind_password }}
-    {% endif %}
+{% endif %}
 
     # Network timeout (in seconds)
     Timeout 15
@@ -18,22 +18,22 @@
     # Follow LDAP Referrals (anonymously)
     FollowReferrals no
 
-    {% if ldap.tls_ca_cert_file is defined %}
+{% if ldap.tls_ca_cert_file is defined %}
     # TLS CA Certificate File
     TLSCACertFile {{ ldap.tls_ca_cert_file }}
-    {% endif %}
+{% endif %}
 
     # TLS CA Certificate Directory
     TLSCACertDir /etc/ssl/certs
 
     # Client Certificate and key
     # If TLS client authentication is required
-    {% if ldap.tls_cert_file is defined %}
+{% if ldap.tls_cert_file is defined %}
     TLSCertFile {{ ldap.tls_cert_file }}
-    {% endif %}
-    {% if ldap.tls_key_file is defined %}
+{% endif %}
+{% if ldap.tls_key_file is defined %}
     TLSKeyFile {{ ldap.tls_key_file }}
-    {% endif %}
+{% endif %}
 
     # Cipher Suite
     # The defaults are usually fine here
@@ -47,7 +47,7 @@
     # User Search Filter
     SearchFilter "{{ ldap.search_filter }}"
 
-    {% if ldap.require_group %}
+{% if ldap.require_group %}
     # Require Group Membership
     RequireGroup True
     # Add non-group members to a PF table (disabled)
@@ -60,5 +60,5 @@
         # Add group members to a PF table (disabled)
         #PFTable ips_vpn_eng
     </Group>
-    {% endif %}
+{% endif %}
 </Authorization>
