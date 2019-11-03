@@ -40,6 +40,7 @@ openvpn_addl_server_options: []
 openvpn_addl_client_options: []
 openvpn_compression: lzo
 openvpn_auth_alg: SHA256
+openvpn_cipher: AES-256-CBC
 openvpn_tun_mtu:
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
