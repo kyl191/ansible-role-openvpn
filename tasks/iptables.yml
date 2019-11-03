@@ -66,6 +66,7 @@
     action: insert
     comment: "Perform NAT readdressing"
   when: not openvpn_masquerade_not_snat
+  notify: "save iptables"
 
 - name: iptables - Perform NAT readdressing with MASQUERADE
   iptables:
