@@ -23,7 +23,7 @@ tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}
 tls-server
 auth {{ openvpn_auth_alg | default('SHA256') }}
-cipher AES-256-CBC
+cipher {{ openvpn_cipher }}
 {% if openvpn_tun_mtu %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
