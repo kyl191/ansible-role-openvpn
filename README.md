@@ -86,6 +86,8 @@ LDAP object
 | bind_password       | string |              | mysecretpassword                        | Password of the bind_dn user                                                                   |
 | tls_enable          | string | yes , no     | no                                      | Force TLS encryption. Not necessary with ldaps addresses                                       |
 | tls_ca_cert_file    | string |              | /etc/openvpn/auth/ca.pem                | Path to the CA ldap backend. This must must has been pushed before                             |
+| tls_cert_file       | string |              |                                         | Path to client authentication certificate                                                     |
+| tls_key_file        | string |              |                                         | Path to client authentication key                                                             |
 | base_dn             | string |              | ou=People,dc=example,dc=com             | Base DN where the backend will look for valid user                                             |
 | search_filter       | string |              | (&(uid=%u)(accountStatus=active))       | Filter the ldap search                                                                         |
 | require_group       | string | False , True |                                         | This is not an Ansible boolean but a string that will be pushed into the   configuration file, |
