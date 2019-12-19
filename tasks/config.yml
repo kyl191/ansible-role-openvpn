@@ -15,10 +15,17 @@
     group: root
   when: openvpn_use_ldap
 
+- name: Create log directory
+  file:
+    dest: "{{ openvpn_log_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+
 - name: Copy openvpn logrotate config file
-  copy:
-    src: openvpn_logrotate.conf
-    dest: /etc/logrotate.d/openvpn.conf
+  template:
+    src: openvpn_logrotate.conf.j2
+    dest: /etc/logrotate.d/openvpn-{{ openvpn_config_file }}.conf
     owner: root
     group: root
     mode: 0400

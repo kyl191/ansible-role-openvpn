@@ -40,5 +40,21 @@
       :POSTROUTING ACCEPT [0:0]
       -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}}
       COMMIT
+  when: not openvpn_masquerade_not_snat
+  notify:
+    - restart ufw
+
+- name: ufw - setup nat table rules with MASQUERADE
+  blockinfile:
+    dest: /etc/ufw/before.rules
+    state: present
+    insertbefore: \*filter
+    block: |
+      # OpenVPN config
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s {{openvpn_server_network}}/24 -j MASQUERADE
+      COMMIT
+  when: openvpn_masquerade_not_snat
   notify:
     - restart ufw

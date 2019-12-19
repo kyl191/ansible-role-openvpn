@@ -23,8 +23,8 @@ tls-auth {{openvpn_key_dir}}/ta.key 0
 {% endif %}
 tls-server
 auth {{ openvpn_auth_alg | default('SHA256') }}
-cipher AES-256-CBC
-{% if openvpn_tun_mtu is not none %}
+cipher {{ openvpn_cipher }}
+{% if openvpn_tun_mtu %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
 {% if openvpn_use_hardened_tls|bool %}
@@ -70,22 +70,22 @@ push "dhcp-option DNS 8.8.4.4"
 push "{{ opt }}"
 {% endfor %}
 {% endif %}
-keepalive 5 30
-{% if openvpn_compression is not none %}
+keepalive {{ openvpn_keepalive_ping }} {{ openvpn_keepalive_timeout }}
+{% if openvpn_compression %}
 compress {{ openvpn_compression }}
 {% endif %}
 persist-key
 persist-tun
-user nobody
-group nogroup
+user {{ openvpn_service_user }}
+group {{ openvpn_service_group }}
 
 {% for option in openvpn_addl_server_options %}
 {{ option }}
 {% endfor %}
 
-status openvpn-status.log
+status status-{{ openvpn_config_file }}.log
 status-version {{ openvpn_status_version }}
-log-append /var/log/openvpn.log
+log-append {{ openvpn_log_dir }}/{{ openvpn_log_file }}
 verb 3
 
 {% if openvpn_verify_cn|bool %}
@@ -102,10 +102,16 @@ management-client-user {{openvpn_management_client_user}}
 
 {% if openvpn_use_ldap|bool %}
 ### LDAP AUTH ###
-{% if ansible_machine == "x86_64" %}
+{% if ansible_os_family == 'Debian' %}
+plugin /usr/lib/openvpn/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
+{% elif ansible_machine == "x86_64" %}
 plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% else %}
 plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% endif %}
+{% if ldap.verify_client_cert is defined %}
+verify-client-cert {{ ldap.verify_client_cert }}
+{% else %}
 client-cert-not-required
+{% endif %}
 {% endif %}

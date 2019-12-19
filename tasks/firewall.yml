@@ -1,23 +1,23 @@
 - name: Check for firewalld
-  command: which firewall-cmd
+  shell: command -v firewall-cmd
   register: firewalld
   check_mode: no
   changed_when: false  # Never report as changed
-  ignore_errors: yes
+  failed_when: false
 
 - name: Check for ufw
-  command: which ufw
+  shell: command -v ufw
   register: ufw
   check_mode: no
   changed_when: false  # Never report as changed
-  ignore_errors: yes
+  failed_when: false
 
 - name: Check for iptables
-  command: which iptables
+  shell: command -v iptables
   register: iptables
   check_mode: no
   changed_when: false  # Never report as changed
-  ignore_errors: yes
+  failed_when: false
 
 - name: Fail on both firewalld & ufw
   fail:

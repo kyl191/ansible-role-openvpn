@@ -1,17 +1,12 @@
 openvpn
 =========
+[![Build Status](https://travis-ci.org/kyl191/ansible-role-openvpn.svg?branch=master)](https://travis-ci.org/kyl191/ansible-role-openvpn)
 
 This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
 
-Tested OSes:
-- Fedora 25+
+Tested OSes [(TravisCI)](https://travis-ci.org/kyl191/ansible-role-openvpn):
+- Fedora 28+
 - CentOS 7
-- Ubuntu 16.04/16.10
-
-Should be working OSes:
-- All Fedora
-- All RHEL/CentOS
-- Ubuntu trusty & later
 
 
 Requirements
@@ -72,8 +67,16 @@ Role Variables
 | openvpn_client_to_client           | boolean | true, false  | false                                          | Set to true if you want clients to access each other.                                                                                                             |
 | openvpn_masquerade_not_snat        | boolean | true, false  | false                                          | Set to true if you want to set up MASQUERADE instead of the default SNAT in iptables.                                                 |
 | openvpn_compression                | string  |              | lzo                                            | Set `compress` compression option. Empty for no compression.                                                                                                      |
+| openvpn_cipher                     | string  |              | AES-256-CBC                                    | Set `cipher` option for server and client.   
 | openvpn_auth_alg                   | string  |              | SHA256                                         | Set `auth` authentication algoritm.                                                                                                                               |
 | openvpn_tun_mtu                    | int     |              |                                                | Set `tun-mtu` value. Empty for default.                                                                                                                           |
+| openvpn_log_dir                    | string  |              | /var/log                                       | Set location of openvpn log files. This parameter is a part of `log-append` configuration value.                                                                  |
+| openvpn_log_file                   | string  |              | openvpn.log                                    | Set log filename. This parameter is a part of `log-append` configuration value.                                                                                   |
+| openvpn_logrotate_config           | string  |              | See defaults/main.yml                          | Configure logrotate script.                                                                                                                                       |
+| openvpn_keepalive_ping             | int     |              | 5                                              | Set `keepalive` ping interval seconds.                                                                                                                            |
+| openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
+| openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
+| openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
 
 
 LDAP object
@@ -86,11 +89,14 @@ LDAP object
 | bind_password       | string |              | mysecretpassword                        | Password of the bind_dn user                                                                   |
 | tls_enable          | string | yes , no     | no                                      | Force TLS encryption. Not necessary with ldaps addresses                                       |
 | tls_ca_cert_file    | string |              | /etc/openvpn/auth/ca.pem                | Path to the CA ldap backend. This must must has been pushed before                             |
+| tls_cert_file       | string |              |                                         | Path to client authentication certificate                                                     |
+| tls_key_file        | string |              |                                         | Path to client authentication key                                                             |
 | base_dn             | string |              | ou=People,dc=example,dc=com             | Base DN where the backend will look for valid user                                             |
 | search_filter       | string |              | (&(uid=%u)(accountStatus=active))       | Filter the ldap search                                                                         |
 | require_group       | string | False , True |                                         | This is not an Ansible boolean but a string that will be pushed into the   configuration file, |
 | group_base_dn       | string |              | ou=Groups,dc=example,dc=com             | Precise the group to look for. Required if require_group is set to   "True"                    |
 | group_search_filter | string |              | ((cn=developers)(cn=artists))           | Precise valid groups                                                                           |
+| verify_client_cert | string | none , optional , require | client-cert-not-required | In OpenVPN 2.4+ `client-cert-not-required` is deprecated. Use `verify-client-cert` instead. |
 
 Dependencies
 ------------
