@@ -19,6 +19,8 @@ env:
       OS=fedora
     - DOCKER_TAG=fedora:28
       OS=fedora
+    - DOCKER_TAG=ubuntu:18.04
+      OS=ubuntu
 
 
 before_install:
