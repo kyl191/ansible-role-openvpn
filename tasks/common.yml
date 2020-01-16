@@ -23,9 +23,11 @@
   when: openvpn_sync_certs
 
 - set_fact:
-    additional_certs_to_revoke: []
+    additional_certs_to_revoke:
+      stdout_lines: []
   when: additional_certs_to_revoke is not defined
 
 - set_fact:
-    additional_certs_to_add: []
+    additional_certs_to_add:
+      stdout_lines: []
   when: additional_certs_to_add is not defined
