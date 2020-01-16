@@ -21,6 +21,7 @@ env:
       OS=fedora
     - DOCKER_TAG=ubuntu:18.04
       OS=ubuntu
+      COMMAND=/lib/systemd/systemd --system
 
 
 before_install:
