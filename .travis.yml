@@ -19,7 +19,7 @@ env:
       OS=fedora
     - DOCKER_TAG=fedora:28
       OS=fedora
-    - DOCKER_TAG=ubuntu:18.04
+    - DOCKER_TAG=travisci/ubuntu-systemd:18.04
       OS=ubuntu
       COMMAND=/lib/systemd/systemd --system
 
