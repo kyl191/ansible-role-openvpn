@@ -1,3 +1,4 @@
+---
 - name: write client list to temp file for comparison with existing certs
   copy:
     content: "{{ clients | join('\n') }}"
@@ -12,22 +13,12 @@
   shell: |
       sort -o /tmp/client-list /tmp/client-list
       diff /tmp/client-list /tmp/existing-certs | grep '>' | awk '{print $2}'
-  register: additional_certs_to_revoke
+  register: _additional_certs_to_revoke
   when: openvpn_sync_certs
 
 - name: find clients to add and notify
   shell: |
       sort -o /tmp/client-list /tmp/client-list
       diff /tmp/client-list /tmp/existing-certs | grep '<' | awk '{print $2}'
-  register: additional_certs_to_add
+  register: _additional_certs_to_add
   when: openvpn_sync_certs
-
-- set_fact:
-    additional_certs_to_revoke:
-      stdout_lines: []
-  when: additional_certs_to_revoke is not defined
-
-- set_fact:
-    additional_certs_to_add:
-      stdout_lines: []
-  when: additional_certs_to_add is not defined
