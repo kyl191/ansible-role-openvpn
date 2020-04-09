@@ -22,7 +22,18 @@
   with_items: "{{clients}}"
 
 - name: sign client key
-  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
+  command: >-
+    openssl x509 
+      -req 
+      -in {{item}}.csr 
+      -out {{item}}.crt 
+      -CA ca.crt 
+      -CAkey ca-key.pem 
+      -sha256 
+      -days 3650 
+      -extfile openssl-client.ext
+      {% if openvpn_ca_key.passphrase is defined %}-passin 'pass:{{openvpn_ca_key.passphrase}}'{% endif %}
+  no_log: "{{ openvpn_ca_key.passphrase is defined }}"
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: "{{item}}.crt"

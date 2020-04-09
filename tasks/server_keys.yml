@@ -14,25 +14,16 @@
     - openssl-server.ext
     - openssl-ca.ext
 
-- name: Copy / Generate CA (cert & key)
-  include_tasks: server_keys/ca.yaml
+- name: Copy CA (cert & key)
+  include_tasks: "{{ role_path }}/tasks/server_keys/copy_ca.yml"
+  when: openvpn_ca_key is defined
 
-- name: generate server key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname[:49]}}/
-  args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: server.key
+- name: Generate CA (cert & key)
+  include_tasks: "{{ role_path }}/tasks/server_keys/generate_ca.yml"
+  when: openvpn_ca_key is not defined
 
-- name: protect server key
-  file:
-    path: "{{openvpn_key_dir}}/server.key"
-    mode: 0400
-
-- name: sign server key
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
-  args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: server.crt
+- name: Generate Server (cert & key)
+  include_tasks: "{{ role_path }}/tasks/server_keys/generate_server.yml"
 
 - name: Copy tls-auth key
   copy:
@@ -75,7 +66,7 @@
     group: root
     mode: 744
 
-- name: create initial certificate revocation list squence number
+- name: create initial certificate revocation list sequence number
   shell: "echo 00 > crl_number"
   args:
     chdir: "{{openvpn_key_dir}}"
@@ -108,10 +99,18 @@
   when: file_result.stat.exists == False
 
 - name: set up certificate revocation list
+  command: sh revoke.sh -p '{{openvpn_ca_key.passphrase}}'
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+  when: openvpn_ca_key.passphrase is defined
+
+- name: set up certificate revocation list
   command: sh revoke.sh
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+  when: openvpn_ca_key.passphrase is not defined
 
 - name: install crl-cron script
   template:

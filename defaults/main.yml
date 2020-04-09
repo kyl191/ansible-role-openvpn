@@ -4,6 +4,8 @@ openvpn_base_dir: /etc/openvpn
 openvpn_key_dir: /etc/openvpn/keys
 openvpn_port: 1194
 openvpn_server_hostname: "{{inventory_hostname}}"
+openvpn_ca_cn: "OpenVPN-CA-{{inventory_hostname[:53]}}"
+openvpn_server_cn: "OpenVPN-Server-{{inventory_hostname[:49]}}"
 openvpn_proto: udp
 openvpn_dualstack: true
 openvpn_rsa_bits: 2048

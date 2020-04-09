@@ -1,0 +1,12 @@
+- name: Copy CA key
+  copy:
+    content: "{{openvpn_ca_key.key}}"
+    dest: "{{openvpn_key_dir}}/ca-key.pem"
+    mode: 0400
+
+- name: Copy CA cert
+  copy:
+    content: "{{openvpn_ca_key.crt}}"
+    dest: "{{openvpn_key_dir}}/ca.crt"
+    mode: 0444
+  

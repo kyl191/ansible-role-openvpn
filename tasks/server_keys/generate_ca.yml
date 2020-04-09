@@ -1,0 +1,16 @@
+- name: Generate CA key
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN={{openvpn_ca_cn}}/
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: ca-key.pem
+
+- name: Protect CA key
+  file:
+    path: "{{openvpn_key_dir}}/ca-key.pem"
+    mode: 0400
+
+- name: Sign CA key
+  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: ca.crt

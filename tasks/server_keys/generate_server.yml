@@ -1,0 +1,24 @@
+- name: generate server key and csr
+  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN={{openvpn_server_cn}}/
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: server.key
+
+- name: protect server key
+  file:
+    path: "{{openvpn_key_dir}}/server.key"
+    mode: 0400
+
+- name: sign server key
+  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: server.crt
+  when: openvpn_ca_key.passphrase is not defined
+
+- name: sign server key (using passphrase)
+  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext -passin 'pass:{{openvpn_ca_key.passphrase}}'
+  args:
+    chdir: "{{openvpn_key_dir}}"
+    creates: server.crt
+  when: openvpn_ca_key.passphrase is defined
