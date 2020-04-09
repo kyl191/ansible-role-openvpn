@@ -14,39 +14,8 @@
     - openssl-server.ext
     - openssl-ca.ext
 
-- name: Copy CA key
-  copy:
-    content: "{{openvpn_ca_key.key}}"
-    dest: "{{openvpn_key_dir}}/ca-key.pem"
-    mode: 0400
-  when: openvpn_ca_key is defined
-
-- name: Copy CA cert
-  copy:
-    content: "{{openvpn_ca_key.crt}}"
-    dest: "{{openvpn_key_dir}}/ca.crt"
-    mode: 0444
-  when: openvpn_ca_key is defined
-
-- name: Generate CA key
-  command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout ca-key.pem -out ca-csr.pem -days 3650 -subj /CN=OpenVPN-CA-{{inventory_hostname[:53]}}/
-  args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: ca-key.pem
-  when: openvpn_ca_key is not defined
-
-- name: Protect CA key
-  file:
-    path: "{{openvpn_key_dir}}/ca-key.pem"
-    mode: 0400
-  when: openvpn_ca_key is not defined
-
-- name: Sign CA key
-  command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
-  args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: ca.crt
-  when: openvpn_ca_key is not defined
+- name: Copy / Generate CA (cert & key)
+  include_tasks: server_keys/ca.yaml
 
 - name: generate server key
   command: openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout server.key -out server.csr -days 3650 -subj /CN=OpenVPN-Server-{{inventory_hostname[:49]}}/
