@@ -67,3 +67,23 @@
     dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}{{config_fetch_suffix | default('')}}.ovpn"
     flat: yes
   with_items: "{{clients}}"
+  
+- name: remove client keys and csr
+  file:
+    path: "{{ openvpn_key_dir }}/{{ item }}.key"
+    state: absent
+  with_items: "{{ clients }}"
+  
+- name: remove client csr
+  file:
+    path: "{{ openvpn_key_dir }}/{{ item }}.csr"
+    state: absent
+  with_items: "{{ clients }}"
+  
+- name: remove client config
+  file:
+    path: "{{ openvpn_base_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    state: absent
+  with_together:
+    - "{{client_certs.results}}"
+    - "{{client_keys.results}}"
