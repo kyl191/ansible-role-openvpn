@@ -1,5 +1,8 @@
 # {{ ansible_managed }}
 
+{% if openvpn_local is defined %}
+local {{openvpn_local}}
+{% endif %}
 port {{openvpn_port}}
 {% if openvpn_dualstack %}
 proto {{openvpn_proto}}6
