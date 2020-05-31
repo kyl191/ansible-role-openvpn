@@ -1,5 +1,14 @@
 # generate client keys
 ---
+- set_fact:
+    additional_certs_to_revoke: "{{ _additional_certs_to_revoke.stdout_lines | default([]) }}"
+    additional_certs_to_add: "{{ _additional_certs_to_add.stdout_lines | default([]) }}"
+
+- name: Create openvpn ovpn file directory
+  file:
+    path: "{{openvpn_ovpn_dir}}"
+    state: directory
+
 - name: Copy openssl client extensions
   copy:
     src: openssl-client.ext
@@ -8,25 +17,34 @@
     group: root
     mode: 0400
 
+- debug: msg={{ additional_certs_to_add }}
+
 - name: generate client key
   command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/"
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
 
 - name: protect client keys
   file:
     path: "{{openvpn_key_dir}}/{{item}}.key"
     mode: 0400
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: "{{item}}.crt"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
+
 
 - name: register server ca key
   slurp:
@@ -41,19 +59,23 @@
 - name: register client certs
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.crt"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
   register: client_certs
 
 - name: register client keys
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.key"
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
   register: client_keys
 
 - name: generate client config
   template:
     src: client.ovpn.j2
-    dest: "{{ openvpn_base_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_ovpn_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
     owner: root
     group: root
     mode: 0400
@@ -63,7 +85,9 @@
 
 - name: fetch client config
   fetch:
-    src: "{{ openvpn_base_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
+    src: "{{ openvpn_ovpn_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
     dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}{{config_fetch_suffix | default('')}}.ovpn"
     flat: yes
-  with_items: "{{clients}}"
+  with_items:
+    - "{{clients}}"
+    - "{{ additional_certs_to_add }}"
