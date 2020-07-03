@@ -16,7 +16,7 @@ resolv-retry {{ openvpn_resolv_retry }}
 nobind
 keepalive {{ openvpn_keepalive_ping }} {{ openvpn_keepalive_timeout }}
 {% if openvpn_compression is not none %}
-compress {{ openvpn_compression }}
+comp-{{ openvpn_compression }}
 {% endif %}
 persist-key
 persist-tun
