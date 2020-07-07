@@ -66,6 +66,12 @@
   tags:
     - client_keys
 
+- name: Create setup client IP
+  import_tasks: client_ip.yml
+  when: openvpn_client_config_dir
+  tags:
+    - client_ip
+
 - name: Generate revocation list and clean up
   import_tasks: revocation.yml
   when: openvpn_revoke_these_certs is defined

@@ -56,7 +56,7 @@ Role Variables
 | manage_firewall_rules              | boolean | true , false | true                                           | Allow playbook to manage iptables                                                                                                                                 |
 | openvpn_crl_path                   | string  |              |                                                | Define a path to the CRL file for revokations.                                                                                                                    |
 | openvpn_use_crl                    | boolean | true , false |                                                | Configure OpenVPN server to honor certificate revocation list.                                                                                                    |
-| clients                            | list    |              | []                                             | List of clients to add to OpenVPN                                                                                                  |
+| clients                            | list    |              | []                                             | List of clients to add to OpenVPN. Optionally set ip address. - name: jdoe ip_address:10.9.1.11                                                   |
 | openvpn_sync_certs                 | boolean | true , false | false                                          | Revoke certificates not explicitly defined in 'clients'                                                                                                   |
 | openvpn_revoke_these_certs         | list    |              | []                                             | List of client certificates to revoke.
 | openvpn_client_register_dns        | boolean | true , false | true                                           | Add `register-dns` option to client config (Windows only).                                                                                                        |
@@ -78,6 +78,10 @@ Role Variables
 | openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
 | openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
 | openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
+
+| openvpn_custom_dns                | boolean  | true, false    | false                                        | Set custom DNS. Need to specify DNS servers with vars openvpn_dns_servers                                                                                         |
+
+| openvpn_client_config_dir         | boolean  | true, false    | false                                        | Allow to set fixe ip for clients                                                                                         |
 
 
 LDAP object
@@ -103,6 +107,18 @@ Dependencies
 ------------
 
 Does not depend on any other roles
+
+List Clients
+------------
+
+Optionally, you can set fixe ip for client. Set "openvpn_client_config_dir: true" and specify ip_address
+
+    - clients:
+      - name: jdoe1
+        ip_address: 10.112.112.11
+      - name: jdoe2
+        ip_address: 10.112.112.22
+
 
 Example Playbook
 ----------------

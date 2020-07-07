@@ -1,0 +1,22 @@
+---
+- name: Create client config directory
+  file:
+    dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}/client-configs"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: setup client ip to config file
+  copy:
+    content: |
+      ifconfig-push {{ item.ip_address }} {{ openvpn_server_netmask }}
+
+    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}/client-configs/{{ item.name }}"
+    mode: 0740
+    owner: root
+    group: root
+  loop: "{{ clients }}"
+  when:
+    - item is mapping
+    - "'ip_address' in item and 'name' in item"

@@ -1,7 +1,12 @@
 ---
 - name: write client list to temp file for comparison with existing certs
   copy:
-    content: "{{ clients | join('\n') }}"
+    content: |
+      {% for client in clients %}
+      {% if client is mapping %}{{ client['name'] }}{% else %}{{ client }}{% endif %}
+
+      {% endfor %}
+
     dest: /tmp/client-list
   when: openvpn_sync_certs
 

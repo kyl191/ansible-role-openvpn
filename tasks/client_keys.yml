@@ -4,6 +4,15 @@
     additional_certs_to_revoke: "{{ _additional_certs_to_revoke.stdout_lines | default([]) }}"
     additional_certs_to_add: "{{ _additional_certs_to_add.stdout_lines | default([]) }}"
 
+- name: Set clients_name
+  set_fact:
+    clients_name: "{{ clients_name|default([]) }} + ['{{ item['name'] if 'name' in item else item }}']"
+  loop: "{{ clients }}"
+
+- name: List clients
+  debug:
+    var: clients_name
+
 - name: Create openvpn ovpn file directory
   file:
     path: "{{openvpn_ovpn_dir}}"
@@ -17,7 +26,10 @@
     group: root
     mode: 0400
 
-- debug: msg={{ additional_certs_to_add }}
+- name: Additional certificates to add
+  debug:
+    msg: "{{ additional_certs_to_add }}"
+  when: openvpn_sync_certs
 
 - name: generate client key
   command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/"
@@ -25,16 +37,14 @@
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{item}}.key"
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"
 
 - name: protect client keys
   file:
     path: "{{openvpn_key_dir}}/{{item}}.key"
     mode: 0400
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"
 
 - name: sign client key
   command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
@@ -42,9 +52,7 @@
     chdir: "{{openvpn_key_dir}}"
     creates: "{{item}}.crt"
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
-
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"
 
 - name: register server ca key
   slurp:
@@ -60,16 +68,14 @@
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.crt"
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"
   register: client_certs
 
 - name: register client keys
   slurp:
     src: "{{openvpn_key_dir}}/{{item}}.key"
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"
   register: client_keys
 
 - name: generate client config
@@ -89,5 +95,4 @@
     dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}{{config_fetch_suffix | default('')}}.ovpn"
     flat: yes
   with_items:
-    - "{{clients}}"
-    - "{{ additional_certs_to_add }}"
+    - "{{ additional_certs_to_add if openvpn_sync_certs else clients_name }}"

@@ -79,6 +79,10 @@ compress {{ openvpn_compression }}
 {% endif %}
 persist-key
 persist-tun
+{% if openvpn_client_config_dir%}
+client-config-dir {{ openvpn_base_dir }}/{{ openvpn_config_file }}/client-configs
+ccd-exclusive
+{% endif %}
 user {{ openvpn_service_user }}
 group {{ openvpn_service_group }}
 

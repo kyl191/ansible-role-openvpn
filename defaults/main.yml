@@ -31,6 +31,7 @@ openvpn_push: []
 manage_firewall_rules: true
 iptables_service: iptables
 openvpn_client_register_dns: true
+openvpn_client_config_dir: false
 openvpn_custom_dns: false
 openvpn_dns_servers: []
 openvpn_use_crl: false
