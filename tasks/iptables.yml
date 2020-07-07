@@ -21,7 +21,7 @@
 - name: iptables - Allow VPN forwarding
   iptables:
     chain: FORWARD
-    source: "{{openvpn_server_network}}/24"
+    source: "{{openvpn_server_network}}/22"
     jump: ACCEPT
     action: insert
     comment: "Allow VPN forwarding"
@@ -60,7 +60,7 @@
   iptables:
     table: nat
     chain: POSTROUTING
-    source: "{{openvpn_server_network}}/24"
+    source: "{{openvpn_server_network}}/22"
     to_source: "{{ansible_default_ipv4.address}}"
     jump: SNAT
     action: insert
@@ -72,7 +72,7 @@
   iptables:
     table: nat
     chain: POSTROUTING
-    source: "{{openvpn_server_network}}/24"
+    source: "{{openvpn_server_network}}/22"
     jump: MASQUERADE
     action: insert
     comment: "Perform NAT readdressing"

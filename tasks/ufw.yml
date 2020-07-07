@@ -38,7 +38,7 @@
       # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{openvpn_server_network}}/24 -j SNAT --to-source {{ansible_default_ipv4.address}}
+      -A POSTROUTING -s {{openvpn_server_network}}/22 -j SNAT --to-source {{ansible_default_ipv4.address}}
       COMMIT
   when: not openvpn_masquerade_not_snat
   notify:
@@ -53,7 +53,7 @@
       # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{openvpn_server_network}}/24 -j MASQUERADE
+      -A POSTROUTING -s {{openvpn_server_network}}/22 -j MASQUERADE
       COMMIT
   when: openvpn_masquerade_not_snat
   notify:
