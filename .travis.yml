@@ -11,8 +11,9 @@ env:
   matrix:
     - DOCKER_TAG=centos:7
       OS=centos
-    - DOCKER_TAG=fedora:latest
+    - DOCKER_TAG=fedora:latest-systemd
       OS=fedora
+      INSTALL=fedora-latest
     - DOCKER_TAG=fedora:30
       OS=fedora
     - DOCKER_TAG=fedora:29
@@ -22,7 +23,6 @@ env:
     - DOCKER_TAG=travisci/ubuntu-systemd:18.04
       OS=ubuntu
       COMMAND=/lib/systemd/systemd --system
-
 
 before_install:
   - ./tests/install-${INSTALL}
