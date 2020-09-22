@@ -13,9 +13,9 @@
 - name: Set Fedora 27+ and CentOS 8 service name
   set_fact:
     openvpn_service_name: "openvpn-server@{{openvpn_config_file}}.service"
-  when: (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27) or (ansible_distribution == "CentOS" and ansible_distribution_version|int >= 8)
+  when: (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27) or (ansible_os_family == "RedHat" and ansible_distribution_version|int >= 8)
 
 - name: Set Fedora 27+ and CentOS 8 OpenVPN base path
   set_fact:
     openvpn_base_dir: "/etc/openvpn/server"
-  when: (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27) or (ansible_distribution == "CentOS" and ansible_distribution_version|int >= 8)
+  when: (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27) or (ansible_os_family == "RedHat" and ansible_distribution_version|int >= 8)
