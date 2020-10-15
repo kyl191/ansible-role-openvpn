@@ -10,15 +10,19 @@
     mode: 0400
 
 - name: sign server key
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+  command: >-
+    openssl x509 
+      -req 
+      -in server.csr 
+      -out server.crt 
+      -CA ca.crt 
+      -CAkey ca-key.pem 
+      -sha256 
+      -days 3650 
+      -CAcreateserial 
+      -extfile openssl-server.ext
+      {% if openvpn_ca_key.passphrase is defined %}-passin 'pass:{{openvpn_ca_key.passphrase}}'{% endif %}
+  no_log: "{{ openvpn_ca_key.passphrase is defined }}"
   args:
     chdir: "{{openvpn_key_dir}}"
     creates: server.crt
-  when: openvpn_ca_key.passphrase is not defined
-
-- name: sign server key (using passphrase)
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext -passin 'pass:{{openvpn_ca_key.passphrase}}'
-  args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: server.crt
-  when: openvpn_ca_key.passphrase is defined
