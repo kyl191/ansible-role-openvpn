@@ -1,0 +1,24 @@
+---
+- name: write client list to temp file for comparison with existing certs
+  copy:
+    content: "{{ clients | join('\n') }}"
+    dest: /tmp/client-list
+  when: openvpn_sync_certs
+
+- name: get existing certs
+  shell: ls {{ openvpn_key_dir }} | grep '\.csr' | grep -v 'server.csr' | sort | cut -f1 -d'.' > /tmp/existing-certs
+  when: openvpn_sync_certs
+
+- name: get difference between 'clients' variable and existing certs
+  shell: |
+      sort -o /tmp/client-list /tmp/client-list
+      diff /tmp/client-list /tmp/existing-certs | grep '>' | awk '{print $2}'
+  register: _additional_certs_to_revoke
+  when: openvpn_sync_certs
+
+- name: find clients to add and notify
+  shell: |
+      sort -o /tmp/client-list /tmp/client-list
+      diff /tmp/client-list /tmp/existing-certs | grep '<' | awk '{print $2}'
+  register: _additional_certs_to_add
+  when: openvpn_sync_certs
