@@ -78,6 +78,7 @@ Role Variables
 | openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
 | openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
 | openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
+| openvpn_selinux_module             | string  |              | my-openvpn-server                              | Set the SELinux module name                                                                                                                                       |
 
 
 LDAP object
