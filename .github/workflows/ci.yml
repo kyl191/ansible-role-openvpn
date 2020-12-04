@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run docker container
-        run: sudo docker run --detach -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn:ro" --name fedora diodonfrost/ansible-fedora:${{ matrix.version }} /usr/lib/systemd/systemd --system
+        run: sudo docker run --detach -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn:ro" --name fedora diodonfrost/ansible-fedora:${{ matrix.version }}
       - name: Make sure ansible connection is sane
         run: sudo docker exec fedora ansible -m setup -c local -i 127.0.0.1, all
       - name: Check syntax of ansible playbook
