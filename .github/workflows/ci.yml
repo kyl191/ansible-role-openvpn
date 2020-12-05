@@ -11,7 +11,7 @@ on:
 jobs:
   check-syntax:
     runs-on: ubuntu-latest
-    name: fedora-34
+    name: check-syntax
     container: 
       image: diodonfrost/ansible-fedora:34
       env:
@@ -51,7 +51,7 @@ jobs:
       - name: Run ansible playbook
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
         continue-on-error: true
-      - run: ls -r /etc/openvpn
+      - run: ls -lR /etc/openvpn
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - run: cat /var/log/openvpn.log
