@@ -36,4 +36,4 @@
     name: "{{openvpn_service_name}}"
     enabled: yes
     state: started
-  when: ansible_env.CI is not defined
+  when: not ci_build
