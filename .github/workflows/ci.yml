@@ -62,7 +62,7 @@ jobs:
 
   build-centos:
     runs-on: ubuntu-latest
-    name: fedora-${{ matrix.version }}
+    name: centos-${{ matrix.version }}
     needs: [check-syntax]
     strategy:
        fail-fast: false
