@@ -20,12 +20,6 @@
     - openvpn
     - openssl
 
-# Hack to get around CI env not having ansible_service_mgr set properly
-- name: Reload systemd
-  systemd:
-    daemon_reload: true
-  when: ansible_service_mgr == "systemd" or ansible_env.force_systemd == "true"
-
 - name: Install LDAP plugin
   package:
    name: openvpn-auth-ldap
