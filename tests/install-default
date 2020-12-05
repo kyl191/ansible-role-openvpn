@@ -1,0 +1,3 @@
+#!/bin/bash
+set -ev
+sudo docker pull ${DOCKER_TAG}
