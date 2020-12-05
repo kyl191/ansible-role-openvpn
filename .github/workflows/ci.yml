@@ -56,5 +56,7 @@ jobs:
       - name: Container state debug output
         run: |
             ls -lR /etc/openvpn
+            echo "cat /etc/openvpn/**/openvpn_udp_1194.conf"
             cat /etc/openvpn/**/openvpn_udp_1194.conf
+            echo "cat /etc/openvpn/**/alpha-*.ovpn"
             cat /etc/openvpn/**/alpha-*.ovpn
