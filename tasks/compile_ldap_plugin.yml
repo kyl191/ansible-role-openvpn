@@ -1,0 +1,108 @@
+---
+- name: Gather specific variables
+  include_vars: "../vars/compile_ldap_plugin.yml"
+
+- name: Check package re2c already exists
+  become: yes
+  stat:
+    path: "{{ re2c_bin_path }}"
+  register: re2c_bin
+
+- name: Check package openvpn-auth-ldap already exists
+  become: yes
+  stat:
+    path: "{{ openvpn_auth_ldap_bin_path }}"
+  register: openvpn_auth_ldap_bin
+
+- block:
+    - name: Install gcc objc repo
+      become: yes
+      yum_repository:
+        name: csi-gcc
+        description: gcc compiler suite, with Objective-C which is removed from official Red Hat EL8 releases.
+        baseurl: "{{ gcc_objc_repo.base_url }}"
+        gpgkey: "{{ gcc_objc_repo.key }}"
+        gpgcheck: yes
+        enabled: yes
+
+    - name: Install dev packages
+      become: yes
+      package:
+       name: "{{ compile_develop_packages }}"
+       state: present
+
+    - name: Install re2c
+      block:
+        - name: Download and unpack re2c
+          become: yes
+          unarchive:
+            src: "https://github.com/skvadrik/re2c/archive/{{ re2c_version }}.tar.gz"
+            dest: "{{ compile_source_dir }}"
+            creates: "{{ compile_source_dir }}/re2c-{{ re2c_version }}"
+            remote_src: yes
+
+        - name: Compile re2c
+          become: yes
+          shell: |
+            autoreconf -i -W all
+            ./configure
+            make
+            make install
+          args:
+            chdir: "{{ compile_source_dir }}/re2c-{{ re2c_version }}"
+            creates: "{{ re2c_bin_path }}"
+      when:
+        - not re2c_bin.stat.exists
+
+    - name: Install openvpn-auth-ldap
+      block:
+        - name: Download and unpack openvpn-auth-ldap
+          become: yes
+          unarchive:
+            src: "https://github.com/threerings/openvpn-auth-ldap/archive/auth-ldap-{{ openvpn_auth_ldap_version }}.tar.gz"
+            dest: "{{ compile_source_dir }}"
+            creates: "{{ compile_source_dir }}/openvpn-auth-ldap-auth-ldap-{{ openvpn_auth_ldap_version }}"
+            remote_src: yes
+
+        - name: Create module directory
+          become: yes
+          file:
+            path: "{{ openvpn_auth_ldap_bin_path | dirname }}"
+            owner: root
+            group: root
+            mode: 0750
+            state: directory
+
+        - name: Compile
+          become: yes
+          environment:
+            PATH: "{{ re2c_bin_path | dirname }}:{{ lookup('env', 'PATH') }}"
+          shell: |
+            autoconf
+            autoheader
+            ./configure --prefix={{ openvpn_auth_ldap_plugin_dir_path }} --with-openvpn=/sbin/openvpn CFLAGS="-fPIC" OBJCFLAGS="-std=gnu11"
+            make
+            make install
+          args:
+            chdir: "{{ compile_source_dir }}/openvpn-auth-ldap-auth-ldap-{{ openvpn_auth_ldap_version }}"
+            creates: "{{ openvpn_auth_ldap_bin_path }}"
+      when:
+        - not openvpn_auth_ldap_bin.stat.exists
+
+    - name: Cleanup dev packages
+      become: yes
+      package:
+        name: "{{ compile_develop_packages }}"
+        state: absent
+      when:
+        - compile_cleanup_dev_packages
+
+    - name: Remove gcc objc repo
+      become: yes
+      yum_repository:
+        name: csi-gcc
+        state: absent
+      when:
+        - compile_cleanup_dev_packages
+  when:
+    - not openvpn_auth_ldap_bin.stat.exists or not re2c_bin.stat.exists
