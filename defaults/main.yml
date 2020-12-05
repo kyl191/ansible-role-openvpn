@@ -49,6 +49,7 @@ openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
 openvpn_service_user: nobody
 openvpn_service_group: nogroup
+openvpn_selinux_module: my-openvpn-server
 
 # Used in firewalld
 firewalld_default_interface_zone: public

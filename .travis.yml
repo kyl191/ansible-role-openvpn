@@ -6,13 +6,14 @@ services:
   - docker
 
 env:
-  global:
-    COMMAND=/usr/lib/systemd/systemd --system
+  global: COMMAND=/usr/lib/systemd/systemd --system
+    INSTALL=default
   matrix:
     - DOCKER_TAG=centos:7
       OS=centos
-    - DOCKER_TAG=fedora:latest
+    - DOCKER_TAG=fedora:latest-systemd
       OS=fedora
+      INSTALL=fedora-latest
     - DOCKER_TAG=fedora:30
       OS=fedora
     - DOCKER_TAG=fedora:29
@@ -23,9 +24,8 @@ env:
       OS=ubuntu
       COMMAND=/lib/systemd/systemd --system
 
-
 before_install:
-  - sudo docker pull ${DOCKER_TAG}
+  - ./tests/install-${INSTALL}
 
 install:
   - sudo docker run --detach ${DOCKER_ARGS} -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${PWD}":/etc/ansible/roles/ansible-role-openvpn:ro --name ${OS} ${DOCKER_TAG} ${COMMAND}

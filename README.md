@@ -8,6 +8,9 @@ Tested OSes [(TravisCI)](https://travis-ci.org/kyl191/ansible-role-openvpn):
 - Fedora 28+
 - CentOS 7
 
+Note: I am providing code in the repository to you under an open source license. Because this is my personal repository, the license you receive to my
+code is from me and not my employer.
+
 
 Requirements
 ------------
@@ -78,6 +81,7 @@ Role Variables
 | openvpn_keepalive_timeout          | int     |              | 30                                             | Set `keepalive` timeout seconds                                                                                                                                   |
 | openvpn_service_user               | string  |              | nobody                                         | Set the openvpn service user.                                                                                                                                     |
 | openvpn_service_group              | string  |              | nogroup                                        | Set the openvpn service group.                                                                                                                                    |
+| openvpn_selinux_module             | string  |              | my-openvpn-server                              | Set the SELinux module name                                                                                                                                       |
 
 
 LDAP object

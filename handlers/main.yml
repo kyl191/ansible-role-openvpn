@@ -3,6 +3,8 @@
   service:
     name: "{{openvpn_service_name}}"
     state: restarted
+  # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
+  when: ansible_service_mgr != "tail"
 
 - name: restart iptables
   service:
@@ -23,3 +25,12 @@
   shell: "{{ iptables_save_command }}"
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "save iptables"
+
+- name: build and install policy
+  command: "{{ item }}"
+  args:
+    chdir: /var/lib/selinux
+  with_items:
+    - "checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te"
+    - "semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod"
+    - "semodule -i {{ openvpn_selinux_module }}.pp"
