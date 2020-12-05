@@ -43,7 +43,10 @@ jobs:
           docker create --name fedora --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --entrypoint /usr/sbin/init -e "container=docker" -e CI=true -v "/sys/fs/cgroup":"/sys/fs/cgroup" -v ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn diodonfrost/ansible-fedora:${{ matrix.version }}
           sleep 3
           docker ps
-      - run: docker start fedora
+      - run: |
+          docker start fedora
+          sleep 3
+          docker ps
       - run: |
           docker ps
           sleep 3
