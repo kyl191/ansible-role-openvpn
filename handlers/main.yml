@@ -3,7 +3,8 @@
   service:
     name: "{{openvpn_service_name}}"
     state: restarted
-  when: not ci_build
+  # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
+  when: ansible_service_mgr != "tail"
 
 - name: restart iptables
   service:
