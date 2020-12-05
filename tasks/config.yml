@@ -36,3 +36,6 @@
     name: "{{openvpn_service_name}}"
     enabled: yes
     state: started
+  # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
+  when: ansible_service_mgr != "tail"
+
