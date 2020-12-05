@@ -29,15 +29,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Make sure ansible connection is sane
-        run: |
-          dnf clean all
-          dnf -y install ansible
-          ansible -m setup -c local -i 127.0.0.1, all
-        continue-on-error: true
-      - run: sudo docker ps
+        run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Check syntax of ansible playbook
-        run: sudo docker exec fedora ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
       - name: Run ansible playbook
-        run: sudo docker exec fedora ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Check idempotency
-        run: sudo docker exec fedora ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - run: cat /var/log/openvpn.log
+      - run: ls /etc/openvpn
+      - run: cat /etc/openvpn/openvpn_udp_1194.conf
+      - run: cat /etc/openvpn/alpha-127.0.0.1.ovpn
