@@ -1,0 +1,15 @@
+---
+- name: SELinux - check if module was loaded
+  command: semodule --list-modules
+  register: semodule_loaded
+  changed_when: 'openvpn_selinux_module not in semodule_loaded.stdout'
+  notify:
+    - build and install policy
+
+- name: SELinux - copy type enforcement file
+  template:
+    src: "selinux_module.te.j2"
+    dest: /var/lib/selinux/{{ openvpn_selinux_module }}.te
+    mode: 0644
+  notify:
+    - build and install policy

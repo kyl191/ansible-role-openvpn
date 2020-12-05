@@ -1,0 +1,12 @@
+module {{ openvpn_selinux_module }} 1.0;
+
+require {
+	type openvpn_t;
+	type unreserved_port_t;
+	class udp_socket name_bind;
+	class tcp_socket name_bind;
+}
+
+#============= openvpn_t ==============
+allow openvpn_t unreserved_port_t:udp_socket name_bind;
+allow openvpn_t unreserved_port_t:tcp_socket name_bind;

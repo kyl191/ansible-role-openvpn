@@ -53,6 +53,13 @@
   tags:
     - firewall
 
+- name: Configure SELinux
+  include: selinux.yml
+  when:
+    - ansible_selinux.status == "enabled"
+  tags:
+    - selinux
+
 - name: Compare existing certs against 'clients' variable
   import_tasks: common.yml
   when: openvpn_sync_certs
