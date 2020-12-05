@@ -51,10 +51,10 @@ jobs:
       - name: Run ansible playbook
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
         continue-on-error: true
-      - run: ls -lR /etc/openvpn
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
-      - run: cat /var/log/openvpn.log
-      - run: ls -r /etc/openvpn
-      - run: cat /etc/openvpn/openvpn_udp_1194.conf
-      - run: cat /etc/openvpn/alpha-127.0.0.1.ovpn
+      - name: Container state
+        run: |
+            ls -lR /etc/openvpn
+            cat /etc/openvpn/openvpn_udp_1194.conf
+            cat /etc/openvpn/alpha-127.0.0.1.ovpn
