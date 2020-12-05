@@ -9,9 +9,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-syntax:
+    runs-on: ubuntu-latest
+    name: fedora-34
+    container: 
+      image: diodonfrost/ansible-fedora:34
+      env:
+        container: docker
+      volumes: 
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Check syntax of ansible playbook
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+      
   build-fedora:
     runs-on: ubuntu-latest
     name: fedora-${{ matrix.version }}
+    needs: [check-syntax]
     container: 
       image: diodonfrost/ansible-fedora:${{ matrix.version }}
       env:
@@ -30,13 +48,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
-      - name: Check syntax of ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
       - name: Run ansible playbook
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        continue-on-error: true
+      - run: ls -r /etc/openvpn
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - run: cat /var/log/openvpn.log
-      - run: ls /etc/openvpn
+      - run: ls -r /etc/openvpn
       - run: cat /etc/openvpn/openvpn_udp_1194.conf
       - run: cat /etc/openvpn/alpha-127.0.0.1.ovpn
