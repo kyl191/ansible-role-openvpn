@@ -53,6 +53,7 @@ jobs:
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Container state debug output
+        continue-on-error: true
         run: |
             ls -lR /etc/openvpn
             echo "cat /etc/openvpn/**/openvpn_udp_1194.conf"
@@ -87,9 +88,10 @@ jobs:
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Container state debug output
+        continue-on-error: true
         run: |
             ls -lR /etc/openvpn
-            echo "cat /etc/openvpn/**/openvpn_udp_1194.conf"
-            cat /etc/openvpn/**/openvpn_udp_1194.conf
-            echo "cat /etc/openvpn/**/alpha-*.ovpn"
-            cat /etc/openvpn/**/alpha-*.ovpn
+            echo "cat openvpn_udp_1194.conf"
+            find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
+            echo "cat alpha-*.ovpn"
+            find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
