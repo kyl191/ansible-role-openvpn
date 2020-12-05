@@ -36,3 +36,4 @@
     name: "{{openvpn_service_name}}"
     enabled: yes
     state: started
+    daemon_reload: yes
