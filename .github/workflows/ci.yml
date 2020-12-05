@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  check-syntax:
+    runs-on: ubuntu-20.04
+    name: check-syntax
+    container: 
+      image: diodonfrost/ansible-fedora:34
+      env:
+        container: docker
+      volumes: 
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Check syntax of ansible playbook
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+      
+  build-fedora:
+    runs-on: ubuntu-20.04
+    name: fedora-${{ matrix.version }}
+    needs: [check-syntax]
+    strategy:
+       fail-fast: false
+       matrix:
+        version: ["32", "33", "34"]
+           
+    container: 
+      image: diodonfrost/ansible-fedora:${{ matrix.version }}
+      env:
+        container: docker
+      volumes: 
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Make sure ansible connection is sane
+        run: ansible -m setup -c local -i 127.0.0.1, all
+      - name: Run ansible playbook
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Check idempotency
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Container state debug output
+        continue-on-error: true
+        run: |
+            ls -lR /etc/openvpn
+            echo "cat /etc/openvpn/**/openvpn_udp_1194.conf"
+            cat /etc/openvpn/**/openvpn_udp_1194.conf
+            echo "cat /etc/openvpn/**/alpha-*.ovpn"
+            cat /etc/openvpn/**/alpha-*.ovpn
+
+  build-centos:
+    runs-on: ubuntu-20.04
+    name: centos-${{ matrix.version }}
+    needs: [check-syntax]
+    strategy:
+       fail-fast: false
+       matrix:
+        version: ["7", "8"]
+           
+    container: 
+      image: diodonfrost/ansible-centos:${{ matrix.version }}
+      env:
+        container: docker
+      volumes: 
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Make sure ansible connection is sane
+        run: ansible -m setup -c local -i 127.0.0.1, all
+      - name: Run ansible playbook
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Check idempotency
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Container state debug output
+        continue-on-error: true
+        run: |
+            ls -lR /etc/openvpn
+            echo "cat openvpn_udp_1194.conf"
+            find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
+            echo "cat alpha-*.ovpn"
+            find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;

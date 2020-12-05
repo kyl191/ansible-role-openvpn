@@ -1,0 +1,3 @@
+#!/bin/bash
+set -ev
+sudo docker build -f tests/${INSTALL}.dockerfile -t ${DOCKER_TAG} .

@@ -1,0 +1,30 @@
+---
+compile_develop_packages:
+  - autoconf
+  - automake
+  - glibc-devel
+  - libtool
+  - make
+  - pkgconf
+  - pkgconf-m4
+  - pkgconf-pkg-config
+  - openldap-devel
+  - openvpn-devel
+  - openssl-devel
+  - gcc-objc
+  - gcc-objc++
+
+re2c_version: 2.0.3
+re2c_bin_path: /usr/local/bin/re2c
+
+openvpn_auth_ldap_version: 2.0.4
+openvpn_auth_ldap_plugin_dir_path: "{{ (ansible_machine == 'x86_64') | ternary('/usr/lib64/openvpn/plugin', '/usr/lib/openvpn/plugin') }}"
+openvpn_auth_ldap_bin_path: "{{ openvpn_auth_ldap_plugin_dir_path }}/lib/openvpn-auth-ldap.so"
+
+compile_source_dir: /usr/local/src
+
+compile_cleanup_dev_packages: True
+
+gcc_objc_repo:
+  base_url: https://dl.cloudsmith.io/public/csi/gcc/rpm/el/8/$basearch
+  key: https://dl.cloudsmith.io/public/csi/gcc/cfg/gpg/gpg.7E04A007BA668C3C.key
