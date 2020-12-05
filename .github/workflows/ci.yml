@@ -10,7 +10,7 @@ on:
 
 jobs:
   check-syntax:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: check-syntax
     container: 
       image: diodonfrost/ansible-fedora:34
