@@ -27,7 +27,7 @@ jobs:
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
       
   build-fedora:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: fedora-${{ matrix.version }}
     needs: [check-syntax]
     strategy:
@@ -62,7 +62,7 @@ jobs:
             cat /etc/openvpn/**/alpha-*.ovpn
 
   build-centos:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: centos-${{ matrix.version }}
     needs: [check-syntax]
     strategy:
