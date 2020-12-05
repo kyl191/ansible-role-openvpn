@@ -3,6 +3,7 @@
   service:
     name: "{{openvpn_service_name}}"
     state: restarted
+  when: not ci_build
 
 - name: restart iptables
   service:
