@@ -41,7 +41,10 @@ jobs:
       - name: Create docker container
         run: docker create --name fedora --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --entrypoint /usr/sbin/init -e "container=docker" -e CI=true -v "/sys/fs/cgroup":"/sys/fs/cgroup" -v ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn diodonfrost/ansible-fedora:${{ matrix.version }}
       - run: docker start fedora
-      - run: docker ps
+      - run: |
+          docker ps
+          sleep 3
+          docker ps
       - name: Make sure ansible connection is sane
         run: docker exec fedora ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
