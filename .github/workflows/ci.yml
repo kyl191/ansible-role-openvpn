@@ -19,7 +19,7 @@ jobs:
       volumes: 
         - /sys/fs/cgroup:/sys/fs/cgroup
         - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
-      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --name fedora /usr/sbin/init"
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     strategy:
        fail-fast: false
        matrix:
