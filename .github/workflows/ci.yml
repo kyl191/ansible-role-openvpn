@@ -28,15 +28,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - run: |
-          sudo docker ps
-          sleep 3
-          sudo docker ps
       - name: Make sure ansible connection is sane
         run: |
-          sudo docker exec fedora dnf clean all
-          sudo docker exec fedora dnf -y install ansible
-          sudo docker exec fedora ansible -m setup -c local -i 127.0.0.1, all
+          dnf clean all
+          dnf -y install ansible
+          ansible -m setup -c local -i 127.0.0.1, all
         continue-on-error: true
       - run: sudo docker ps
       - name: Check syntax of ansible playbook
