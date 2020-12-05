@@ -12,6 +12,14 @@ jobs:
   build-fedora:
     runs-on: ubuntu-latest
     name: fedora-${{ matrix.version }}
+    container: 
+      image: diodonfrost/ansible-fedora:${{ matrix.version }}
+      env:
+        container: docker
+      volumes: 
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --name fedora /usr/sbin/init"
     strategy:
        fail-fast: false
        matrix:
@@ -20,8 +28,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Run docker container
-        run: sudo docker run --detach -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --volume="${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn:ro" --name fedora  diodonfrost/ansible-fedora:${{ matrix.version }} /usr/sbin/init
       - run: |
           sudo docker ps
           sleep 3
