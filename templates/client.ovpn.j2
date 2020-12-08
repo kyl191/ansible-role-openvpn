@@ -22,6 +22,10 @@ persist-key
 persist-tun
 verb 3
 
+{% if openvpn_use_ldap %}
+auth-user-pass
+{% endif %}
+
 {% for option in openvpn_addl_client_options %}
 {{ option }}
 {% endfor %}
