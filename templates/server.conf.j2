@@ -51,7 +51,7 @@ server-ipv6 {{openvpn_server_ipv6_network}}
 {% if openvpn_topology is defined %}
 topology {{openvpn_topology}}
 {% endif %}
-ifconfig-pool-persist ipp.txt
+ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
 
 {% if openvpn_redirect_gateway|bool %}
 push "redirect-gateway def1 bypass-dhcp"

@@ -50,6 +50,7 @@ openvpn_keepalive_timeout: 30
 openvpn_service_user: nobody
 openvpn_service_group: nogroup
 openvpn_selinux_module: my-openvpn-server
+openvpn_ifconfig_pool_persist_file: ipp.txt
 
 # Used in firewalld
 firewalld_default_interface_zone: public
