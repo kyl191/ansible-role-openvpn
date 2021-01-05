@@ -94,9 +94,7 @@ Role Variables
 | openvpn_service_user               | string     |                   | nobody                                           | Set the openvpn service user.                                                                                                                                                         |
 | openvpn_service_group              | string     |                   | nogroup                                          | Set the openvpn service group.                                                                                                                                                        |
 | openvpn_selinux_module             | string     |                   | my-openvpn-server                                | Set the SELinux module name                                                                                                                                                           |
-
 | openvpn_script_security             | int     |                   | 1                                | Set openvpn script security option                                                                                                                                                          |
-
 | openvpn_script_up             | string     |                   |                                 | Path to your openvpn up script                                                                                                                                                          |
 | openvpn_script_down             | string     |                   |                                 | Path to your openvpn down script                                                                                                                                                          |
 
