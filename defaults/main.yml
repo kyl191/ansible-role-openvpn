@@ -51,6 +51,7 @@ openvpn_service_user: nobody
 openvpn_service_group: nogroup
 openvpn_selinux_module: my-openvpn-server
 openvpn_ifconfig_pool_persist_file: ipp.txt
+openvpn_script_security: 1
 
 # Used in firewalld
 firewalld_default_interface_zone: public

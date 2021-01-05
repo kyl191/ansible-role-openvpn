@@ -118,3 +118,12 @@ verify-client-cert {{ ldap.verify_client_cert }}
 client-cert-not-required
 {% endif %}
 {% endif %}
+
+script-security {{ openvpn_script_security }}
+
+{% if openvpn_script_up is defined %}
+up {{openvpn_base_dir}}/up.sh
+{% endif %}
+{% if openvpn_script_down is defined %}
+up {{openvpn_base_dir}}/down.sh
+{% endif %}

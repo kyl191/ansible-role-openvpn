@@ -7,6 +7,20 @@
   notify:
     - restart openvpn
 
+- name: Copy up script if defined
+  copy:
+    src: "{{ openvpn_script_up }}"
+    dest: "{{ openvpn_base_dir }}/up.sh"
+    mode: a+x
+  when: openvpn_script_up is defined
+
+- name: Copy down script if defined
+  copy:
+    src: "{{ openvpn_script_down }}"
+    dest: "{{ openvpn_base_dir }}/down.sh"
+    mode: a+x
+  when: openvpn_script_down is defined
+
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
