@@ -125,7 +125,7 @@ script-security {{ openvpn_script_security }}
 up {{openvpn_base_dir}}/up.sh
 {% endif %}
 {% if openvpn_script_down is defined %}
-up {{openvpn_base_dir}}/down.sh
+down {{openvpn_base_dir}}/down.sh
 {% endif %}
 
 
