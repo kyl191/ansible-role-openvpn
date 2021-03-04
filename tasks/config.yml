@@ -21,6 +21,21 @@
     mode: a+x
   when: openvpn_script_down is defined
 
+- name: Copy client-connect script if defined
+  copy:
+    src: "{{ openvpn_script_client_connect }}"
+    dest: "{{ openvpn_base_dir }}/client_connect.sh"
+    mode: a+x
+  when: openvpn_script_client_connect is defined
+
+- name: Copy client-disconnect script if defined
+  copy:
+    src: "{{ openvpn_script_client_disconnect }}"
+    dest: "{{ openvpn_base_dir }}/client_disconnect.sh"
+    mode: a+x
+  when: openvpn_script_client_disconnect is defined
+
+
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
@@ -52,4 +67,3 @@
     state: started
   # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
   when: ansible_service_mgr != "tail"
-

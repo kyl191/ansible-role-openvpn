@@ -97,6 +97,8 @@ Role Variables
 | openvpn_script_security             | int     |                   | 1                                | Set openvpn script security option                                                                                                                                                          |
 | openvpn_script_up             | string     |                   |                                 | Path to your openvpn up script                                                                                                                                                          |
 | openvpn_script_down             | string     |                   |                                 | Path to your openvpn down script                                                                                                                                                          |
+| openvpn_script_client_connect             | string     |                   |                                 | Path to your openvpn client-connect script                                                                                                                                                          |
+| openvpn_script_client_disconnect             | string     |                   |                                 | Path to your openvpn client-disconnect script                                                                                                                                                          |
 
 
 LDAP object
