@@ -21,7 +21,7 @@ Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptab
 
 Support Notes/Expectations
 -------------
-I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config. 
+I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config.
 Please recognise that I am a single person, and I have a full time job and other committments.
 
 Responses to any issues will be on a best effort basis on my part, including the possibility that I don't respond at all.
@@ -94,6 +94,11 @@ Role Variables
 | openvpn_service_user               | string     |                   | nobody                                           | Set the openvpn service user.                                                                                                                                                         |
 | openvpn_service_group              | string     |                   | nogroup                                          | Set the openvpn service group.                                                                                                                                                        |
 | openvpn_selinux_module             | string     |                   | my-openvpn-server                                | Set the SELinux module name                                                                                                                                                           |
+| openvpn_script_security             | int     |                   | 1                                | Set openvpn script security option                                                                                                                                                          |
+| openvpn_script_up             | string     |                   |                                 | Path to your openvpn up script                                                                                                                                                          |
+| openvpn_script_down             | string     |                   |                                 | Path to your openvpn down script                                                                                                                                                          |
+| openvpn_script_client_connect             | string     |                   |                                 | Path to your openvpn client-connect script                                                                                                                                                          |
+| openvpn_script_client_disconnect             | string     |                   |                                 | Path to your openvpn client-disconnect script                                                                                                                                                          |
 
 
 LDAP object
