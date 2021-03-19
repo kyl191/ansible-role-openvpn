@@ -88,21 +88,5 @@
             creates: "{{ openvpn_auth_ldap_bin_path }}"
       when:
         - not openvpn_auth_ldap_bin.stat.exists
-
-    - name: Cleanup dev packages
-      become: yes
-      package:
-        name: "{{ compile_develop_packages }}"
-        state: absent
-      when:
-        - compile_cleanup_dev_packages
-
-    - name: Remove gcc objc repo
-      become: yes
-      yum_repository:
-        name: csi-gcc
-        state: absent
-      when:
-        - compile_cleanup_dev_packages
   when:
     - not openvpn_auth_ldap_bin.stat.exists or not re2c_bin.stat.exists
