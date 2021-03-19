@@ -14,7 +14,9 @@
     path: "{{ openvpn_auth_ldap_bin_path }}"
   register: openvpn_auth_ldap_bin
 
-- block:
+- name: Compile LDAP plugin
+  when: not openvpn_auth_ldap_bin.stat.exists or not re2c_bin.stat.exists
+  block:
     - name: Install gcc objc repo
       become: yes
       yum_repository:
@@ -32,6 +34,7 @@
        state: present
 
     - name: Install re2c
+      when: not re2c_bin.stat.exists
       block:
         - name: Download and unpack re2c
           become: yes
@@ -51,10 +54,9 @@
           args:
             chdir: "{{ compile_source_dir }}/re2c-{{ re2c_version }}"
             creates: "{{ re2c_bin_path }}"
-      when:
-        - not re2c_bin.stat.exists
 
     - name: Install openvpn-auth-ldap
+      when: not openvpn_auth_ldap_bin.stat.exists
       block:
         - name: Download and unpack openvpn-auth-ldap
           become: yes
@@ -86,7 +88,3 @@
           args:
             chdir: "{{ compile_source_dir }}/openvpn-auth-ldap-auth-ldap-{{ openvpn_auth_ldap_version }}"
             creates: "{{ openvpn_auth_ldap_bin_path }}"
-      when:
-        - not openvpn_auth_ldap_bin.stat.exists
-  when:
-    - not openvpn_auth_ldap_bin.stat.exists or not re2c_bin.stat.exists
