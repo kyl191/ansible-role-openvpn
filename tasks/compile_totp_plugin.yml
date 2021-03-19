@@ -26,5 +26,6 @@
   shell:
     chdir: "{{ compile_source_dir }}/openvpn-totp"
     cmd: |
+      ./autogen.sh
       ./configure --with-openvpn-plugin-dir="{{ openvpn_plugin_dir_path }}"
       make install
