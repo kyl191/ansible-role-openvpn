@@ -18,7 +18,7 @@ compile_develop_packages:
 re2c_version: 2.0.3
 re2c_bin_path: /usr/local/bin/re2c
 
-openvpn_plugin_dir_path: "{{ (ansible_machine == 'x86_64') | ternary('/usr/lib64/openvpn/plugin', '/usr/lib/openvpn/plugin') }}"
+openvpn_plugin_dir_path: "{{ (ansible_machine == 'x86_64') | ternary('/usr/lib64/openvpn/plugins', '/usr/lib/openvpn/plugins') }}"
 
 openvpn_auth_ldap_version: 2.0.4
 openvpn_auth_ldap_bin_path: "{{ openvpn_plugin_dir_path }}/lib/openvpn-auth-ldap.so"
