@@ -1,6 +1,6 @@
 ---
-- name: Gather specific variables
-  include_vars: "../vars/compile_ldap_plugin.yml"
+- name: Load shared compilation variables
+  include_vars: "../vars/compilation.yml"
 
 - name: Check package re2c already exists
   become: yes
@@ -82,7 +82,7 @@
           shell: |
             autoconf
             autoheader
-            ./configure --prefix={{ openvpn_auth_ldap_plugin_dir_path }} --with-openvpn=/sbin/openvpn CFLAGS="-fPIC" OBJCFLAGS="-std=gnu11"
+            ./configure --prefix={{ openvpn_plugin_dir_path }} --with-openvpn=/sbin/openvpn CFLAGS="-fPIC" OBJCFLAGS="-std=gnu11"
             make
             make install
           args:

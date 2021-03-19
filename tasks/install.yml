@@ -35,6 +35,12 @@
     - openvpn_use_ldap
     - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 
+- name: Compile TOTP plugin
+  include_tasks: compile_totp_plugin.yml
+  when:
+    - openvpn_use_totp
+    - ansible_distribution == "CentOS"
+
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
 - name: Ensure group 'nogroup' is present

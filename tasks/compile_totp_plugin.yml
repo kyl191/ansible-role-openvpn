@@ -1,0 +1,30 @@
+---
+- name: Load shared compilation variables
+  include_vars: "../vars/compilation.yml"
+
+- name: Install gcc objc repo
+  yum_repository:
+    name: csi-gcc
+    description: gcc compiler suite, with Objective-C which is removed from official Red Hat EL8 releases.
+    baseurl: "{{ gcc_objc_repo.base_url }}"
+    gpgkey: "{{ gcc_objc_repo.key }}"
+    gpgcheck: yes
+    enabled: yes
+
+- name: Install dev packages
+  yum:
+   name: "{{ compile_develop_packages }}"
+   state: latest
+
+- name: Checkout totp repository
+  git:
+    repo: https://github.com/evgeny-gridasov/openvpn-otp
+    version: "{{ openvpn_auth_totp_version }}"
+    dest: "{{ compile_source_dir }}/openvpn-totp"
+
+- name: Build totp plugin
+  shell:
+    chdir: "{{ compile_source_dir }}/openvpn-totp"
+    cmd: |
+      ./configure --with-openvpn-plugin-dir="{{ openvpn_plugin_dir_path }}"
+      make install

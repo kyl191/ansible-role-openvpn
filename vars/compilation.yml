@@ -1,5 +1,6 @@
 ---
 compile_develop_packages:
+  - git
   - autoconf
   - automake
   - glibc-devel
@@ -17,9 +18,13 @@ compile_develop_packages:
 re2c_version: 2.0.3
 re2c_bin_path: /usr/local/bin/re2c
 
+openvpn_plugin_dir_path: "{{ (ansible_machine == 'x86_64') | ternary('/usr/lib64/openvpn/plugin', '/usr/lib/openvpn/plugin') }}"
+
 openvpn_auth_ldap_version: 2.0.4
-openvpn_auth_ldap_plugin_dir_path: "{{ (ansible_machine == 'x86_64') | ternary('/usr/lib64/openvpn/plugin', '/usr/lib/openvpn/plugin') }}"
-openvpn_auth_ldap_bin_path: "{{ openvpn_auth_ldap_plugin_dir_path }}/lib/openvpn-auth-ldap.so"
+openvpn_auth_ldap_bin_path: "{{ openvpn_plugin_dir_path }}/lib/openvpn-auth-ldap.so"
+
+openvpn_auth_totp_version: "2d3809abca1909a3a8a55fa8e38d5c139faf3d59"
+openvpn_auth_totp_bin_path: "{{ openvpn_plugin_dir_path }}/lib/openvpn-auth-totp.so"
 
 compile_source_dir: /usr/local/src
 
