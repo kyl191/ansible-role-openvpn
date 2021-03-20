@@ -19,7 +19,7 @@
 - name: Checkout otp repository
   git:
     repo: https://github.com/evgeny-gridasov/openvpn-otp
-    version: "{{ openvpn_auth_otp }}"
+    version: "{{ openvpn_auth_otp_version }}"
     dest: "{{ compile_source_dir }}/openvpn-otp"
 
 - name: Build otp plugin
