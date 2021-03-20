@@ -25,6 +25,7 @@ tls_auth_required: true
 ci_build: false
 openvpn_fetch_config_dir: /tmp/ansible
 clients: []
+openvpn_client_config_no_log: true
 openvpn_sync_certs: false
 openvpn_revoke_these_certs: []
 openvpn_push: []

@@ -73,6 +73,7 @@
   register: client_keys
 
 - name: generate client config
+  no_log: "{{ openvpn_client_config_no_log }}"
   template:
     src: client.ovpn.j2
     dest: "{{ openvpn_ovpn_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
