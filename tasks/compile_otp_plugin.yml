@@ -16,13 +16,13 @@
    name: "{{ compile_develop_packages }}"
    state: latest
 
-- name: Checkout totp repository
+- name: Checkout otp repository
   git:
     repo: https://github.com/evgeny-gridasov/openvpn-otp
-    version: "{{ openvpn_auth_totp_version }}"
+    version: "{{ openvpn_auth_otp }}"
     dest: "{{ compile_source_dir }}/openvpn-otp"
 
-- name: Build totp plugin
+- name: Build otp plugin
   shell:
     chdir: "{{ compile_source_dir }}/openvpn-otp"
     creates: "{{ openvpn_plugin_dir_path }}/openvpn-otp.so"
@@ -30,4 +30,3 @@
       ./autogen.sh
       ./configure --with-openvpn-plugin-dir="{{ openvpn_plugin_dir_path }}"
       make install
-

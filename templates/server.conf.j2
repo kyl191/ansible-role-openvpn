@@ -119,6 +119,15 @@ client-cert-not-required
 {% endif %}
 {% endif %}
 
+{% if openvpn_use_otp|bool %}
+### OTP AUTH ###
+{% if ansible_machine == "x86_64" %}
+plugin "/usr/lib64/openvpn/plugins/openvpn-otp.so"
+{% else %}
+plugin "/usr/lib/openvpn/plugins/openvpn-otp.so"
+{% endif %}
+{% endif %}
+
 script-security {{ openvpn_script_security }}
 
 {% if openvpn_script_up is defined %}

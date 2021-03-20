@@ -35,7 +35,6 @@
     mode: a+x
   when: openvpn_script_client_disconnect is defined
 
-
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
@@ -43,6 +42,23 @@
     owner: root
     group: root
   when: openvpn_use_ldap
+
+- name: Ensure otp-secrets dir exists
+  file:
+    path: /etc/ppp
+    state: directory
+    owner: root
+    group: root
+  when: openvpn_use_otp
+
+- name: Install otp-secrets
+  template:
+    src: otp-secrets.j2
+    dest: /etc/ppp/otp-secrets
+    owner: root
+    group: root
+    mode: '0600'
+  when: openvpn_use_otp
 
 - name: Create log directory
   file:

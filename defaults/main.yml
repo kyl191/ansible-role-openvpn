@@ -64,6 +64,17 @@ python_firewall_package_name: python-firewall
 # Used in firewalld
 firewalld_default_interface_zone: public
 
+# OTP Configuration
+openvpn_use_otp: false
+openvpn_otp_secrets: []
+# - username: foobar
+#   type: choose between totp, totp-60-6, or motp
+#   hash: sha1 for most cases
+#   encoding: choose between base32, hex, or text
+#   key: MFA key in encoding format
+#   pin: number or string, can be empty
+#   udid: is only used for motp mode and ignored in totp mode, use "xxx" if not in use
+
 # LDAP configuration
 openvpn_use_ldap: false
 ldap:

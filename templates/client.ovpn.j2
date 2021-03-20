@@ -56,3 +56,12 @@ key-direction 1
 {% if openvpn_verify_cn|bool %}
 verify-x509-name OpenVPN-Server-{{inventory_hostname[:49]}} name
 {% endif %}
+
+{% if openvpn_use_otp|bool %}
+# use username/password authentication
+auth-user-pass
+# do not cache auth info
+auth-nocache
+# disable username/password renegotiation
+reneg-sec 0
+{% endif %}
