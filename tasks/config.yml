@@ -57,7 +57,7 @@
     dest: /etc/ppp/otp-secrets
     owner: root
     group: root
-    mode: '0600'
+    mode: '0644'
   when: openvpn_use_otp
 
 - name: Create log directory
