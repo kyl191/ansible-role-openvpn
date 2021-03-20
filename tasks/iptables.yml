@@ -6,14 +6,14 @@
 
 - name: Install iptables-persistent (Debian/Ubuntu)
   package:
-    name: iptables-persistent
+    name: "{{ iptables_persistent_package_name }}"
     state: present
   register: __iptables_installed
   when: ansible_os_family == "Debian"
 
 - name: Install iptables-services (RedHat/CentOS)
   package:
-    name: iptables-services
+    name: "{{ iptables_services_package_name }}"
     state: present
   register: __iptables_installed
   when: ansible_os_family == "RedHat"

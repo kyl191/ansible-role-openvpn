@@ -16,12 +16,12 @@
 
 - name: Uninstall OpenVPN
   package:
-    name: openvpn
+    name: "{{ openvpn_package_name }}"
     state: absent
 
 - name: Uninstall LDAP plugin
   package:
-   name: openvpn-auth-ldap
+   name: "{{ openvpn_ldap_plugin_package_name }}"
    state: absent
   when: openvpn_use_ldap
 
