@@ -47,17 +47,17 @@
   file:
     path: /etc/ppp
     state: directory
-    owner: root
-    group: root
+    owner: "{{ openvpn_service_user }}"
+    group: "{{ openvpn_service_group }}"
   when: openvpn_use_otp
 
 - name: Install otp-secrets
   template:
     src: otp-secrets.j2
     dest: /etc/ppp/otp-secrets
-    owner: root
-    group: root
-    mode: '0644'
+    owner: "{{ openvpn_service_user }}"
+    group: "{{ openvpn_service_group }}"
+    mode: '0600'
   when: openvpn_use_otp
 
 - name: Create log directory
