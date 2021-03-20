@@ -22,7 +22,7 @@ Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptab
 Support Notes/Expectations
 -------------
 I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config.
-Please recognise that I am a single person, and I have a full time job and other committments.
+Please recognise that I am a single person, and I have a full time job and other commitments.
 
 Responses to any issues will be on a best effort basis on my part, including the possibility that I don't respond at all.
 Issues arising from use of the non-defaults (including any of the major community contributions) will be deprioritized.
