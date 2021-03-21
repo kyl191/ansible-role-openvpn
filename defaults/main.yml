@@ -74,7 +74,6 @@ openvpn_otp_secrets: []
 #   key: MFA key in encoding format
 #   pin: number or string, can be empty
 #   udid: is only used for motp mode and ignored in totp mode, use "xxx" if not in use
-#   clients: which clients are allowed to connect as this user, * for everyone
 
 # LDAP configuration
 openvpn_use_ldap: false
