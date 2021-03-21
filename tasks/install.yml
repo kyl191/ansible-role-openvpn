@@ -1,6 +1,6 @@
 - name: Install EPEL
   package:
-    name: epel-release
+    name: "{{ epel_package_name }}"
     state: present
   when: ansible_distribution == "CentOS" or ansible_distribution=="RedHat"
 
@@ -17,13 +17,13 @@
    name: "{{ item }}"
    state: present
   with_items:
-    - openvpn
-    - openssl
+    - "{{ openvpn_package_name }}"
+    - "{{ openssl_package_name }}"
 
 - name: Install LDAP plugin
   become: yes
   package:
-   name: openvpn-auth-ldap
+   name: "{{ openvpn_ldap_plugin_package_name }}"
    state: present
   when:
     - openvpn_use_ldap

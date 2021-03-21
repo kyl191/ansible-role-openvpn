@@ -7,7 +7,7 @@
 
 - name: Install python2-firewall (Fedora)
   package:
-    name: python-firewall
+    name: "{{ python_firewall_package_name }}"
     state: present
   when:
     - ansible_distribution == "Fedora"
