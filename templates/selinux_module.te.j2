@@ -6,10 +6,14 @@ require {
   type pppd_secret_t;
   class udp_socket name_bind;
   class tcp_socket name_bind;
+{% if openvpn_use_otp|bool %}
   class file { getattr open read };
+{% endif %}
 }
 
 #============= openvpn_t ==============
 allow openvpn_t unreserved_port_t:udp_socket name_bind;
 allow openvpn_t unreserved_port_t:tcp_socket name_bind;
+{% if openvpn_use_otp|bool %}
 allow openvpn_t pppd_secret_t:file { getattr open read };
+{% endif %}
