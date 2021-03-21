@@ -27,10 +27,9 @@
   listen: "save iptables"
 
 - name: build and install policy
-  command: "{{ item }}"
-  args:
+  command:
     chdir: /var/lib/selinux
-  with_items:
-    - "checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te"
-    - "semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod"
-    - "semodule -i {{ openvpn_selinux_module }}.pp"
+    cmd: |
+      checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te
+      semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod
+      semodule -i {{ openvpn_selinux_module }}.pp
