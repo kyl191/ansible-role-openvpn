@@ -6,9 +6,10 @@ require {
   type pppd_secret_t;
   class udp_socket name_bind;
   class tcp_socket name_bind;
+  class file { getattr open read };
 }
 
 #============= openvpn_t ==============
 allow openvpn_t unreserved_port_t:udp_socket name_bind;
 allow openvpn_t unreserved_port_t:tcp_socket name_bind;
-allow openvpn_t pppd_secret_t:file read;
+allow openvpn_t pppd_secret_t:file { getattr open read };
