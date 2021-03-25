@@ -23,7 +23,9 @@ openvpn_server_network: 10.9.0.0
 openvpn_server_netmask: 255.255.255.0
 tls_auth_required: true
 ci_build: false
+openvpn_fetch_client_configs: true
 openvpn_fetch_config_dir: /tmp/ansible
+config_fetch_suffix: ""
 clients: []
 openvpn_client_config_no_log: true
 openvpn_sync_certs: false

@@ -89,6 +89,7 @@
     src: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
     dest: "{{ openvpn_fetch_config_dir }}/{{ item }}/{{ inventory_hostname }}{{ config_fetch_suffix | default('') }}.ovpn"
     flat: true
+  when: openvpn_fetch_client_configs
   with_items:
     - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
