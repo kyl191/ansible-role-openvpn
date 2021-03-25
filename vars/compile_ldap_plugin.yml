@@ -23,7 +23,7 @@ openvpn_auth_ldap_bin_path: "{{ openvpn_auth_ldap_plugin_dir_path }}/lib/openvpn
 
 compile_source_dir: /usr/local/src
 
-compile_cleanup_dev_packages: True
+compile_cleanup_dev_packages: true
 
 gcc_objc_repo:
   base_url: https://dl.cloudsmith.io/public/csi/gcc/rpm/el/8/$basearch

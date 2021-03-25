@@ -8,8 +8,8 @@ remote-cert-tls server
 tls-version-min 1.2
 {% endif %}
 
-proto {{openvpn_proto}}
-remote {{openvpn_server_hostname}} {{openvpn_port}}
+proto {{ openvpn_proto }}
+remote {{ openvpn_server_hostname }} {{ openvpn_port }}
 dev tun
 
 resolv-retry {{ openvpn_resolv_retry }}
@@ -54,5 +54,5 @@ key-direction 1
 </key>
 
 {% if openvpn_verify_cn|bool %}
-verify-x509-name OpenVPN-Server-{{inventory_hostname[:49]}} name
+verify-x509-name OpenVPN-Server-{{ inventory_hostname[:49] }} name
 {% endif %}

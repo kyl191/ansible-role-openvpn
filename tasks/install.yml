@@ -1,3 +1,4 @@
+---
 - name: Install EPEL
   package:
     name: "{{ epel_package_name }}"
@@ -14,17 +15,17 @@
 
 - name: Install openvpn
   package:
-   name: "{{ item }}"
-   state: present
+    name: "{{ item }}"
+    state: present
   with_items:
     - "{{ openvpn_package_name }}"
     - "{{ openssl_package_name }}"
 
 - name: Install LDAP plugin
-  become: yes
+  become: true
   package:
-   name: "{{ openvpn_ldap_plugin_package_name }}"
-   state: present
+    name: "{{ openvpn_ldap_plugin_package_name }}"
+    state: present
   when:
     - openvpn_use_ldap
     - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8"
@@ -41,4 +42,4 @@
   group:
     name: nogroup
     state: present
-    system: yes
+    system: true
