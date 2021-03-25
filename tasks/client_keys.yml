@@ -1,94 +1,94 @@
-# generate client keys
 ---
-- set_fact:
+- name: Set facts for additional certs
+  set_fact:
     additional_certs_to_revoke: "{{ _additional_certs_to_revoke.stdout_lines | default([]) }}"
     additional_certs_to_add: "{{ _additional_certs_to_add.stdout_lines | default([]) }}"
 
 - name: Create openvpn ovpn file directory
   file:
-    path: "{{openvpn_ovpn_dir}}"
+    path: "{{ openvpn_ovpn_dir }}"
     state: directory
+    mode: 0755
 
 - name: Copy openssl client extensions
   copy:
     src: openssl-client.ext
-    dest: "{{openvpn_key_dir}}"
+    dest: "{{ openvpn_key_dir }}"
     owner: root
     group: root
     mode: 0400
 
-- debug: msg={{ additional_certs_to_add }}
-
-- name: generate client key
-  command: "openssl req -nodes -newkey rsa:{{openvpn_rsa_bits}} -keyout {{item}}.key -out {{item}}.csr -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/"
+- name: Generate client key
+  command: >-
+    openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout {{ item }}.key -out {{ item }}.csr
+    -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/
   args:
     chdir: "{{ openvpn_key_dir }}"
-    creates: "{{item}}.key"
+    creates: "{{ item }}.key"
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
 
-- name: protect client keys
+- name: Protect client keys
   file:
-    path: "{{openvpn_key_dir}}/{{item}}.key"
+    path: "{{ openvpn_key_dir }}/{{ item }}.key"
     mode: 0400
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
 
-- name: sign client key
-  command: openssl x509 -req -in {{item}}.csr -out {{item}}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
+- name: Sign client key
+  command: openssl x509 -req -in {{ item }}.csr -out {{ item }}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
   args:
-    chdir: "{{openvpn_key_dir}}"
-    creates: "{{item}}.crt"
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{ item }}.crt"
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
 
-
-- name: register server ca key
+- name: Register server ca key
   slurp:
-    src: "{{openvpn_key_dir}}/ca.crt"
+    src: "{{ openvpn_key_dir }}/ca.crt"
   register: ca_cert
 
-- name: register tls-auth key
+- name: Register tls-auth key
   slurp:
-    src: "{{openvpn_key_dir}}/ta.key"
+    src: "{{ openvpn_key_dir }}/ta.key"
   register: tls_auth
 
-- name: register client certs
+- name: Register client certs
   slurp:
-    src: "{{openvpn_key_dir}}/{{item}}.crt"
+    src: "{{ openvpn_key_dir }}/{{ item }}.crt"
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
   register: client_certs
 
-- name: register client keys
+- name: Register client keys
   slurp:
-    src: "{{openvpn_key_dir}}/{{item}}.key"
+    src: "{{ openvpn_key_dir }}/{{ item }}.key"
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"
   register: client_keys
 
-- name: generate client config
+- name: Generate client config
   no_log: "{{ openvpn_client_config_no_log }}"
   template:
     src: client.ovpn.j2
-    dest: "{{ openvpn_ovpn_dir }}/{{item.0.item}}-{{inventory_hostname}}.ovpn"
+    dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}-{{ inventory_hostname }}.ovpn"
     owner: root
     group: root
     mode: 0400
   with_together:
-    - "{{client_certs.results}}"
-    - "{{client_keys.results}}"
+    - "{{ client_certs.results }}"
+    - "{{ client_keys.results }}"
 
-- name: fetch client config
+- name: Fetch client config
   fetch:
-    src: "{{ openvpn_ovpn_dir }}/{{item}}-{{inventory_hostname}}.ovpn"
-    dest: "{{ openvpn_fetch_config_dir }}/{{item}}/{{inventory_hostname}}{{config_fetch_suffix | default('')}}.ovpn"
-    flat: yes
+    src: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
+    dest: "{{ openvpn_fetch_config_dir }}/{{ item }}/{{ inventory_hostname }}{{ config_fetch_suffix | default('') }}.ovpn"
+    flat: true
   with_items:
-    - "{{clients}}"
+    - "{{ clients }}"
     - "{{ additional_certs_to_add }}"

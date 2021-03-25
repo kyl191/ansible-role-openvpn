@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: openvpn
+  namespace: kyl191
   author: Kyle Lexmond
   description: OpenVPN playbook for CentOS/Fedora/RHEL/RHEL clones & Ubuntu/Debian
 
@@ -11,36 +13,36 @@ galaxy_info:
   # platform on this list, let us know and we'll get it added!
   #
   platforms:
-  - name: EL
-    versions:
-    - 6
-    - 7
-  - name: Fedora
-    versions:
-    - all
-  - name: Ubuntu
-    versions:
-  #  - all
-  #  - lucid
-  #  - maverick
-  #  - natty
-  #  - oneiric
-  #  - precise
-  #  - quantal
-  #  - raring
-  #  - saucy
-    - trusty
-  #- name: Debian
-  #  versions:
-  #  - all
-  #  - etch
-  #  - lenny
-  #  - squeeze
-  #  - wheezy
+    - name: EL
+      versions:
+        - 6
+        - 7
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        #  - all
+        #  - lucid
+        #  - maverick
+        #  - natty
+        #  - oneiric
+        #  - precise
+        #  - quantal
+        #  - raring
+        #  - saucy
+        - trusty
+  # - name: Debian
+  #   versions:
+  #   - all
+  #   - etch
+  #   - lenny
+  #   - squeeze
+  #   - wheezy
   #
   # Below are all categories currently available. Just as with
   # the platforms above, uncomment those that apply to your role.
   #
-  categories:
-  - networking
+  galaxy_tags:
+    - networking
 dependencies: []

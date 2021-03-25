@@ -1,9 +1,11 @@
+---
 - name: Create openvpn config file
   template:
     src: server.conf.j2
-    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}.conf"
+    dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}.conf"
     owner: root
     group: root
+    mode: 0644
   notify:
     - restart openvpn
 
@@ -35,13 +37,13 @@
     mode: a+x
   when: openvpn_script_client_disconnect is defined
 
-
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
     dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
     owner: root
     group: root
+    mode: 0644
   when: openvpn_use_ldap
 
 - name: Create log directory
@@ -62,8 +64,8 @@
 
 - name: Setup openvpn auto-start & start
   service:
-    name: "{{openvpn_service_name}}"
-    enabled: yes
+    name: "{{ openvpn_service_name }}"
+    enabled: true
     state: started
   # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
   when: ansible_service_mgr != "tail"

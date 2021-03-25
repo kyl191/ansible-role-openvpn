@@ -31,4 +31,4 @@ Use `ansible-playbook -v openvpn.yml --extra-vars="openvpn_uninstall=true" --tag
 ## Connect over IPv6
 Previously, you had to explicitly use `udp6` or `tcp6` to use IPv6. OpenVPN isn't dual stacked if you use plain `udp`/`tcp`, which results in being unable to connect to the OpenVPN server if it has an AAAA record, on your device has a functional IPv6 connection, since the client will choose which stack to use if you just use plain `udp`/`tcp`.
 
-Since this playbook is only on Linux, which supports IPv4 connections on IPv6 sockets, the server config is now IPv6 by default (https://github.com/OpenVPN/openvpn/blob/master/README.IPv6#L50), by means of using `{{openvpn_proto}}6` in the server template. Specifying a `*6` protocol for `openvpn_proto` is now an error, and will cause OpenVPN to fail to start.
+Since this playbook is only on Linux, which supports IPv4 connections on IPv6 sockets, the server config is now IPv6 by default (https://github.com/OpenVPN/openvpn/blob/master/README.IPv6#L50), by means of using `{{ openvpn_proto }}6` in the server template. Specifying a `*6` protocol for `openvpn_proto` is now an error, and will cause OpenVPN to fail to start.

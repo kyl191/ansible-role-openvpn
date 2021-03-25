@@ -1,7 +1,7 @@
 ---
 - name: restart openvpn
   service:
-    name: "{{openvpn_service_name}}"
+    name: "{{ openvpn_service_name }}"
     state: restarted
   # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
   when: ansible_service_mgr != "tail"
@@ -22,7 +22,7 @@
     state: restarted
 
 - name: save iptables rules (Debian/Ubuntu and CentOS/RHEL/Fedora)
-  shell: "{{ iptables_save_command }}"
+  shell: "{{ iptables_save_command }}"  # noqa command-instead-of-shell
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "save iptables"
 

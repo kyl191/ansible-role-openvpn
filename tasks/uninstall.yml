@@ -1,7 +1,8 @@
+---
 - name: Disable openvpn auto-start & start
   service:
-    name: "{{openvpn_service_name}}"
-    enabled: no
+    name: "{{ openvpn_service_name }}"
+    enabled: false
     state: stopped
 
 - name: Wipe out config directory
@@ -21,8 +22,8 @@
 
 - name: Uninstall LDAP plugin
   package:
-   name: "{{ openvpn_ldap_plugin_package_name }}"
-   state: absent
+    name: "{{ openvpn_ldap_plugin_package_name }}"
+    state: absent
   when: openvpn_use_ldap
 
 - name: Terminate playbook
