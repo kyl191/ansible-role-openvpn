@@ -3,7 +3,7 @@
   file:
     path: "{{ openvpn_key_dir }}"
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: Copy openssl server/ca extensions
   copy:
@@ -11,7 +11,7 @@
     dest: "{{ openvpn_key_dir }}"
     owner: root
     group: root
-    mode: 0400
+    mode: "0400"
   with_items:
     - openssl-server.ext
     - openssl-ca.ext
@@ -110,7 +110,7 @@
     dest: "{{ openvpn_key_dir }}/ca.conf"
     owner: root
     group: root
-    mode: 0744
+    mode: "1350"
 
 - name: Create initial certificate revocation list squence number
   shell: "echo 00 > crl_number"
@@ -131,7 +131,7 @@
     dest: "{{ openvpn_key_dir }}/revoke.sh"
     owner: root
     group: root
-    mode: 0744
+    mode: "1350"
 
 - name: Check if certificate revocation list database exists
   stat:
@@ -142,8 +142,8 @@
   file:
     path: "{{ openvpn_key_dir }}/index.txt"
     state: touch
-    mode: 0644
-  when: file_result.stat.exists
+    mode: "0644"
+  when: not file_result.stat.exists
 
 - name: Set up certificate revocation list
   command: sh revoke.sh
@@ -157,7 +157,7 @@
     dest: "{{ openvpn_base_dir }}/crl-cron.sh"
     owner: root
     group: root
-    mode: 0744
+    mode: "1350"
 
 - name: Add cron to check every Saturday if the CRL needs to be renewed
   cron:
