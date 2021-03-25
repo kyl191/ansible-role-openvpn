@@ -21,7 +21,7 @@
   ufw:
     direction: in
     proto: "{{ openvpn_proto }}"
-    to_port: "{{ openvpn_port }}"
+    to_port: "{{ openvpn_port | string }}"
     rule: allow
 
 - name: Accept packets from VPN tunnel adaptor - ufw
