@@ -48,8 +48,8 @@ openvpn_cipher: AES-256-CBC
 openvpn_tun_mtu:
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
-openvpn_service_user: openvpn
-openvpn_service_group: openvpn
+openvpn_service_user: "{{ 'nobody' if not openvpn_use_otp else 'openvpn' }}"
+openvpn_service_group: "{{ 'nogroup' if not openvpn_use_otp else 'openvpn' }}"
 openvpn_selinux_module: my-openvpn-server
 openvpn_ifconfig_pool_persist_file: ipp.txt
 openvpn_script_security: 1

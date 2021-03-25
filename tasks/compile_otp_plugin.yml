@@ -12,7 +12,7 @@
     enabled: yes
 
 - name: Install dev packages
-  yum:
+  package:
    name: "{{ compile_develop_packages }}"
    state: latest
 
