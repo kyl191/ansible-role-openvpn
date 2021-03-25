@@ -107,6 +107,8 @@ Role Variables
 | openvpn_script_down                | string     |                   |                                                  | Path to your openvpn down script                                                                                                                                                      |
 | openvpn_script_client_connect      | string     |                   |                                                  | Path to your openvpn client-connect script                                                                                                                                            |
 | openvpn_script_client_disconnect   | string     |                   |                                                  | Path to your openvpn client-disconnect script                                                                                                                                         |
+| openvpn_use_otp                    | boolean    | true , false      | false                                            | Setup one-time-passwords for user authentication. For example using Google Authenticator app on smartphone.                                                                           |
+| openvpn_otp_secrets                | dict       |                   |                                                  | Lists users with OTP settings per user.                                                                                                                                               |
 
 
 LDAP object
@@ -127,6 +129,30 @@ LDAP object
 | group_base_dn       | string |                           | ou=Groups,dc=example,dc=com             | Precise the group to look for. Required if require_group is set to "True"                    |
 | group_search_filter | string |                           | ((cn=developers)(cn=artists))           | Precise valid groups                                                                         |
 | verify_client_cert  | string | none , optional , require | client-cert-not-required                | In OpenVPN 2.4+ `client-cert-not-required` is deprecated. Use `verify-client-cert` instead.  |
+
+OTP object
+
+| Variable            | Type   | Choices                   | Default | Comment                                                                                                   |
+|---------------------|--------|---------------------------|---------|-----------------------------------------------------------------------------------------------------------|
+| username            | string |                           |         | Username for the user to configure OTP for.                                                               |
+| type                | string | totp , totp-60-6 , motp   |         | The type of OTP to use for the user.                                                                      |
+| hash                | string |                           |         | `sha1` for most cases.                                                                                    |
+| encoding            | string | base32 , hex , text       |         | The encoding format of the OTP key.                                                                       |
+| key                 | string |                           |         | The OTP key for the user.                                                                                 |
+| pin                 | string |                           |         | String of choice to use as prefix for user password. Password in login prompt is "${pin}${otp-from-key}". |
+| udid                | string |                           |         | Is only used for in `motp` mode. And is ignored in other modes.                                           |
+
+## Example python script to generate OTP key
+Below python3 script can be used to generate a valid OTP-key for usage with the OTP plugin. It is encoded in base32 and can be used in 2fa applications like google authenticator:
+```python
+import base64
+from random import randint
+
+num = '{:10}'.format(randint(1000000000, 9999999999))
+key = base64.b32encode(bytes(num, 'ASCII'))
+
+print(key)
+```
 
 Dependencies
 ------------
