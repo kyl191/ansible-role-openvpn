@@ -142,8 +142,11 @@ Example Playbook
     - hosts: vpn
       gather_facts: true
       roles:
-        - {role: kyl191.openvpn, clients: [client1, client2],
-                            openvpn_port: 4300}
+        - role: kyl191.openvpn
+          openvpn_port: 4300
+          clients:
+            - client1
+            - client2
 
 > **Note:** As the role will need to know the remote used platform (32 or 64 bits), you must set `gather_facts` to `true` in your play.
 
