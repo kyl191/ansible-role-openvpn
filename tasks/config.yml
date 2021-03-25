@@ -5,7 +5,7 @@
     dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   notify:
     - restart openvpn
 
@@ -43,7 +43,7 @@
     dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   when: openvpn_use_ldap
 
 - name: Create log directory

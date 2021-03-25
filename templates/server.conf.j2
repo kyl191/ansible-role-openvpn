@@ -128,6 +128,7 @@ up {{ openvpn_base_dir }}/up.sh
 down {{ openvpn_base_dir }}/down.sh
 {% endif %}
 
+
 {% if openvpn_script_client_connect is defined %}
 client-connect {{ openvpn_base_dir }}/client_connect.sh
 {% endif %}

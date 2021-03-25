@@ -3,7 +3,7 @@
   copy:
     content: "{{ clients | join('\n') }}"
     dest: /tmp/client-list
-    mode: 0644
+    mode: "0644"
   when: openvpn_sync_certs
 
 - name: Get existing certs
