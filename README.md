@@ -107,6 +107,9 @@ Role Variables
 | openvpn_script_down                | string     |                   |                                                  | Path to your openvpn down script                                                                                                                                                      |
 | openvpn_script_client_connect      | string     |                   |                                                  | Path to your openvpn client-connect script                                                                                                                                            |
 | openvpn_script_client_disconnect   | string     |                   |                                                  | Path to your openvpn client-disconnect script                                                                                                                                         |
+| openvpn_fetch_client_configs       | boolean    | true, false       | true                                             | Download generated client configurations to the local system                                                                                                                          |
+| openvpn_fetch_config_dir           | string     |                   | /tmp/ansible                                     | If openvpn_fetch_client_configs is true, the local directory to download the client config files into                                                                                 |
+| config_fetch_suffix                | string     |                   |                                                  | If openvpn_fetch_client_configs is true, the suffix to append to the downloaded client config files                                                                                   |
 
 
 LDAP object
