@@ -92,3 +92,5 @@ openvpn_logrotate_config: |
   sharedscripts
   copytruncate
   delaycompress
+
+openvpn_firewall: auto
