@@ -23,7 +23,7 @@
 - name: Fail on both firewalld & ufw
   fail:
     msg: "Both FirewallD and UFW are detected, firewall situation is unknown"
-  when: firewalld.rc == 0 and ufw.rc == 0
+  when: openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc == 0
 
 - name: Fail on no firewall detected
   fail:
@@ -32,12 +32,21 @@
 
 - name: Add port rules (iptables)
   include: iptables.yml
-  when: firewalld.rc != 0 and ufw.rc != 0 and iptables.rc == 0
+  when: >-
+    (openvpn_firewall == 'iptables')
+    or
+    (openvpn_firewall == 'auto' and firewalld.rc != 0 and ufw.rc != 0 and iptables.rc == 0)
 
 - name: Add port rules (firewalld)
   include: firewalld.yml
-  when: firewalld.rc == 0 and ufw.rc != 0
+  when: >-
+    (openvpn_firewall == 'firewalld')
+    or
+    (openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc != 0)
 
 - name: Add port rules (ufw)
   include: ufw.yml
-  when: firewalld.rc != 0 and ufw.rc == 0
+  when: >-
+    (openvpn_firewall == 'ufw')
+    or
+    (openvpn_firewall == 'auto' and firewalld.rc != 0 and ufw.rc == 0)
