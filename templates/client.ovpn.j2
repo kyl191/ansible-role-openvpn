@@ -36,14 +36,18 @@ route-delay 2
 register-dns
 {% endif %}
 
+{% if tls_auth_required %}
 key-direction 1
+{% endif %}
 <ca>
 {{ ca_cert.content|b64decode }}
 </ca>
 
+{% if tls_auth_required %}
 <tls-auth>
 {{ tls_auth.content|b64decode }}
 </tls-auth>
+{% endif %}
 
 <cert>
 {{ item.0.content|b64decode }}
