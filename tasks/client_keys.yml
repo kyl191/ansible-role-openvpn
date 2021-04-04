@@ -8,7 +8,7 @@
   file:
     path: "{{ openvpn_ovpn_dir }}"
     state: directory
-    mode: "0755"
+    mode: 0755
 
 - name: Copy openssl client extensions
   copy:
