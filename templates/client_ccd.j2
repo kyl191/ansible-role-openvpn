@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% for line in item.value -%}
+{{ line }}
+{% endfor -%}

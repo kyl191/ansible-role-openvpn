@@ -52,6 +52,9 @@ server-ipv6 {{ openvpn_server_ipv6_network }}
 topology {{ openvpn_topology }}
 {% endif %}
 ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
+{% if openvpn_client_config %}
+client-config-dir {{ openvpn_client_config_dir }}
+{% endif %}
 
 {% if openvpn_redirect_gateway|bool %}
 push "redirect-gateway def1 bypass-dhcp"
