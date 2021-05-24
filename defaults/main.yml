@@ -81,6 +81,32 @@ ldap:
   group_base_dn: ou=Groups,dc=example,dc=com
   group_search_filter: (|(cn=developers)(cn=artists))
 
+openvpn_client_config: false
+openvpn_client_config_dir: ccd
+openvpn_client_config_present: {}
+# Example:
+# openvpn_client_config_present:
+#   client1:
+#     - ifconfig-push 10.0.0.2 255.255.255.0
+#     - push "route 192.168.1.0 255.255.255.0"
+#     - push "dhcp-option DOMAIN example.com"
+#     - iroute 192.168.4.0 255.255.255.0
+#
+# OR
+#
+# openvpn_client_config_present:
+#   client1:
+#     - ifconfig-push 10.0.0.2 255.255.255.0
+#     - push "route 192.168.1.0 255.255.255.0"
+#     - iroute 192.168.2.0 255.255.255.0
+#     - iroute 192.168.4.0 255.255.255.0
+openvpn_client_config_absent: []
+# Example:
+# openvpn_client_config_absent:
+#   - client2
+#   - client3
+
+
 # Logrotate configuration
 openvpn_log_dir: /var/log
 openvpn_log_file: openvpn.log
