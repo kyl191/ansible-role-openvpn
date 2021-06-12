@@ -55,6 +55,8 @@
 - name: Compare existing certs against 'clients' variable
   import_tasks: cert_sync_detection.yml
   when: openvpn_sync_certs
+  tags:
+    - sync_certs
 
 - name: Generate client configs
   import_tasks: client_keys.yml

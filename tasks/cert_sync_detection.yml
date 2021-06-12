@@ -12,17 +12,18 @@
   register: tempfile_expected
 
 - name: Write expected client list to temp file for comparison with existing certs
-  copy:
-    content: "{{ clients | sort | join('\n') }}"
-    dest: tempfile_expected.path
+  ansible.builtin.template:
+    src: cert_sync_expected_clients.j2
+    dest: "{{ tempfile_expected.path }}"
     mode: 0644
   when: openvpn_sync_certs
 
 - name: Get existing certs
-  shell: |
-    set -o pipefail
-    ls -1 {{ openvpn_key_dir }}/*.csr | grep -v 'server.csr' | sort | cut -f1 -d'.' > {{ tempfile_existing.path }}
-  args:
+  shell:
+    cmd: |
+      set -o pipefail
+      ls -1 *.csr | { grep -v server.csr || true; } | sort | cut -f1 -d'.' > {{ tempfile_existing.path }}
+    chdir: "{{ openvpn_key_dir }}"
     executable: /bin/bash
   when: openvpn_sync_certs
 
@@ -31,6 +32,11 @@
     cmd: comm -23 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
   register: _additional_certs_to_revoke
   when: openvpn_sync_certs
+
+- name: "Debug: Certs to revoke (skipped if none)"
+  ansible.builtin.debug:
+    msg: "Will revoke additional certs: {{ _additional_certs_to_revoke.stdout_lines | join(',') }}"
+  when: _additional_certs_to_revoke.stdout_lines | length > 0
 
 # todo: I suspect this isn't necessary, the cert creation will go over the client list (expected)
 # and catch that the files don't exist
@@ -41,7 +47,7 @@
   when: openvpn_sync_certs
 
 - name: Cleanup temp files
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items:
