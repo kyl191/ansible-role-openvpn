@@ -51,5 +51,5 @@
     path: "{{ item }}"
     state: absent
   with_items:
-   - "{{ tempfile_existing.path }}"
-   - "{{ tempfile_expected.path }}"
+    - "{{ tempfile_existing.path }}"
+    - "{{ tempfile_expected.path }}"
