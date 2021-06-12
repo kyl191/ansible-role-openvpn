@@ -53,7 +53,7 @@
     - ansible_selinux.status == "enabled"
 
 - name: Compare existing certs against 'clients' variable
-  import_tasks: common.yml
+  import_tasks: cert_sync_detection.yml
   when: openvpn_sync_certs
 
 - name: Generate client configs

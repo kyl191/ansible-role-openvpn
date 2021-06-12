@@ -1,5 +1,5 @@
 ---
-- name: Set facts for additional certs
+- name: Set facts for additional certs (from cert_sync_detection)
   set_fact:
     additional_certs_to_revoke: "{{ _additional_certs_to_revoke.stdout_lines | default([]) }}"
     additional_certs_to_add: "{{ _additional_certs_to_add.stdout_lines | default([]) }}"

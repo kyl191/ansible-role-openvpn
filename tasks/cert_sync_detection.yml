@@ -1,0 +1,49 @@
+---
+- name: Create temporary file for existing certs
+  ansible.builtin.tempfile:
+    state: file
+    suffix: temp
+  register: tempfile_existing
+
+- name: Create temporary file for expected certs
+  ansible.builtin.tempfile:
+    state: file
+    suffix: temp
+  register: tempfile_expected
+
+- name: Write expected client list to temp file for comparison with existing certs
+  copy:
+    content: "{{ clients | sort | join('\n') }}"
+    dest: tempfile_expected.path
+    mode: 0644
+  when: openvpn_sync_certs
+
+- name: Get existing certs
+  shell: |
+    set -o pipefail
+    ls -1 {{ openvpn_key_dir }}/*.csr | grep -v 'server.csr' | sort | cut -f1 -d'.' > {{ tempfile_existing.path }}
+  args:
+    executable: /bin/bash
+  when: openvpn_sync_certs
+
+- name: Find certs that exist but aren't supposed to (in existing, but not in expected)
+  command:
+    cmd: comm -23 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
+  register: _additional_certs_to_revoke
+  when: openvpn_sync_certs
+
+# todo: I suspect this isn't necessary, the cert creation will go over the client list (expected)
+# and catch that the files don't exist
+- name: Find certs that don't exist but are supposed to (not in existing, but in expected
+  command:
+    cmd: comm -13 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
+  register: _additional_certs_to_add
+  when: openvpn_sync_certs
+
+- name: Cleanup temp files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+   - "{{ tempfile_existing.path }}"
+   - "{{ tempfile_expected.path }}"
