@@ -64,7 +64,10 @@
 
 - name: Generate revocation list and clean up
   import_tasks: revocation.yml
-  when: openvpn_revoke_these_certs is defined
+  when: >-
+    (openvpn_revoke_these_certs is defined)
+    or
+    (openvpn_sync_certs and cert_sync_certs_to_revoke.stdout_lines | length > 0)
 
 - name: Configure OpenVPN server
   import_tasks: config.yml

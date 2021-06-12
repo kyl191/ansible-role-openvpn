@@ -1,24 +1,24 @@
 ---
-- name: Create temporary file for existing certs
+- name: [cert sync] Create temporary file for existing certs
   ansible.builtin.tempfile:
     state: file
     suffix: temp
   register: tempfile_existing
 
-- name: Create temporary file for expected certs
+- name: [cert sync] Create temporary file for expected certs
   ansible.builtin.tempfile:
     state: file
     suffix: temp
   register: tempfile_expected
 
-- name: Write expected client list to temp file for comparison with existing certs
+- name: [cert sync] Write expected client list to temp file for comparison with existing certs
   ansible.builtin.template:
     src: cert_sync_expected_clients.j2
     dest: "{{ tempfile_expected.path }}"
     mode: 0644
   when: openvpn_sync_certs
 
-- name: Get existing certs
+- name: [cert sync] Get existing certs
   shell:
     cmd: |
       set -o pipefail
@@ -27,26 +27,18 @@
     executable: /bin/bash
   when: openvpn_sync_certs
 
-- name: Find certs that exist but aren't supposed to (in existing, but not in expected)
+- name: [cert sync] Find certs that exist but aren't supposed to (on disk, but not in client list)
   command:
     cmd: comm -23 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
-  register: _additional_certs_to_revoke
+  register: openvpn_cert_sync_revoke
   when: openvpn_sync_certs
 
-- name: "Debug: Certs to revoke (skipped if none)"
+- name: "[cert sync] Debug: Certs to revoke (skipped if none)"
   ansible.builtin.debug:
-    msg: "Will revoke additional certs: {{ _additional_certs_to_revoke.stdout_lines | join(',') }}"
-  when: _additional_certs_to_revoke.stdout_lines | length > 0
+    msg: "Will revoke additional certs: {{ openvpn_cert_sync_revoke.stdout_lines | join(', ') }}"
+  when: openvpn_cert_sync_revoke.stdout_lines | length > 0
 
-# todo: I suspect this isn't necessary, the cert creation will go over the client list (expected)
-# and catch that the files don't exist
-- name: Find certs that don't exist but are supposed to (not in existing, but in expected
-  command:
-    cmd: comm -13 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
-  register: _additional_certs_to_add
-  when: openvpn_sync_certs
-
-- name: Cleanup temp files
+- name: [cert sync] Cleanup temp files
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
