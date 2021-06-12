@@ -53,8 +53,10 @@
     - ansible_selinux.status == "enabled"
 
 - name: Compare existing certs against 'clients' variable
-  import_tasks: common.yml
+  import_tasks: cert_sync_detection.yml
   when: openvpn_sync_certs
+  tags:
+    - sync_certs
 
 - name: Generate client configs
   import_tasks: client_keys.yml
@@ -62,7 +64,10 @@
 
 - name: Generate revocation list and clean up
   import_tasks: revocation.yml
-  when: openvpn_revoke_these_certs is defined
+  when: >-
+    (openvpn_revoke_these_certs is defined)
+    or
+    (openvpn_sync_certs and cert_sync_certs_to_revoke.stdout_lines | length > 0)
 
 - name: Configure OpenVPN server
   import_tasks: config.yml

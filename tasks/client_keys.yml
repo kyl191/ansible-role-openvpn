@@ -1,9 +1,4 @@
 ---
-- name: Set facts for additional certs
-  set_fact:
-    additional_certs_to_revoke: "{{ _additional_certs_to_revoke.stdout_lines | default([]) }}"
-    additional_certs_to_add: "{{ _additional_certs_to_add.stdout_lines | default([]) }}"
-
 - name: Create openvpn ovpn file directory
   file:
     path: "{{ openvpn_ovpn_dir }}"
@@ -27,7 +22,6 @@
     creates: "{{ item }}.key"
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"
 
 - name: Protect client keys
   file:
@@ -35,7 +29,6 @@
     mode: 0400
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"
 
 - name: Sign client key
   command: openssl x509 -req -in {{ item }}.csr -out {{ item }}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
@@ -44,7 +37,6 @@
     creates: "{{ item }}.crt"
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"
 
 - name: Register server ca key
   slurp:
@@ -61,7 +53,6 @@
     src: "{{ openvpn_key_dir }}/{{ item }}.crt"
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"
   register: client_certs
 
 - name: Register client keys
@@ -69,7 +60,6 @@
     src: "{{ openvpn_key_dir }}/{{ item }}.key"
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"
   register: client_keys
 
 - name: Generate client config
@@ -92,4 +82,3 @@
   when: openvpn_fetch_client_configs
   with_items:
     - "{{ clients }}"
-    - "{{ additional_certs_to_add }}"

@@ -1,12 +1,12 @@
 ---
 - name: Remove client config
   file:
-    path: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ ansible_hostname }}.ovpn"
+    path: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
     state: absent
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ additional_certs_to_revoke }}'
+    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
 
 - name: Revoke certificates
   command: sh revoke.sh {{ item }}.crt
@@ -15,7 +15,7 @@
     chdir: "{{ openvpn_key_dir }}"
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ additional_certs_to_revoke }}'
+    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
 
 - name: Remove client key
   file:
@@ -24,7 +24,7 @@
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ additional_certs_to_revoke }}'
+    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
 
 - name: Remove client csr
   file:
@@ -33,4 +33,4 @@
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ additional_certs_to_revoke }}'
+    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
