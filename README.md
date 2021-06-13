@@ -1,10 +1,10 @@
-openvpn
+OpenVPN
 =========
 Github Actions (PRs & mainline): ![Github CI](https://github.com/kyl191/ansible-role-openvpn/workflows/CI/badge.svg)
 
 Travis CI (Actually launching openvpn): [![Build Status](https://travis-ci.org/kyl191/ansible-role-openvpn.svg?branch=master)](https://travis-ci.org/kyl191/ansible-role-openvpn)
 
-This role installs OpenVPN, configures it as a server, sets up networking (either iptables or firewalld), and can optionally create client certificates.
+This role installs OpenVPN, configures it as a server, sets up networking and firewalls (primarily firewalld, ufw and iptables are best effort), and can optionally create client certificates.
 
 OSes in CI build:
 - Fedora 32+
@@ -12,15 +12,12 @@ OSes in CI build:
 
 Note: I am providing code in the repository to you under an open source license. Because this is my personal repository, the license you receive to my code is from me and not my employer.
 
-Requirements
-------------
-
-Openvpn must be available as a package in yum/apt! For CentOS users, this role will run `yum install epel-release` to ensure openvpn is available.
+# Requirements
+OpenVPN must be available as a package in yum/dnf/apt! For CentOS users, this role will run `yum install epel-release` to ensure openvpn is available.
 
 Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptables-persistent/+bug/1002078) that might make the iptables-persistent install fail. There is a [workaround](https://forum.linode.com/viewtopic.php?p=58233#p58233).
 
-Support Notes/Expectations
--------------
+# Support Notes/Expectations
 I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config.
 Please recognise that I am a single person, and I have a full time job and other commitments.
 
@@ -31,10 +28,9 @@ Major community contributions:
 * Functionality to revoke certs
 * All of the LDAP support
 
-Role Variables
---------------
-
+# Role Variables
 ## Role options
+These options change how the role works. This is a catch-all group, specific groups are broken out below.
 | Variable                     | Type    | Choices     | Default           | Comment                                                                       |
 |------------------------------|---------|-------------|-------------------|-------------------------------------------------------------------------------|
 | clients                      | list    |             | []                | List of clients to add to OpenVPN                                             |
@@ -49,6 +45,7 @@ Role Variables
 | openvpn_uninstall            | boolean | true, false | false             | Set to true to uninstall the OpenVPN service                                  |
 | openvpn_use_ldap             | boolean | true, false | false             | Active LDAP backend for authentication. Client certificate not needed anymore |
 ### Config fetching
+Change these options if you need to adjust how the configs are download to your local system
 | Variable                            | Type    | Choices     | Default      | Comment                                                                                                                                   |
 |-------------------------------------|---------|-------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_fetch_client_configs        | boolean | true, false | true         | Download generated client configurations to the local system                                                                              |
@@ -56,6 +53,7 @@ Role Variables
 | openvpn_fetch_client_configs_suffix | string  |             | ""           | If openvpn_fetch_client_configs is true, the suffix to append to the downloaded client config files before the trailing `.ovpn` extension |
 
 ### Firewall
+Change these options if you need to force a particular firewall or change how the playbook interacts with the firewall.
 | Variable                         | Type    | Choices                        | Default  | Comment                                                                                                     |
 |----------------------------------|---------|--------------------------------|----------|-------------------------------------------------------------------------------------------------------------|
 | firewalld_default_interface_zone | string  |                                | public   | Firewalld zone where the "ansible_default_ipv4.interface" will be pushed into                               |
@@ -64,6 +62,7 @@ Role Variables
 | openvpn_firewall                 | string  | auto, firewalld, ufw, iptables | auto     | The firewall software to configure network rules. "auto" will attempt to detect it by inspecting the system |
 | openvpn_masquerade_not_snat      | boolean | true, false                    | false    | Set to true if you want to set up MASQUERADE instead of the default SNAT in iptables.                       |
 ## OpenVPN Config Options
+These options change how OpenVPN itself works.
 ### Networking
 | Variable                    | Type         | Choices           | Default                    | Comment                                                                                                                                              |
 |-----------------------------|--------------|-------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -102,7 +101,6 @@ Role Variables
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
 | tls_auth_required                  | boolean | true, false | true        | Ask the client to push the generated ta.key of the server during the connection                                                                                 |
 ### Operations
-
 | Variable                           | Type    | Choices     | Default                                          | Comment                                                                                                                                                                       |
 |------------------------------------|---------|-------------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_addl_client_options        | list    |             | empty                                            | List of user-defined client options that are not already present in the client template. (e.g. `- mssfix 1400`)                                                               |
@@ -123,13 +121,6 @@ Role Variables
 | openvpn_status_version             | int     | 1, 2, 3     | 1                                                | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                               |
 | openvpn_topology                   | string  |             | `unset`                                          | the "topology" keyword will be set in the server config with the specified value.                                                                                             |
 
-
-### Logrotate
-| Variable                 | Type   | Choices | Default                                                                                           | Comment                                                                                          |
-|--------------------------|--------|---------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| openvpn_log_dir          | string |         | /var/log                                                                                          | Set location of openvpn log files. This parameter is a part of `log-append` configuration value. |
-| openvpn_log_file         | string |         | openvpn.log                                                                                       | Set log filename. This parameter is a part of `log-append` configuration value.                  |
-| openvpn_logrotate_config | string |         | `rotate 4<br>weekly<br>missingok<br>notifempty<br>sharedscripts<br>copytruncate<br>delaycompress` | Configure logrotate script.                                                                      |
 ### OpenVPN custom client config (server pushed)
 | Variable                      | Type    | Choices | Default | Comment                                              |
 |-------------------------------|---------|---------|---------|------------------------------------------------------|
@@ -138,7 +129,16 @@ Role Variables
 | openvpn_client_config_dir     | string  |         | ccd     | Path of `client-config-dir`                          |
 | openvpn_client_config_present | dict    |         | {}      | Dict of settings custom client configs               |
 
+## Logrotate
+Set your own custom logrotate options
+| Variable                 | Type   | Choices | Default                                                                                                     | Comment                                                                                          |
+|--------------------------|--------|---------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| openvpn_log_dir          | string |         | /var/log                                                                                                    | Set location of openvpn log files. This parameter is a part of `log-append` configuration value. |
+| openvpn_log_file         | string |         | openvpn.log                                                                                                 | Set log filename. This parameter is a part of `log-append` configuration value.                  |
+| openvpn_logrotate_config | string |         | rotate 4<br />weekly<br />missingok<br />notifempty<br />sharedscripts<br />copytruncate<br />delaycompress | Configure logrotate script.                                                                      |
+
 ## Packaging
+This role pulls in a bunch of different packages. Override the names as necessary.
 | Variable                         | Type   | Choices | Default             | Comment                                                                     |
 |----------------------------------|--------|---------|---------------------|-----------------------------------------------------------------------------|
 | epel_package_name                | string |         | epel-release        | Name of the epel-release package to install from the package manager        |
@@ -168,31 +168,26 @@ Role Variables
 | group_search_filter | string |                           | ((cn=developers)(cn=artists))           | Precise valid groups                                                                         |
 | verify_client_cert  | string | none , optional , require | client-cert-not-required                | In OpenVPN 2.4+ `client-cert-not-required` is deprecated. Use `verify-client-cert` instead.  |
 
-Dependencies
-------------
-
+# Dependencies
 Does not depend on any other roles
 
-Example Playbook
-----------------
-
-    - hosts: vpn
-      gather_facts: true
-      roles:
-        - role: kyl191.openvpn
-          openvpn_port: 4300
-          clients:
-            - client1
-            - client2
+# Example Playbook
+```
+- hosts: vpn
+  gather_facts: true
+  roles:
+    - role: kyl191.openvpn
+      openvpn_port: 4300
+      openvpn_sync_certs: true
+      clients:
+        - client1
+        - client2
+```
 
 > **Note:** As the role will need to know the remote used platform (32 or 64 bits), you must set `gather_facts` to `true` in your play.
 
-License
--------
+# License
+MIT
 
-GPLv2
-
-Author Information
-------------------
-
+# Author Information
 Written by Kyle Lexmond
