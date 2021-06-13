@@ -1,0 +1,11 @@
+# Logrotate configuration
+openvpn_log_dir: /var/log
+openvpn_log_file: openvpn.log
+openvpn_logrotate_config: |
+  rotate 4
+  weekly
+  missingok
+  notifempty
+  sharedscripts
+  copytruncate
+  delaycompress

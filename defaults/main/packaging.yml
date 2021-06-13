@@ -1,0 +1,8 @@
+# Packaging defaults for kyl191.openvpn
+epel_package_name: epel-release
+iptables_persistent_package_name: iptables-persistent
+iptables_services_package_name: iptables-services
+openssl_package_name: openssl
+openvpn_ldap_plugin_package_name: openvpn-auth-ldap
+openvpn_package_name: openvpn
+python_firewall_package_name: python-firewall

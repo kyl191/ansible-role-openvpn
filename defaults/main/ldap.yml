@@ -1,0 +1,15 @@
+ldap:
+  url: ldap://host.example.com
+  anonymous_bind: false
+  bind_dn: uid=Manager,ou=People,dc=example,dc=com
+  bind_password: mysecretpassword
+  tls_enable: false
+  tls_ca_cert_file: "{{ openvpn_base_dir }}/auth/ca.pem"
+  base_dn: ou=People,dc=example,dc=com
+  search_filter: (&(uid=%u)(accountStatus=active))
+  require_group: false
+  group_base_dn: ou=Groups,dc=example,dc=com
+  group_search_filter: (|(cn=developers)(cn=artists))
+# verify_client_cert is in the readme, but not set here
+# because the task checks for the _existence_ of the default
+# future change will set it
