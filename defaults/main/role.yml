@@ -1,0 +1,30 @@
+# Defaults for the role operation
+
+clients: []
+
+# Directories
+openvpn_base_dir: /etc/openvpn
+openvpn_key_dir: /etc/openvpn/keys
+openvpn_ovpn_dir: "{{ openvpn_base_dir }}"
+
+# Config fetch settings
+openvpn_fetch_client_configs: true
+openvpn_fetch_client_configs_dir: /tmp/ansible
+openvpn_fetch_client_configs_suffix: ""
+
+# Firewall
+firewalld_default_interface_zone: public
+iptables_service: iptables
+manage_firewall_rules: true
+openvpn_firewall: auto
+openvpn_masquerade_not_snat: false
+
+# Misc
+ci_build: false
+openvpn_client_config_no_log: true
+openvpn_revoke_these_certs: []
+openvpn_selinux_module: my-openvpn-server
+openvpn_service_name: openvpn
+openvpn_sync_certs: false
+openvpn_uninstall: false
+openvpn_use_ldap: false

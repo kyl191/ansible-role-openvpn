@@ -1,0 +1,72 @@
+# Defaults for openvpn
+
+# Networking
+openvpn_client_register_dns: true
+openvpn_client_to_client: false
+openvpn_custom_dns: []
+openvpn_dns_servers: []
+openvpn_dualstack: true
+openvpn_keepalive_ping: 5
+openvpn_keepalive_timeout: 30
+openvpn_port: 1194
+openvpn_proto: udp
+openvpn_redirect_gateway: true
+openvpn_resolv_retry: 5
+openvpn_server_hostname: "{{ inventory_hostname }}"
+openvpn_server_netmask: 255.255.255.0
+openvpn_server_network: 10.9.0.0
+openvpn_set_dns: true
+openvpn_tun_mtu:
+
+# Security
+openvpn_auth_alg: SHA256
+openvpn_cipher: AES-256-CBC
+openvpn_duplicate_cn: false
+openvpn_rsa_bits: 2048
+openvpn_use_crl: false
+openvpn_use_hardened_tls: true
+openvpn_use_modern_tls: true
+openvpn_use_pregenerated_dh_params: false
+openvpn_verify_cn: false
+tls_auth_required: true
+openvpn_script_security: 1
+
+# Operations
+openvpn_addl_client_options: []
+openvpn_addl_server_options: []
+openvpn_compression: lzo
+openvpn_enable_management: false
+openvpn_ifconfig_pool_persist_file: ipp.txt
+openvpn_management_bind: /var/run/openvpn/management unix
+openvpn_management_client_user: root
+openvpn_push: []
+openvpn_service_group: nogroup
+openvpn_service_user: nobody
+openvpn_status_version: 1
+
+
+# Client config - settings the server will push
+openvpn_client_config: false
+openvpn_client_config_dir: ccd
+openvpn_client_config_present: {}
+# Example:
+# openvpn_client_config_present:
+#   client1:
+#     - ifconfig-push 10.0.0.2 255.255.255.0
+#     - push "route 192.168.1.0 255.255.255.0"
+#     - push "dhcp-option DOMAIN example.com"
+#     - iroute 192.168.4.0 255.255.255.0
+#
+# OR
+#
+# openvpn_client_config_present:
+#   client1:
+#     - ifconfig-push 10.0.0.2 255.255.255.0
+#     - push "route 192.168.1.0 255.255.255.0"
+#     - iroute 192.168.2.0 255.255.255.0
+#     - iroute 192.168.4.0 255.255.255.0
+openvpn_client_config_absent: []
+# Example:
+# openvpn_client_config_absent:
+#   - client2
+#   - client3
