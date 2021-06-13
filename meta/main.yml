@@ -5,44 +5,22 @@ galaxy_info:
   author: Kyle Lexmond
   description: OpenVPN playbook for CentOS/Fedora/RHEL/RHEL clones & Ubuntu/Debian
 
-  license: GPLv2
-  min_ansible_version: 2.4
-  #
-  # Below are all platforms currently available. Just uncomment
-  # the ones that apply to your role. If you don't see your
-  # platform on this list, let us know and we'll get it added!
-  #
+  license: MIT
+  min_ansible_version: 2.9
+
   platforms:
     - name: EL
       versions:
-        - 6
         - 7
+        - 8
     - name: Fedora
       versions:
-        - all
+        - 32
+        - 33
+        - 34
     - name: Ubuntu
       versions:
-        #  - all
-        #  - lucid
-        #  - maverick
-        #  - natty
-        #  - oneiric
-        #  - precise
-        #  - quantal
-        #  - raring
-        #  - saucy
         - trusty
-  # - name: Debian
-  #   versions:
-  #   - all
-  #   - etch
-  #   - lenny
-  #   - squeeze
-  #   - wheezy
-  #
-  # Below are all categories currently available. Just as with
-  # the platforms above, uncomment those that apply to your role.
-  #
   galaxy_tags:
     - networking
 dependencies: []
