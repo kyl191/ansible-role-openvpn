@@ -1,18 +1,18 @@
 ---
 - name: "[cert sync] Create temporary file for existing certs"
-  ansible.builtin.tempfile:
+  tempfile:
     state: file
     suffix: temp
   register: tempfile_existing
 
 - name: "[cert sync] Create temporary file for expected certs"
-  ansible.builtin.tempfile:
+  tempfile:
     state: file
     suffix: temp
   register: tempfile_expected
 
 - name: "[cert sync] Write expected client list to temp file for comparison with existing certs"
-  ansible.builtin.template:
+  template:
     src: cert_sync_expected_clients.j2
     dest: "{{ tempfile_expected.path }}"
     mode: 0644
@@ -39,7 +39,7 @@
   when: openvpn_cert_sync_revoke.stdout_lines | length > 0
 
 - name: "[cert sync] Cleanup temp files"
-  ansible.builtin.file:
+  file:
     path: "{{ item }}"
     state: absent
   with_items:
