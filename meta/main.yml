@@ -23,4 +23,4 @@ galaxy_info:
         - trusty
   galaxy_tags:
     - networking
-dependencies: []
+dependencies: ["community.general.rhsm_repository"]
