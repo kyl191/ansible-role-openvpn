@@ -25,6 +25,3 @@ galaxy_info:
     - networking
 
 dependencies: []
-
-collections: 
-  - community.general.rhsm_repository

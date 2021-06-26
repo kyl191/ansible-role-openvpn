@@ -1,0 +1,14 @@
+---
+namespace: "kyl191/openvpn"
+name: "openvpn"
+version: "v0.9.1"
+readme: "README.md"
+authors: "kyl191 (https://github.com/kyl191)"
+description: "OpenVPN playbook for CentOS/Fedora/RHEL/RHEL clones & Ubuntu/Debian"
+license_file: "LICENSE"
+tags:
+  - networking
+dependencies: 
+  - "community.general": "*"
+repository:
+  - "https://github.com/kyl191/ansible-role-openvpn"
