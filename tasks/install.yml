@@ -1,10 +1,21 @@
 ---
-- name: Install EPEL
-  yum_repository:
-    name: epel
-    description: EPEL YUM repo
-    baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-  when: ansible_distribution == "CentOS" or ansible_distribution=="RedHat"
+- name: Install EPEL for CentOS
+  package:
+    name: "{{ epel_package_name }}"
+    state: present
+  when: ansible_distribution == "CentOS"
+
+- name: Install EPEL for RHEL 8
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    state: present
+  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
+
+- name: Install EPEL for RHEL 7
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
 
 - name: Install python2-dnf for Fedora dnf support
   raw: dnf install -y python2-dnf
