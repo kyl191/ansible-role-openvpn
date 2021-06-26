@@ -27,4 +27,4 @@ galaxy_info:
 dependencies: []
 
 collections: 
-  - community.general
+  - community.general.rhsm_repository
