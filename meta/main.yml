@@ -23,4 +23,6 @@ galaxy_info:
         - trusty
   galaxy_tags:
     - networking
-dependencies: ["community.general"]
+dependencies: []
+collections: 
+  - community.general
