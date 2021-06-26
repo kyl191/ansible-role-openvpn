@@ -13,7 +13,7 @@
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
 
 - name: Enable extra repos for RHEL 8
-  community.general.rhsm_repository:
+  rhsm_repository:
     name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
     state: enabled
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
@@ -26,7 +26,7 @@
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
 
 - name: Enable extra repos for RHEL 7
-  community.general.rhsm_repository:
+  rhsm_repository:
     name: "{{ item }}"
     state: enabled
   with_items:
