@@ -73,6 +73,3 @@
     name: nogroup
     state: present
     system: true
-
-collections: 
-  - community.general
