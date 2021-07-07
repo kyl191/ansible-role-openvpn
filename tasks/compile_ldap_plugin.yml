@@ -14,6 +14,13 @@
     path: "{{ openvpn_auth_ldap_bin_path }}"
   register: openvpn_auth_ldap_bin
 
+- name: Ensure auth folder exist in openvpn dir
+  become: true
+  file:
+    path: "{{ openvpn_base_dir }}/auth"
+    state: directory
+    mode: 0755
+
 - block:
     - name: Install gcc objc repo
       become: true
