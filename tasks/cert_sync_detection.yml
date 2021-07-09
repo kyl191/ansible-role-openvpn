@@ -34,7 +34,7 @@
   when: openvpn_sync_certs
 
 - name: "[cert sync] Debug: Certs to revoke (skipped if none)"
-  ansible.builtin.debug:
+  debug:
     msg: "Will revoke additional certs: {{ openvpn_cert_sync_revoke.stdout_lines | join(', ') }}"
   when: openvpn_cert_sync_revoke.stdout_lines | length > 0
 
