@@ -122,12 +122,11 @@ These options change how OpenVPN itself works.
 | openvpn_topology                   | string  |             | `unset`                                          | the "topology" keyword will be set in the server config with the specified value.                                                                                             |
 
 ### OpenVPN custom client config (server pushed)
-| Variable                      | Type    | Choices | Default | Comment                                              |
-|-------------------------------|---------|---------|---------|------------------------------------------------------|
-| openvpn_client_config         | Boolean |         | false   | Set to true if enable client configuration directory |
-| openvpn_client_config_absent  | list    |         | []      | List of custom client configs for remove             |
-| openvpn_client_config_dir     | string  |         | ccd     | Path of `client-config-dir`                          |
-| openvpn_client_config_present | dict    |         | {}      | Dict of settings custom client configs               |
+| Variable                  | Type    | Choices | Default | Comment                                              |
+|---------------------------|---------|---------|---------|------------------------------------------------------|
+| openvpn_client_config     | Boolean |         | false   | Set to true if enable client configuration directory |
+| openvpn_client_config_dir | string  |         | ccd     | Path of `client-config-dir`                          |
+| openvpn_client_configs    | dict    |         | {}      | Dict of settings custom client configs               |
 
 ## Logrotate
 Set your own custom logrotate options
