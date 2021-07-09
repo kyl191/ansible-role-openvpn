@@ -37,6 +37,19 @@
     mode: a+x
   when: openvpn_script_client_disconnect is defined
 
+- name: Ensure auth folder exist in openvpn dir
+  file:
+    path: "{{ openvpn_base_dir }}/auth"
+    state: directory
+    mode: 0755
+  when: openvpn_use_ldap
+
+- name: Delete auth folder in openvpn dir
+  file:
+    path: "{{ openvpn_base_dir }}/auth"
+    state: absent
+  when: not openvpn_use_ldap
+
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
