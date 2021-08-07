@@ -27,7 +27,7 @@
 - name: Accept packets from VPN tunnel adaptor - ufw
   ufw:
     direction: in
-    interface: tun0
+    interface: tun+
     rule: allow
 
 - name: Setup nat table rules - ufw
@@ -36,11 +36,11 @@
     state: present
     insertbefore: \*filter
     block: |
-      # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j SNAT --to-source {{ ansible_default_ipv4.address }}
+      -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
       COMMIT
+    marker: "# OpenVPN SNAT {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}_{{ ansible_default_ipv4.address }} {mark}"
   when: not openvpn_masquerade_not_snat
   notify:
     - restart ufw
@@ -51,11 +51,11 @@
     state: present
     insertbefore: \*filter
     block: |
-      # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j MASQUERADE
+      -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} -j MASQUERADE
       COMMIT
+    marker: "# OpenVPN MASQ {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} {mark}"
   when: openvpn_masquerade_not_snat
   notify:
     - restart ufw

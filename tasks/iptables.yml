@@ -54,7 +54,7 @@
 - name: Accept packets from VPN tunnel adaptor - iptables
   iptables:
     chain: INPUT
-    in_interface: tun0
+    in_interface: tun+
     jump: ACCEPT
     action: insert
     comment: "Accept packets from VPN tunnel adaptor"

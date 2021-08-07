@@ -154,14 +154,14 @@
 - name: Install crl-cron script
   template:
     src: crl-cron.sh.j2
-    dest: "{{ openvpn_base_dir }}/crl-cron.sh"
+    dest: "{{ openvpn_base_dir }}/crl-cron_{{ openvpn_config_file }}.sh"
     owner: root
     group: root
     mode: 0744
 
 - name: Add cron to check every Saturday if the CRL needs to be renewed
   cron:
-    name: "check if CRL will expire soon"
+    name: "check if CRL will expire soon for {{ openvpn_config_file }}"
     special_time: weekly
-    job: "sh {{ openvpn_base_dir }}/crl-cron.sh"
+    job: "sh {{ openvpn_base_dir }}/crl-cron_{{ openvpn_config_file }}.sh"
   when: not ci_build
