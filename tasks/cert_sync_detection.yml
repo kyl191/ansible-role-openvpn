@@ -22,7 +22,7 @@
   shell:
     cmd: |
       set -o pipefail
-      ls -1 *.csr | { grep -v server.csr || true; } | sort | cut -f1 -d'.' > {{ tempfile_existing.path }}
+      ls -1 *.csr | { grep -v server.csr || true; } | cut -f1 -d'.' | sort > {{ tempfile_existing.path }}
     chdir: "{{ openvpn_key_dir }}"
     executable: /bin/bash
   when: openvpn_sync_certs
