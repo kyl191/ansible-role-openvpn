@@ -77,7 +77,7 @@
 - name: Fetch client config
   fetch:
     src: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
-    dest: "{{ openvpn_fetch_client_configs_dir }}/{{ item }}/{{ inventory_hostname }}{{ openvpn_fetch_client_configs_suffix }}.ovpn"
+    dest: "{{ openvpn_fetch_client_configs_dir }}/{{ item }}-{{ inventory_hostname }}{{ openvpn_fetch_client_configs_suffix }}.ovpn"
     flat: true
   when: openvpn_fetch_client_configs
   with_items:
