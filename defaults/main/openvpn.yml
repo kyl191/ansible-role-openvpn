@@ -15,6 +15,7 @@ openvpn_resolv_retry: 5
 openvpn_server_hostname: "{{ inventory_hostname }}"
 openvpn_server_netmask: 255.255.255.0
 openvpn_server_network: 10.9.0.0
+openvpn_server_netmask_cidr: "{{ (openvpn_server_network + '/' + openvpn_server_netmask) | ansible.utils.ipaddr('prefix') }}"
 openvpn_set_dns: true
 openvpn_tun_mtu:
 
@@ -43,7 +44,6 @@ openvpn_push: []
 openvpn_service_group: nogroup
 openvpn_service_user: nobody
 openvpn_status_version: 1
-
 
 # Client config - settings the server will push
 openvpn_client_config: false
