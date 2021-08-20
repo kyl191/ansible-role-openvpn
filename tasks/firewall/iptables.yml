@@ -59,8 +59,8 @@
       ansible.builtin.iptables:
         table: nat
         chain: POSTROUTING
-        source: "{{ openvpn_server_network }}/24"
-        destination: "! {{ openvpn_server_network }}/24"
+        source: "{{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
+        destination: "! {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
         to_source: "{{ ansible_default_ipv4.address }}"
         jump: SNAT
         action: insert
@@ -86,8 +86,8 @@
       ansible.builtin.iptables:
         table: nat
         chain: POSTROUTING
-        source: "{{ openvpn_server_network }}/24"
-        destination: "! {{ openvpn_server_network }}/24"
+        source: "{{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
+        destination: "! {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
         jump: MASQUERADE
         action: insert
         comment: "Perform NAT readdressing"
