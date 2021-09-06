@@ -186,6 +186,21 @@ Does not depend on any other roles
 
 > **Note:** As the role will need to know the remote used platform (32 or 64 bits), you must set `gather_facts` to `true` in your play.
 
+## Requirements for MikroTik clients
+MikroTik routers (https://mt.lv) doesn't support some OpenVPN features: UDP mode, LZO compression, TLS authentication (according to https://wiki.mikrotik.com/wiki/Manual:Interface/OVPN).
+
+So here is example which additional variables you may have in playbook if your clients will be Mikrotik routers (also if you already have standart udp configuration, create a separate config file with variables below and this config wouldn't affect working users):
+```
+    openvpn_proto: 'tcp'
+    openvpn_auth_alg: 'SHA1'
+    openvpn_use_hardened_tls: false
+    openvpn_use_modern_tls: false
+    tls_auth_required: false
+    openvpn_key_dir: '/etc/openvpn/keys_tcp_mtk'
+    openvpn_ifconfig_pool_persist_file: 'ipp_tcp_mtk.txt'
+    openvpn_log_file: 'openvpn_tcp_mtk.log'
+```
+
 # License
 MIT
 
