@@ -7,11 +7,16 @@ port {{ openvpn_port }}
 {% if openvpn_dualstack %}
 proto {{ openvpn_proto }}6
 {% else %}
-proto {{ openvpn_proto }}
+proto {{ openvpn_proto }}4
 {% endif %}
 dev tun
 
+{% if ca_chain is defined %}
+ca {{ openvpn_key_dir }}/ca-chain.crt
+{% else %}
 ca {{ openvpn_key_dir }}/ca.crt
+{% endif %}
+
 cert {{ openvpn_key_dir }}/server.crt
 key {{ openvpn_key_dir }}/server.key
 dh {{ openvpn_key_dir }}/dh.pem
@@ -110,6 +115,8 @@ management-client-user {{ openvpn_management_client_user }}
 ### LDAP AUTH ###
 {% if ansible_os_family == 'Debian' %}
 plugin /usr/lib/openvpn/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
+{% elif ansible_machine == "x86_64" and ansible_distribution == "Rocky" %}
+plugin /usr/lib64/openvpn/plugins/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% elif ansible_machine == "x86_64" %}
 plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% else %}
@@ -118,7 +125,7 @@ plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/
 {% if ldap.verify_client_cert is defined %}
 verify-client-cert {{ ldap.verify_client_cert }}
 {% else %}
-client-cert-not-required
+verify-client-cert require
 {% endif %}
 {% endif %}
 
