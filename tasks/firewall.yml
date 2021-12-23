@@ -25,10 +25,18 @@
     msg: "Both FirewallD and UFW are detected, firewall situation is unknown"
   when: openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc == 0
 
-- name: Fail on no firewall detected
-  fail:
-    msg: "No firewall detected, install one before proceeding (firewalld||ufw||iptables)"
+- name: Install firewalld if no firewall detected
+  package:
+    name: firewalld
+    state: present
   when: firewalld.rc != 0 and ufw.rc != 0 and iptables.rc != 0
+
+- name: Check for firewalld
+  shell: command -v firewall-cmd
+  register: firewalld
+  check_mode: no
+  changed_when: false  # Never report as changed
+  failed_when: false
 
 - name: Add port rules (iptables)
   include: iptables.yml
