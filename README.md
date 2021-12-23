@@ -13,13 +13,14 @@ OSes in CI build:
 Note: I am providing code in the repository to you under an open source license. Because this is my personal repository, the license you receive to my code is from me and not my employer.
 
 # Requirements
-OpenVPN must be available as a package in yum/dnf/apt! For CentOS users, this role will run `yum install epel-release` to ensure openvpn is available.
+OpenVPN must be available as a package in yum/dnf/apt! 
+For CentOS/Rocky linux users, epel repository should be available (prerequisite).
 
 Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptables-persistent/+bug/1002078) that might make the iptables-persistent install fail. There is a [workaround](https://forum.linode.com/viewtopic.php?p=58233#p58233).
 
 # Support Notes/Expectations
 I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config.
-Please recognise that I am a single person, and I have a full time job and other commitments.
+Please recognise that I am a single person, and I have a full time job and other commitments. This initial role was extended to support Rocky Linux 8.
 
 Responses to any issues will be on a best effort basis on my part, including the possibility that I don't respond at all.
 Issues arising from use of the non-defaults (including any of the major community contributions) will be deprioritized.
@@ -87,8 +88,9 @@ These options change how OpenVPN itself works.
 | Variable                           | Type    | Choices     | Default     | Comment                                                                                                                                                         |
 |------------------------------------|---------|-------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_auth_alg                   | string  |             | SHA256      | Set `auth` authentication algoritm.                                                                                                                             |
+| ca_chain                           | string  |             | `unset`     | Configure the Root CA Chain (openvpn CA should be an sub CA)                        |
 | openvpn_ca_key                     | dict    |             | `unset`     | Contain "crt" and "key". If not set, CA cert and key will be automatically generated on the target system.                                                      |
-| openvpn_cipher                     | string  |             | AES-256-CBC | Set `cipher` option for server and client.                                                                                                                      |
+| openvpn_cipher                     | string  |             | AES-256-GCM | Set `cipher` option for server and client. AES-256-GCM is more secure than AES-256-CBC. So it is set by default.                                                                                                                      |
 | openvpn_crl_path                   | string  |             | `unset`     | Define a path to the CRL file for server revocation check.                                                                                                      |
 | openvpn_duplicate_cn               | boolean | true, false | false       | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key. NOTE: client ip addresses won't be static anymore! |
 | openvpn_rsa_bits                   | int     |             | 2048        | Number of bits used to protect generated certificates                                                                                                           |
@@ -105,7 +107,7 @@ These options change how OpenVPN itself works.
 |------------------------------------|---------|-------------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_addl_client_options        | list    |             | empty                                            | List of user-defined client options that are not already present in the client template. (e.g. `- mssfix 1400`)                                                               |
 | openvpn_addl_server_options        | list    |             | empty                                            | List of user-defined server options that are not already present in the server template. (e.g. `- ping-timer-rem`)                                                            |
-| openvpn_compression                | string  |             | lzo                                              | Set `compress` compression option. Empty for no compression.                                                                                                                  |
+| openvpn_compression                | string  |             | empty                                            | Set `compress` compression option. Empty for no compression. Because of compression security vulnerabilities (see VORACLE), it desabled by default                                                                                                                |
 | openvpn_config_file                | string  |             | openvpn_{{ openvpn\_proto }}\_{{ openvpn_port }} | The config file name you want to use (set in vars/main.yml)                                                                                                                   |
 | openvpn_enable_management          | boolean | true, false | false                                            |                                                                                                                                                                               |
 | openvpn_ifconfig_pool_persist_file | string  |             | ipp.txt                                          |                                                                                                                                                                               |
