@@ -5,7 +5,7 @@ openvpn_client_register_dns: true
 openvpn_client_to_client: false
 openvpn_custom_dns: []
 openvpn_dns_servers: []
-openvpn_dualstack: true
+openvpn_dualstack: false
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
 openvpn_port: 1194
@@ -14,13 +14,13 @@ openvpn_redirect_gateway: true
 openvpn_resolv_retry: 5
 openvpn_server_hostname: "{{ inventory_hostname }}"
 openvpn_server_netmask: 255.255.255.0
-openvpn_server_network: 10.9.0.0
+openvpn_server_network: 192.168.254.0
 openvpn_set_dns: true
 openvpn_tun_mtu:
 
 # Security
 openvpn_auth_alg: SHA256
-openvpn_cipher: AES-256-CBC
+openvpn_cipher: AES-256-GCM
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_use_crl: false
@@ -34,7 +34,7 @@ openvpn_script_security: 1
 # Operations
 openvpn_addl_client_options: []
 openvpn_addl_server_options: []
-openvpn_compression: lzo
+openvpn_compression: ""
 openvpn_enable_management: false
 openvpn_ifconfig_pool_persist_file: ipp.txt
 openvpn_management_bind: /var/run/openvpn/management unix
