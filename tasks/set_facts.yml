@@ -18,7 +18,7 @@
     (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27)
     or
     (
-      ( (ansible_distribution == "CentOS") or (ansible_distribution == "RedHat") )
+      ( ansible_distribution_file_variety | lower == "redhat" )
       and
       (ansible_distribution_version | int) >= 8
     )
@@ -30,7 +30,7 @@
     (ansible_distribution == "Fedora" and ansible_distribution_version|int >= 27)
     or
     (
-      (ansible_distribution == "CentOS" or ansible_distribution == "RedHat")
+      ( ansible_distribution_file_variety | lower == "redhat" )
       and
       (ansible_distribution_version | int) >= 8
     )
