@@ -28,13 +28,13 @@
     state: present
   when:
     - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8"
+#     - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8"
 
-- name: Compile LDAP plugin
-  include_tasks: compile_ldap_plugin.yml
-  when:
-    - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+# - name: Compile LDAP plugin
+#   include_tasks: compile_ldap_plugin.yml
+#   when:
+#     - openvpn_use_ldap
+#     - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
