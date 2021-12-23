@@ -37,6 +37,15 @@
     mode: a+x
   when: openvpn_script_client_disconnect is defined
 
+- name: Ensure LDAP config directory exists
+  file:
+    path: "{{ openvpn_base_dir }}/auth"
+    state: directory
+    owner: root
+    group: root
+    mode: "0644"
+  when: openvpn_use_ldap
+
 - name: Install LDAP config
   template:
     src: ldap.conf.j2
