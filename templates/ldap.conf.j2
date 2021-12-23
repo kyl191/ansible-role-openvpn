@@ -1,6 +1,6 @@
 <LDAP>
     # LDAP server URL
-    URL {{ ldap.url }}
+    URL ldap://{{ ldap.url }}
 
 {% if not ldap.anonymous_bind %}
     # Bind DN (If your LDAP server doesn't support anonymous binds)
@@ -56,7 +56,7 @@
     <Group>
         BaseDN "{{ ldap.group_base_dn }}"
         SearchFilter "{{ ldap.group_search_filter }}"
-        MemberAttribute uniqueMember
+        MemberAttribute "member"
         # Add group members to a PF table (disabled)
         #PFTable ips_vpn_eng
     </Group>
