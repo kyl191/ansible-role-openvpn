@@ -7,7 +7,7 @@ cd ${CADIR}
 
 gen_crl () {
   # regenerate the certificate revocation list
-  openssl ca -gencrl -config ca.conf -out ca-crl.pem
+  openssl ca -gencrl -config ca.conf -out ca-crl.pem -passin pass:$certkeypass
 }
 
 revoke () {

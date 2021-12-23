@@ -16,6 +16,13 @@
     - openssl-server.ext
     - openssl-ca.ext
 
+- name: Copy CA Chain
+  copy:
+    content: "{{ ca_chain }}"
+    dest: "{{ openvpn_key_dir }}/ca-chain.crt"
+    mode: 0444
+  when: ca_chain is defined
+
 - name: Copy CA key
   copy:
     content: "{{ openvpn_ca_key.key }}"
@@ -66,10 +73,12 @@
     mode: 0400
 
 - name: Sign server key
-  command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+  command: "openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext -passin pass:$certkeypass"
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: server.crt
+  environment: 
+    certkeypass: "{{ openvpn_ca_key.key_pwd }}"
 
 - name: Copy tls-auth key
   copy:
@@ -150,6 +159,8 @@
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+  environment: 
+    certkeypass: "{{ openvpn_ca_key.key_pwd }}"
 
 - name: Install crl-cron script
   template:
