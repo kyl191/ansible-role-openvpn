@@ -159,9 +159,26 @@
     group: root
     mode: 0744
 
+# This should eventually be switched to use a systemd timer
+# eg /usr/local/lib/systemd/system/openvpn-crl.timer
+- name: Check for crontab
+  command: which crontab
+  register: crontab
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Install cronie
+  ansible.builtin.package:
+    name: cronie
+    state: present
+  when: ansible_os_family == "RedHat" and crontab.rc != 0
+
 - name: Add cron to check every Saturday if the CRL needs to be renewed
-  cron:
+  ansible.builtin.cron:
     name: "check if CRL will expire soon"
     special_time: weekly
     job: "sh {{ openvpn_base_dir }}/crl-cron.sh"
+    cron_file: /etc/cron.d/openvpn-crl
+    user: root
   when: not ci_build
