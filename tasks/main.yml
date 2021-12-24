@@ -25,7 +25,7 @@
 # ignoreerrors is required for CentOS/RHEL 6
 # http://serverfault.com/questions/477718/sysctl-p-etc-sysctl-conf-returns-error
 - name: Enable ipv4 forwarding
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '1'
     ignoreerrors: true
@@ -33,7 +33,7 @@
   when: not ci_build
 
 - name: Enable ipv6 forwarding
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: '1'
     ignoreerrors: true
