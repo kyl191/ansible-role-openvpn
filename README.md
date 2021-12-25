@@ -17,6 +17,14 @@ OpenVPN must be available as a package in yum/dnf/apt! For CentOS users, this ro
 
 Ubuntu precise has a [weird bug](https://bugs.launchpad.net/ubuntu/+source/iptables-persistent/+bug/1002078) that might make the iptables-persistent install fail. There is a [workaround](https://forum.linode.com/viewtopic.php?p=58233#p58233).
 
+## Ansible 2.10 and higher
+With the release of Ansible 2.10, modules have been moved into collections. With the exception of ansible.builtin modules, this means additonal collections must be installed in order to use modules such as seboolean (now ansible.posix.seboolean). This collections is now required: `ansible.posix` and this collection is required if using ufw: `community.general`. Installing the collections:
+
+```
+ansible-galaxy collection install ansible.posix
+ansible-galaxy collection install community.general
+```
+
 # Support Notes/Expectations
 I personally use this role to manage OpenVPN on CentOS 8. I try to keep the role on that platform fully functional with the default config.
 Please recognise that I am a single person, and I have a full time job and other commitments.
