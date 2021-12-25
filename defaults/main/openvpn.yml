@@ -48,9 +48,9 @@ openvpn_status_version: 1
 # Client config - settings the server will push
 openvpn_client_config: false
 openvpn_client_config_dir: ccd
-openvpn_client_config_present: {}
+openvpn_client_configs: {}
 # Example:
-# openvpn_client_config_present:
+# openvpn_client_configs:
 #   client1:
 #     - ifconfig-push 10.0.0.2 255.255.255.0
 #     - push "route 192.168.1.0 255.255.255.0"
@@ -59,14 +59,10 @@ openvpn_client_config_present: {}
 #
 # OR
 #
-# openvpn_client_config_present:
+# openvpn_client_configs:
 #   client1:
 #     - ifconfig-push 10.0.0.2 255.255.255.0
 #     - push "route 192.168.1.0 255.255.255.0"
 #     - iroute 192.168.2.0 255.255.255.0
 #     - iroute 192.168.4.0 255.255.255.0
-openvpn_client_config_absent: []
-# Example:
-# openvpn_client_config_absent:
-#   - client2
-#   - client3
+

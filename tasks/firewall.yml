@@ -31,21 +31,21 @@
   when: firewalld.rc != 0 and ufw.rc != 0 and iptables.rc != 0
 
 - name: Add port rules (iptables)
-  include: iptables.yml
+  include_tasks: iptables.yml
   when: >-
     (openvpn_firewall == 'iptables')
     or
     (openvpn_firewall == 'auto' and firewalld.rc != 0 and ufw.rc != 0 and iptables.rc == 0)
 
 - name: Add port rules (firewalld)
-  include: firewalld.yml
+  include_tasks: firewalld.yml
   when: >-
     (openvpn_firewall == 'firewalld')
     or
     (openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc != 0)
 
 - name: Add port rules (ufw)
-  include: ufw.yml
+  include_tasks: ufw.yml
   when: >-
     (openvpn_firewall == 'ufw')
     or

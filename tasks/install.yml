@@ -3,11 +3,11 @@
   package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_distribution == "CentOS"
+  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky"
 
-- name: Install EPEL for RHEL 8
+- name: Install EPEL for RHEL
   yum:
-    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm
     state: present
     disable_gpg_check: yes
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
@@ -17,13 +17,6 @@
     name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
     state: enabled
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
-
-- name: Install EPEL for RHEL 7
-  yum:
-    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    state: present
-    disable_gpg_check: yes
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
 
 - name: Enable extra repos for RHEL 7
   rhsm_repository:
@@ -58,7 +51,7 @@
     state: present
   when:
     - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8"
+    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8" or ansible_distribution != "CentOS"
 
 - name: Compile LDAP plugin
   include_tasks: compile_ldap_plugin.yml
