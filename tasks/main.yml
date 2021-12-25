@@ -48,7 +48,7 @@
     - firewall
 
 - name: Configure SELinux
-  include: selinux.yml
+  import_tasks: selinux.yml
   when:
     - ansible_selinux.status == "enabled"
 
