@@ -1,9 +1,32 @@
 ---
-- name: Install EPEL
+- name: Install EPEL for CentOS
   package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky" or ansible_distribution=="RedHat"
+  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky"
+
+- name: Install EPEL for RHEL
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm
+    state: present
+    disable_gpg_check: yes
+  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
+
+- name: Enable extra repos for RHEL 8
+  rhsm_repository:
+    name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
+    state: enabled
+  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
+
+- name: Enable extra repos for RHEL 7
+  rhsm_repository:
+    name: "{{ item }}"
+    state: enabled
+  with_items:
+    - "rhel-*-optional-rpms"
+    - "rhel-*-extras-rpms"
+    - "rhel-ha-for-rhel-*-server-rpms"
+  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
 
 - name: Install python2-dnf for Fedora dnf support
   raw: dnf install -y python2-dnf
