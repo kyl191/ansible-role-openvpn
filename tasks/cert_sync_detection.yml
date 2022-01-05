@@ -1,47 +1,26 @@
 ---
-- name: "[cert sync] Create temporary file for existing certs"
-  tempfile:
-    state: file
-    suffix: temp
-  register: tempfile_existing
-
-- name: "[cert sync] Create temporary file for expected certs"
-  tempfile:
-    state: file
-    suffix: temp
-  register: tempfile_expected
-
-- name: "[cert sync] Write expected client list to temp file for comparison with existing certs"
-  template:
-    src: cert_sync_expected_clients.j2
-    dest: "{{ tempfile_expected.path }}"
-    mode: 0644
-  when: openvpn_sync_certs
-
 - name: "[cert sync] Get existing certs"
-  shell:
-    cmd: |
-      set -o pipefail
-      ls -1 *.csr | { grep -v server.csr || true; } | sort | cut -f1 -d'.' > {{ tempfile_existing.path }}
-    chdir: "{{ openvpn_key_dir }}"
-    executable: /bin/bash
-  when: openvpn_sync_certs
+  find:
+    paths: "{{ openvpn_key_dir }}"
+    patterns: "*.csr"
+    excludes: "server.csr"
+  register: openvpn_existing_cert
 
-- name: "[cert sync] Find certs that exist but aren't supposed to (on disk, but not in client list)"
-  command:
-    cmd: comm -23 {{ tempfile_existing.path }} {{ tempfile_expected.path }}
-  register: openvpn_cert_sync_revoke
-  when: openvpn_sync_certs
+# 1. Get list of file from find module
+# 2. Extract path attribute from dict list
+# 3. Keep only basename
+# 4. Remove extension
+- name: "[cert sync] Create list of existing client with  existing certs"
+  set_fact:
+    openvpn_existing_client: "{{ openvpn_existing_cert.files | map(attribute='path') | map('basename') | map('replace', '.csr', '') | sort }}"
+  when: (openvpn_existing_cert.files | length) > 0
+
+# Make difference between 2 list to have only cert to revoke
+- name: "[cert sync] Create list of cert to revoke"
+  set_fact:
+    openvpn_cert_sync_revoke: "{{ (openvpn_existing_client | default([])) | difference(clients | sort ) }}"
 
 - name: "[cert sync] Debug: Certs to revoke (skipped if none)"
   debug:
-    msg: "Will revoke additional certs: {{ openvpn_cert_sync_revoke.stdout_lines | join(', ') }}"
-  when: openvpn_cert_sync_revoke.stdout_lines | length > 0
-
-- name: "[cert sync] Cleanup temp files"
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ tempfile_existing.path }}"
-    - "{{ tempfile_expected.path }}"
+    msg: "Will revoke additional certs: {{ openvpn_cert_sync_revoke | join(', ') }}"
+  when: openvpn_cert_sync_revoke | length > 0
