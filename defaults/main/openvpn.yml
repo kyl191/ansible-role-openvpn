@@ -17,6 +17,7 @@ openvpn_server_netmask: 255.255.255.0
 openvpn_server_network: 10.9.0.0
 openvpn_set_dns: true
 openvpn_tun_mtu:
+openvpn_lan_source_ip: "{{ ansible_default_ipv4_address }}"
 
 # Security
 openvpn_auth_alg: SHA256
