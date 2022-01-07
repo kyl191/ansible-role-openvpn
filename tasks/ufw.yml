@@ -6,7 +6,7 @@
     state: started
 
 - name: Enable ufw
-  ufw:
+  community.general.ufw:
     direction: incoming
     state: enabled
     policy: allow
@@ -18,14 +18,14 @@
     line: DEFAULT_FORWARD_POLICY="ACCEPT"
 
 - name: Allow incoming VPN connections - ufw
-  ufw:
+  community.general.ufw:
     direction: in
     proto: "{{ openvpn_proto }}"
     to_port: "{{ openvpn_port | string }}"
     rule: allow
 
 - name: Accept packets from VPN tunnel adaptor - ufw
-  ufw:
+  community.general.ufw:
     direction: in
     interface: tun0
     rule: allow
