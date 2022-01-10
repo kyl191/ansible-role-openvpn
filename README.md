@@ -189,7 +189,7 @@ Does not depend on any other roles
 ## Requirements for MikroTik clients
 MikroTik routers (https://mt.lv) doesn't support some OpenVPN features: UDP mode, LZO compression, TLS authentication (according to https://wiki.mikrotik.com/wiki/Manual:Interface/OVPN).
 
-So here is example which additional variables you may have in playbook if your clients will be Mikrotik routers (also if you already have standart udp configuration, create a separate config file with variables below and this config wouldn't affect working users):
+So here is example which additional variables you may have in playbook if your clients will be Mikrotik routers (also if you already have standard udp configuration, create a separate config file with variables below and this config wouldn't affect working users):
 ```
     openvpn_proto: 'tcp'
     openvpn_auth_alg: 'SHA1'
