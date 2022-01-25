@@ -5,7 +5,6 @@
 openvpn_client_register_dns: true
 openvpn_client_to_client: false
 openvpn_custom_dns: []
-openvpn_dns_servers: []
 openvpn_dualstack: true
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
