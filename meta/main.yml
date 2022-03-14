@@ -18,6 +18,10 @@ galaxy_info:
         - 32
         - 33
         - 34
+    - name: FreeBSD
+      versions:
+        - 12
+        - 13
     - name: Ubuntu
       versions:
         - trusty

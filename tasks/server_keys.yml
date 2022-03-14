@@ -9,8 +9,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ openvpn_key_dir }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: 0400
   with_items:
     - openssl-server.ext
@@ -91,8 +91,8 @@
   copy:
     src: dh.pem
     dest: "{{ openvpn_key_dir }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: 0400
   when: openvpn_use_pregenerated_dh_params|bool
 
@@ -108,8 +108,8 @@
   template:
     src: ca.conf.j2
     dest: "{{ openvpn_key_dir }}/ca.conf"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: 0744
 
 - name: Create initial certificate revocation list squence number
@@ -129,8 +129,8 @@
   template:
     src: revoke.sh.j2
     dest: "{{ openvpn_key_dir }}/revoke.sh"
-    owner: root
-    group: root
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
     mode: 0744
 
 - name: Check if certificate revocation list database exists
@@ -155,8 +155,8 @@
   template:
     src: crl-cron.sh.j2
     dest: "{{ openvpn_base_dir }}/crl-cron.sh"
-    owner: root
-    group: root
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
     mode: 0744
 
 # This should eventually be switched to use a systemd timer
