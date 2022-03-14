@@ -3,7 +3,7 @@
   package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky"
+  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky" or ansible_distribution=="AlmaLinux"
 
 - name: Install EPEL for RHEL
   yum:
