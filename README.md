@@ -136,13 +136,13 @@ These options change how OpenVPN itself works.
 | openvpn_client_config_dir | string  |         | ccd     | Path of `client-config-dir`                          |
 | openvpn_client_configs    | dict    |         | {}      | Dict of settings custom client configs               |
 
-## Logrotate
+## Logrotate/Syslog
 Set your own custom logrotate options
-| Variable                 | Type   | Choices | Default                                                                                                     | Comment                                                                                          |
-|--------------------------|--------|---------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| openvpn_log_dir          | string |         | /var/log                                                                                                    | Set location of openvpn log files. This parameter is a part of `log-append` configuration value. |
-| openvpn_log_file         | string |         | openvpn.log                                                                                                 | Set log filename. This parameter is a part of `log-append` configuration value.                  |
-| openvpn_logrotate_config | string |         | rotate 4<br />weekly<br />missingok<br />notifempty<br />sharedscripts<br />copytruncate<br />delaycompress | Configure logrotate script.                                                                      |
+| Variable                 | Type   | Choices | Default                                                                                                     | Comment                                                                                                   |
+|--------------------------|--------|---------|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| openvpn_log_dir          | string |         | /var/log                                                                                                    | Set location of openvpn log files. This parameter is a part of `log-append` configuration value.          |
+| openvpn_log_file         | string |         | openvpn.log                                                                                                 | Set log filename. This parameter is a part of `log-append` configuration value. If empty, syslog is used. |
+| openvpn_logrotate_config | string |         | rotate 4<br />weekly<br />missingok<br />notifempty<br />sharedscripts<br />copytruncate<br />delaycompress | Configure logrotate script.                                                                               |
 
 ## Packaging
 This role pulls in a bunch of different packages. Override the names as necessary.
