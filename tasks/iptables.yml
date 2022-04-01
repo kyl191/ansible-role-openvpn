@@ -70,7 +70,7 @@
     jump: SNAT
     action: insert
     comment: "Perform NAT readdressing"
-  when: not openvpn_masquerade_not_snat
+  when: not openvpn_masquerade_not_snat and openvpn_redirect_gateway
   notify: "save iptables"
 
 - name: Perform NAT readdressing with MASQUERADE - iptables
@@ -82,7 +82,7 @@
     jump: MASQUERADE
     action: insert
     comment: "Perform NAT readdressing"
-  when: openvpn_masquerade_not_snat
+  when: openvpn_masquerade_not_snat and openvpn_redirect_gateway
   notify: "save iptables"
 
 - name: Save existing iptables rule before start iptables service
