@@ -52,7 +52,7 @@
             chdir: "{{ compile_source_dir }}/re2c-{{ re2c_version }}"
             creates: "{{ re2c_bin_path }}"
       when:
-        - re2c_bin.stat.exists
+        - not re2c_bin.stat.exists
 
     - name: Install openvpn-auth-ldap
       block:
