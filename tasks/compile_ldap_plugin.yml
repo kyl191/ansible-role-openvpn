@@ -73,10 +73,26 @@
             mode: 0750
             state: directory
 
+        # This is fixing https://github.com/threerings/openvpn-auth-ldap/pull/85
+        - name: Change configure.ac
+          lineinfile:
+            path: "{{ compile_source_dir }}/openvpn-auth-ldap-auth-ldap-{{ openvpn_auth_ldap_version }}/configure.ac"
+            regexp: '^AC_PROG_CC\('
+            line: AC_PROG_CC(clang gobjc)
+          when: ansible_os_family == 'RedHat'
+
+        # This is fixing https://github.com/threerings/openvpn-auth-ldap/pull/85
+        - name: Change configure.ac
+          lineinfile:
+            path: "{{ compile_source_dir }}/openvpn-auth-ldap-auth-ldap-{{ openvpn_auth_ldap_version }}/configure.ac"
+            regexp: '^AC_PROG_OBJC\('
+            line: AC_PROG_OBJC(clang gobjc)
+          when: ansible_os_family == 'RedHat'
+
         - name: Compile
           become: true
           environment:
-            PATH: "{{ re2c_bin_path | dirname }}:{{ lookup('env', 'PATH') }}"
+            PATH: "{{ re2c_bin_path | dirname }}:{{ lookup('env', 'PATH') }}:/bin"
           shell: |
             autoconf
             autoheader
