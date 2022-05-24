@@ -8,11 +8,11 @@
     - '{{ openvpn_revoke_these_certs }}'
     - '{{ openvpn_cert_sync_revoke | default([]) }}'
 
-- name: Revoke certificates
-  command: sh revoke.sh {{ item }}.crt
-  changed_when: true
-  args:
-    chdir: "{{ openvpn_key_dir }}"
+- name: Remove client csr
+  file:
+    path: "{{ openvpn_key_dir }}/{{ item }}.csr"
+    state: absent
+    force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
     - '{{ openvpn_cert_sync_revoke | default([]) }}'
