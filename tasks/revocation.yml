@@ -34,3 +34,12 @@
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
     - '{{ openvpn_cert_sync_revoke | default([]) }}'
+
+- name: Remove client cert
+  file:
+    path: "{{ openvpn_key_dir }}/{{ item }}.crt"
+    state: absent
+    force: true
+  with_items:
+    - '{{ openvpn_revoke_these_certs }}'
+    - '{{ openvpn_cert_sync_revoke | default([]) }}'
