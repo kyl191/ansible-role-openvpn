@@ -18,6 +18,7 @@ iptables_service: iptables
 manage_firewall_rules: true
 openvpn_firewall: auto
 openvpn_masquerade_not_snat: false
+openvpn_no_nat: false
 
 # Misc
 ci_build: false
