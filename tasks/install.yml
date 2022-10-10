@@ -44,6 +44,13 @@
     - "{{ openvpn_package_name }}"
     - "{{ openssl_package_name }}"
 
+- name: Install oathtool
+  package:
+    name: "{{ openvpn_mfa_oathtool_package_name }}"
+    state: present
+  when:
+    - openvpn_mfa_enabled
+
 - name: Install LDAP plugin
   become: true
   package:

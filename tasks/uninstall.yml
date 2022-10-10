@@ -26,6 +26,12 @@
     state: absent
   when: openvpn_use_ldap
 
+- name: Uninstall oathtool
+  package:
+    name: "{{ openvpn_mfa_oathtool_package_name }}"
+    state: absent
+  when: openvpn_mfa_enabled
+
 - name: Terminate playbook
   fail:
     msg: "OpenVPN uninstalled, playbook stopped"

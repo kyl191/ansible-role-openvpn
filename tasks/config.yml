@@ -1,4 +1,11 @@
 ---
+- name: Create user
+  user:
+    name: "{{ item }}"
+  with_items:
+    - "{{ openvpn_service_user }}"
+    - "{{ openvpn_management_client_user }}"
+
 - name: Create openvpn config file
   template:
     src: server.conf.j2
@@ -42,13 +49,13 @@
     path: "{{ openvpn_base_dir }}/auth"
     state: directory
     mode: 0755
-  when: openvpn_use_ldap
+  when: openvpn_use_ldap or openvpn_mfa_enabled
 
 - name: Delete auth folder in openvpn dir
   file:
     path: "{{ openvpn_base_dir }}/auth"
     state: absent
-  when: not openvpn_use_ldap
+  when: not openvpn_use_ldap and not openvpn_mfa_enabled
 
 - name: Install LDAP config
   template:
@@ -58,6 +65,13 @@
     group: root
     mode: "0644"
   when: openvpn_use_ldap
+
+- name: Install MFA script 
+  template:
+    src: "{{ openvpn_mfa_script }}"
+    dest: "{{ openvpn_base_dir }}/auth/oath.sh"
+    mode: a+x
+  when: openvpn_mfa_enabled
 
 - name: Create log directory
   file:

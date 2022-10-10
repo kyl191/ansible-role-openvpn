@@ -122,6 +122,9 @@ client-cert-not-required
 {% endif %}
 {% endif %}
 
+{% if openvpn_mfa_enabled|bool %}
+auth-user-pass-verify "{{ openvpn_base_dir }}/auth/oath.sh" via-file
+{% endif %}
 script-security {{ openvpn_script_security }}
 
 {% if openvpn_script_up is defined %}
