@@ -1,0 +1,38 @@
+- name: fetch clients from oath secrets file
+  read_csv:
+    path: "{{ openvpn_base_dir }}/{{ openvpn_mfa_oathsecrets_file }}"
+    dialect: unix
+    fieldnames: username,secret
+    delimiter: ':'
+  register: oath_secrets_db
+
+- name: delete clients in db those are not in clients list
+  set_fact:
+    cleaned_db: '{{ oath_secrets_db.list | selectattr("username", "in",  clients) | list }}'
+
+- name: check for newly added clients/mfa users
+  set_fact:
+    mfa_new_users: "{{ mfa_new_users | default([]) + [item] }}"
+  when: 'item not in {{ cleaned_db | map(attribute="username") | list }}'
+  with_items: "{{ clients }}"
+
+- name: generate oath secrets entry for new clients
+  include_tasks: gen_oath_secret.yml
+  loop: "{{ mfa_new_users }}"
+  loop_control:
+    loop_var: client_username
+  when: mfa_new_users is defined
+
+- name: merge new clients and existing client in db
+  set_fact:
+    clients_merged: "{{ cleaned_db + mfa_new_users_map }}"
+
+- name: prepare list of username and secret to be written to secret file
+  set_fact:
+    username_list: '{{ clients_merged | map(attribute="username") | list }}'
+    secret_list: '{{ clients_merged | map(attribute="secret") | list }}' 
+
+- name: write lines to file
+  copy:
+    content: "{{ username_list | zip(secret_list) | map('join', ':')  | join('\n') }}"
+    dest: "{{ openvpn_base_dir }}/{{ openvpn_mfa_oathsecrets_file }}"  

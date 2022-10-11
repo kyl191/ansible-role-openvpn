@@ -4,3 +4,4 @@ openvpn_mfa_issuer: "MFAtest"
 openvpn_mfa_oathtool_package_name: oathtool
 openvpn_mfa_script: oath.sh.j2
 openvpn_mfa_oathsecrets_file: oath.secrets
+mfa_new_users_map: []
