@@ -60,6 +60,8 @@
 - name: Generate client configs
   ansible.builtin.import_tasks: client_keys.yml
   when: clients is defined
+  tags:
+    - openvpn_generate_clients
 
 - name: Generate revocation list and clean up
   ansible.builtin.import_tasks: revocation.yml
