@@ -70,7 +70,7 @@
   template:
     src: "{{ openvpn_mfa_script }}"
     dest: "{{ openvpn_base_dir }}/auth/oath.sh"
-    mode: a+x
+    mode: a+rx
   when: openvpn_mfa_enabled
 
 - name: Create log directory

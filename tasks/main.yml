@@ -62,10 +62,6 @@
   import_tasks: client_keys.yml
   when: clients is defined
 
-- name: Generate user MFA secrets
-  import_tasks: mfa.yml
-  when: clients is defined and openvpn_mfa_enabled
-
 - name: Generate revocation list and clean up
   import_tasks: revocation.yml
   when: >-
@@ -75,3 +71,7 @@
 
 - name: Configure OpenVPN server
   import_tasks: config.yml
+
+- name: Generate user MFA secrets
+  import_tasks: mfa.yml
+  when: clients is defined and openvpn_mfa_enabled
