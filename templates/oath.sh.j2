@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Sample script to verify MFA using oath-tool
+
+passfile=$1
+
+# Get the user/pass from the tmp file
+user=$(head -1 $passfile)
+pass=$(tail -1 $passfile) 
+
+# Find the entry in our oath.secrets file, ignore case
+secret=$(grep -i -m 1 "$user:" {{ openvpn_mfa_oathsecrets_file }} | cut -d: -f2)
+
+# Calculate the code we should expect
+code=$(oathtool --totp $secret)
+
+if [ "$code" = "$pass" ];
+then
+	exit 0
+fi
+
+# See if we have password and MFA, or just MFA
+
+echo "$pass" | grep -q -i :
+
+if [ $? -eq 0 ];
+then
+	realpass=$(echo "$pass" | cut -d: -f1)
+	mfatoken=$(echo "$pass" | cut -d: -f2)
+
+	# put code here to verify $realpass, the code below the if validates $mfatoken or $pass if false
+	# exit 0 if the password is correct, the exit below will deny access otherwise
+fi
+
+# If we make it here, auth hasn't succeeded, don't grant access
+exit 1

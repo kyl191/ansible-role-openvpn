@@ -71,3 +71,7 @@
 
 - name: Configure OpenVPN server
   import_tasks: config.yml
+
+- name: Generate user MFA secrets
+  import_tasks: mfa.yml
+  when: clients is defined and openvpn_mfa_enabled
