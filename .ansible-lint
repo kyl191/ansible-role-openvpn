@@ -1,0 +1,11 @@
+---
+exclude_paths:
+  - .cache/
+  - .github/
+  - inventory.yml
+  - ${HOME}/.ansible/
+  - .pre-commit-config.yaml
+  - molecule/default
+skip_list:
+  - "command-instead-of-module"
+  - "name[template]"

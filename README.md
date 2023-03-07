@@ -164,7 +164,7 @@ This role pulls in a bunch of different packages. Override the names as necessar
 | anonymous_bind      | string | False , True              | False                                   | This is not an Ansible boolean but a string that will be pushed into the configuration file. |
 | bind_dn             | string |                           | uid=Manager,ou=People,dc=example,dc=com | Bind DN used if "anonymous_bind" set to "False"                                              |
 | bind_password       | string |                           | mysecretpassword                        | Password of the bind_dn user                                                                 |
-| tls_enable          | string | yes , no                  | no                                      | Force TLS encryption. Not necessary with ldaps addresses                                     |
+| tls_enable          | string | true , no                  | no                                      | Force TLS encryption. Not necessary with ldaps addresses                                     |
 | tls_ca_cert_file    | string |                           | /etc/openvpn/auth/ca.pem                | Path to the CA ldap backend. This must have been pushed before                               |
 | tls_cert_file       | string |                           |                                         | Path to client authentication certificate                                                    |
 | tls_key_file        | string |                           |                                         | Path to client authentication key                                                            |

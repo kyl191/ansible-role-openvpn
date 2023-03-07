@@ -1,25 +1,25 @@
 ---
 - name: Install EPEL for CentOS
-  package:
+  ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
   when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky"
 
 - name: Install EPEL for RHEL
-  yum:
-    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm
+  ansible.builtin.yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state: present
-    disable_gpg_check: yes
+    disable_gpg_check: true
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
 
 - name: Enable extra repos for RHEL 8
-  rhsm_repository:
+  community.general.rhsm_repository:
     name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
     state: enabled
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
 
 - name: Enable extra repos for RHEL 7
-  rhsm_repository:
+  community.general.rhsm_repository:
     name: "{{ item }}"
     state: enabled
   with_items:
@@ -29,7 +29,7 @@
   when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
 
 - name: Install python2-dnf for Fedora dnf support
-  raw: dnf install -y python2-dnf
+  ansible.builtin.raw: dnf install -y python2-dnf
   when:
     - ansible_distribution == "Fedora"
     - ansible_python.version.major == 2
@@ -37,7 +37,7 @@
   changed_when: '"Nothing to do." not in fedora_dnf.stdout'
 
 - name: Install openvpn
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items:
@@ -46,23 +46,23 @@
 
 - name: Install LDAP plugin
   become: true
-  package:
+  ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: present
   when:
     - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8" or ansible_distribution != "CentOS"
+    - ansible_distribution == "CentOS" or ansible_distribution == "RedHat" and ansible_distribution_major_version != "8" or ansible_distribution != "CentOS"
 
 - name: Compile LDAP plugin
-  include_tasks: compile_ldap_plugin.yml
+  ansible.builtin.include_tasks: compile_ldap_plugin.yml
   when:
     - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+    - ansible_distribution == "CentOS"  or ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
 - name: Ensure group 'nogroup' is present
-  group:
+  ansible.builtin.group:
     name: nogroup
     state: present
     system: true

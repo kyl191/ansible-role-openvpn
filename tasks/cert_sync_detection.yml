@@ -1,6 +1,6 @@
 ---
 - name: "[cert sync] Get existing certs"
-  find:
+  ansible.builtin.find:
     paths: "{{ openvpn_key_dir }}"
     patterns: "*.csr"
     excludes: "server.csr"
@@ -11,16 +11,16 @@
 # 3. Keep only basename
 # 4. Remove extension
 - name: "[cert sync] Create list of existing client with  existing certs"
-  set_fact:
+  ansible.builtin.set_fact:
     openvpn_existing_client: "{{ openvpn_existing_cert.files | map(attribute='path') | map('basename') | map('replace', '.csr', '') | sort }}"
   when: (openvpn_existing_cert.files | length) > 0
 
 # Make difference between 2 list to have only cert to revoke
 - name: "[cert sync] Create list of cert to revoke"
-  set_fact:
+  ansible.builtin.set_fact:
     openvpn_cert_sync_revoke: "{{ (openvpn_existing_client | default([])) | difference(clients | sort ) }}"
 
 - name: "[cert sync] Debug: Certs to revoke (skipped if none)"
-  debug:
+  ansible.builtin.debug:
     msg: "Will revoke additional certs: {{ openvpn_cert_sync_revoke | join(', ') }}"
   when: openvpn_cert_sync_revoke | length > 0

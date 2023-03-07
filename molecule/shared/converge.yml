@@ -1,0 +1,33 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+
+    # - include_role:
+    #    name: itsec_ansible_collection.base_roles.epel
+
+    # - include_role:
+    #    name: itsec_ansible_collection.base_roles.rpm_fusion
+
+    # - include_role:
+    #    name: itsec_ansible_collection.base_roles.codeready_builder
+
+    - name: Install firewalld
+      ansible.builtin.package:
+        name: '{{ item }}'
+        state: present
+      become: true
+      with_items:
+        - firewalld
+        - ipset
+
+    - name: Start firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: true
+      become: true
+
+    - name: Include itsec_ansible_collection.applications.openvpn
+      ansible.builtin.include_role:
+        name: itsec_ansible_collection.applications.openvpn

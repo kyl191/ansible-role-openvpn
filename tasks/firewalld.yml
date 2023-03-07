@@ -1,13 +1,13 @@
 ---
 - name: Enable firewalld
-  service:
+  ansible.builtin.service:
     name: firewalld
     enabled: true
     masked: false
     state: started
 
 - name: Install python2-firewall (Fedora)
-  package:
+  ansible.builtin.package:
     name: "{{ python_firewall_package_name }}"
     state: present
   when:
@@ -47,17 +47,17 @@
     # Workaround ansible issue: https://github.com/ansible/ansible/pull/21693
     # immediate: true
   notify:
-    - restart firewalld
+    - Restart firewalld
 
 # workaround for --permanent not working on non-NetworkManager managed ifaces
 # https://bugzilla.redhat.com/show_bug.cgi?id=1112742
 - name: Check if ifcfg-{{ ansible_default_ipv4.interface }} exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
   register: ifcfg
 
 - name: Persist default interface in ifcfg file
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     regexp: "^ZONE="
     line: "ZONE={{ firewalld_default_interface_zone }}"

@@ -1,6 +1,6 @@
 ---
 - name: Include vars for OpenVPN installation
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
     - "../vars/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
     - "../vars/{{ ansible_distribution }}.yml"
@@ -8,19 +8,19 @@
     - "../vars/empty.yml"
 
 - name: Set facts
-  import_tasks: set_facts.yml
+  ansible.builtin.import_tasks: set_facts.yml
 
 - name: Uninstall OpenVPN
-  import_tasks: uninstall.yml
+  ansible.builtin.import_tasks: uninstall.yml
   when: openvpn_uninstall
 
 - name: Install OpenVPN
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   tags:
     - install
 
 - name: Copy or Generate server keys
-  import_tasks: server_keys.yml
+  ansible.builtin.import_tasks: server_keys.yml
 
 # ignoreerrors is required for CentOS/RHEL 6
 # http://serverfault.com/questions/477718/sysctl-p-etc-sysctl-conf-returns-error
@@ -40,7 +40,7 @@
   when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Detect firewall type
-  import_tasks: firewall.yml
+  ansible.builtin.import_tasks: firewall.yml
   when:
     - not ci_build
     - manage_firewall_rules
@@ -48,26 +48,32 @@
     - firewall
 
 - name: Configure SELinux
-  import_tasks: selinux.yml
+  ansible.builtin.import_tasks: selinux.yml
   when:
     - ansible_selinux.status == "enabled"
 
 - name: Compare existing certs against 'clients' variable
-  import_tasks: cert_sync_detection.yml
+  ansible.builtin.import_tasks: cert_sync_detection.yml
   when: openvpn_sync_certs
   tags:
     - sync_certs
 
 - name: Generate client configs
-  import_tasks: client_keys.yml
+  ansible.builtin.import_tasks: client_keys.yml
   when: clients is defined
 
 - name: Generate revocation list and clean up
-  import_tasks: revocation.yml
+  ansible.builtin.import_tasks: revocation.yml
   when: >-
     (openvpn_revoke_these_certs is defined)
     or
     (openvpn_sync_certs and cert_sync_certs_to_revoke.stdout_lines | length > 0)
 
 - name: Configure OpenVPN server
-  import_tasks: config.yml
+  ansible.builtin.import_tasks: config.yml
+
+- name: Set OpenVPN service
+  ansible.builtin.lineinfile:
+    path: "/etc/systemd/system/multi-user.target.wants/{{ openvpn_service_name }}"
+    line: ExecStart=/usr/sbin/openvpn --status %t/openvpn-server/status-%i.log --status-version 2 --cipher AES-256-GCM --ncp-ciphers AES-256-GCM:AES-128-GCM:AES-256-CBC:AES-128-CBC:BF-CBC --config %i.conf
+    state: present

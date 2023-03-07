@@ -1,6 +1,6 @@
 ---
 - name: Change facts to use netfilter-persistent on Debian >= 9 or Ubuntu >= 16
-  set_fact:
+  ansible.builtin.set_fact:
     iptables_save_command: "/usr/sbin/netfilter-persistent save"
     iptables_service: netfilter-persistent
   when: >-
@@ -9,59 +9,59 @@
     (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
 
 - name: Install iptables-persistent (Debian/Ubuntu)
-  package:
+  ansible.builtin.package:
     name: "{{ iptables_persistent_package_name }}"
     state: present
   register: __iptables_installed
   when: ansible_os_family == "Debian"
 
 - name: Install iptables-services (RedHat/CentOS)
-  package:
+  ansible.builtin.package:
     name: "{{ iptables_services_package_name }}"
     state: present
   register: __iptables_installed
   when: ansible_os_family == "RedHat"
 
 - name: Allow VPN forwarding - iptables
-  iptables:
+  ansible.builtin.iptables:
     chain: FORWARD
     source: "{{ openvpn_server_network }}/24"
     jump: ACCEPT
     action: insert
     comment: "Allow VPN forwarding"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Allow incoming SSH connections - iptables
-  iptables:
+  ansible.builtin.iptables:
     chain: INPUT
     protocol: tcp
     destination_port: "{{ ansible_port | default(22) }}"
     jump: ACCEPT
     action: insert
     comment: "Allow incoming SSH connection"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Allow incoming VPN connections - iptables
-  iptables:
+  ansible.builtin.iptables:
     chain: INPUT
     protocol: "{{ openvpn_proto }}"
     destination_port: "{{ openvpn_port }}"
     jump: ACCEPT
     action: insert
     comment: "Allow incoming VPN connection"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Accept packets from VPN tunnel adaptor - iptables
-  iptables:
+  ansible.builtin.iptables:
     chain: INPUT
     in_interface: tun0
     jump: ACCEPT
     action: insert
     comment: "Accept packets from VPN tunnel adaptor"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Perform NAT readdressing - iptables
-  iptables:
+  ansible.builtin.iptables:
     table: nat
     chain: POSTROUTING
     source: "{{ openvpn_server_network }}/24"
@@ -70,10 +70,10 @@
     action: insert
     comment: "Perform NAT readdressing"
   when: not openvpn_masquerade_not_snat
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Perform NAT readdressing with MASQUERADE - iptables
-  iptables:
+  ansible.builtin.iptables:
     table: nat
     chain: POSTROUTING
     source: "{{ openvpn_server_network }}/24"
@@ -81,14 +81,14 @@
     action: insert
     comment: "Perform NAT readdressing"
   when: openvpn_masquerade_not_snat
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Save existing iptables rule before start iptables service
-  shell: "{{ iptables_save_command }}"  # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ iptables_save_command }}"  # noqa command-instead-of-shell
   when: __iptables_installed.changed | bool  # noqa no-handler
 
 - name: Enable iptables
-  service:
+  ansible.builtin.service:
     name: "{{ iptables_service }}"
     enabled: true
     state: started

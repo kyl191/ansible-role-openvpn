@@ -1,0 +1,34 @@
+---
+dependency:
+  name: galaxy
+  enabled: true
+  options:
+    role-file: molecule/shared/requirements.yml
+    requirements-file: molecule/shared/collections.yml
+driver:
+  name: docker
+lint: |
+  ansible-lint
+platforms:
+  - name: centos8
+    image: registry-gitlab.urz.uni-heidelberg.de/it-sec/molecule-docker-images/production/centos:8
+    privileged: true
+    override_command: false
+    dns_servers:
+      - 129.206.100.126
+      - 129.206.210.127
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+    security_opts:
+      - seccomp=unconfined
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../shared/converge.yml
+    prepare: ../shared/prepare.yml
+verifier:
+  name: ansible

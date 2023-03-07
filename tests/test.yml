@@ -1,11 +1,8 @@
 ---
-- hosts: 127.0.0.1
-  connection: local
-  vars:
-    ci_build: true
-    openvpn_use_pregenerated_dh_params: true
+- name: Run tests
+  hosts: localhost
+  remote_user: root
   roles:
-    - role: ansible-role-openvpn
-      clients:
-        - alpha
-        - omega
+    - itsec_ansible_collection.applications.openvpn
+  vars:
+    guacamole_postgresql_auth: true

@@ -56,7 +56,7 @@
     <Group>
         BaseDN "{{ ldap.group_base_dn }}"
         SearchFilter "{{ ldap.group_search_filter }}"
-        MemberAttribute uniqueMember
+        MemberAttribute "{{ ldap.memberAttribute }}"
         # Add group members to a PF table (disabled)
         #PFTable ips_vpn_eng
     </Group>
