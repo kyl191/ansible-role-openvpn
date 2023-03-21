@@ -168,6 +168,7 @@
     owner: root
     group: root
     mode: 0644
+  when: not ci_build
 
 - name: Copy CRL systemd timer
   ansible.builtin.copy:
@@ -182,9 +183,14 @@
       [Install]
       WantedBy=timers.target
     dest: /etc/systemd/system/openvpn-crl.timer
+    owner: root
+    group: root
+    mode: 0644
+  when: not ci_build
 
 - name: Enable CRL systemd timer
   ansible.builtin.systemd:
     name: openvpn-crl.timer
     enabled: true
     daemon_reload: true
+  when: not ci_build
