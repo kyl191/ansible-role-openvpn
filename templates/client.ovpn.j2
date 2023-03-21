@@ -35,6 +35,14 @@ route-delay 2
 {% if openvpn_client_register_dns %}
 register-dns
 {% endif %}
+{% if no openvpn_redirect_gateway %}
+route-nopull
+{% endif %}
+{% if openvpn_push is defined %}
+{% for opt in openvpn_push %}
+{{ opt }}
+{% endfor %}
+{% endif %}
 
 {% if tls_auth_required %}
 key-direction 1
