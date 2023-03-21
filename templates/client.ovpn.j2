@@ -36,16 +36,6 @@ route-delay 2
 register-dns
 {% endif %}
 
-{% if not openvpn_redirect_gateway %}
-route-nopull
-{% endif %}
-
-{% if openvpn_push is defined %}
-{% for opt in openvpn_push %}
-{{ opt }}
-{% endfor %}
-{% endif %}
-
 {% if tls_auth_required %}
 key-direction 1
 {% endif %}
