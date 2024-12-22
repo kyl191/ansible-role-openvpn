@@ -9,8 +9,8 @@
   ansible.builtin.copy:
     src: openssl-client.ext
     dest: "{{ openvpn_key_dir }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0400"
 
 - name: Generate client key
@@ -67,8 +67,8 @@
   ansible.builtin.template:
     src: client.ovpn.j2
     dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}-{{ inventory_hostname }}.ovpn"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0400"
   with_together:
     - "{{ client_certs.results }}"

@@ -3,8 +3,8 @@
   ansible.builtin.template:
     src: server.conf.j2
     dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}.conf"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0644"
   notify:
     - Restart openvpn
@@ -54,33 +54,33 @@
   ansible.builtin.template:
     src: ldap.conf.j2
     dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0644"
   when: openvpn_use_ldap
 
 - name: Create log directory
   ansible.builtin.file:
     dest: "{{ openvpn_log_dir }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0755"
 
 - name: Copy openvpn logrotate config file
   ansible.builtin.template:
     src: openvpn_logrotate.conf.j2
     dest: /etc/logrotate.d/openvpn-{{ openvpn_config_file }}.conf
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0400"
-  when: ansible_os_family != 'Solaris'
+  when: openvpn_use_logrotate
 
 - name: Create client config directory
   ansible.builtin.file:
     state: directory
     path: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0755"
   when: openvpn_client_config
 
@@ -88,8 +88,8 @@
   ansible.builtin.template:
     src: client_ccd.j2
     dest: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}/{{ item.key }}"
-    owner: root
-    group: root
+    owner: "{{ openvpn_conf_user }}"
+    group: "{{ openvpn_conf_group }}"
     mode: "0644"
   when: openvpn_client_config
   with_dict: "{{ openvpn_client_configs }}"

@@ -23,6 +23,10 @@ openvpn_no_nat: false
 
 # Misc
 ci_build: false
+openvpn_conf_user: root
+openvpn_conf_group: root
+openvpn_script_user: root
+openvpn_script_group: root
 openvpn_client_config_no_log: true
 openvpn_revoke_these_certs: []
 openvpn_selinux_module: my-openvpn-server
@@ -30,3 +34,4 @@ openvpn_service_name: openvpn
 openvpn_sync_certs: false
 openvpn_uninstall: false
 openvpn_use_ldap: false
+openvpn_use_logrotate: true
