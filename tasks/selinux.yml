@@ -4,7 +4,7 @@
   register: semodule_loaded
   changed_when: "openvpn_selinux_module not in semodule_loaded.stdout"
   notify:
-    - build and install policy
+    - Build and install policy
 
 - name: SELinux - copy type enforcement file
   ansible.builtin.template:
@@ -12,4 +12,4 @@
     dest: /var/lib/selinux/{{ openvpn_selinux_module }}.te
     mode: "0644"
   notify:
-    - build and install policy
+    - Build and install policy

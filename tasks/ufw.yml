@@ -43,7 +43,7 @@
       COMMIT
   when: not openvpn_masquerade_not_snat
   notify:
-    - restart ufw
+    - Restart ufw
 
 - name: Setup nat table rules with MASQUERADE - ufw
   ansible.builtin.blockinfile:
@@ -58,4 +58,4 @@
       COMMIT
   when: openvpn_masquerade_not_snat
   notify:
-    - restart ufw
+    - Restart ufw

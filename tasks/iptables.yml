@@ -81,7 +81,8 @@
     action: insert
     comment: "Perform NAT readdressing"
   when: openvpn_masquerade_not_snat
-  notify: "save iptables"
+  notify:
+    - Save iptables
 
 - name: Save existing iptables rule before start iptables service
   ansible.builtin.shell: "{{ iptables_save_command }}" # noqa command-instead-of-shell
