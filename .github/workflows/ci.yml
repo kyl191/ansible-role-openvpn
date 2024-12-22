@@ -13,23 +13,10 @@ jobs:
   check-syntax:
     runs-on: ubuntu-latest
     name: check-syntax
-    container:
-      image: diodonfrost/ansible-fedora:40
-      env:
-        container: docker
-      volumes:
-        - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
-      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Setup ansible.posix collection for firewalld
-        run: ansible-galaxy collection install ansible.posix
-      - name: Setup community.general collection for ufw
-        run: ansible-galaxy collection install community.general
-      - name: Check syntax of ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml --syntax-check
+      - uses: actions/checkout@v4
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@main
 
   build-rhel-like:
     runs-on: ubuntu-latest
@@ -56,11 +43,9 @@ jobs:
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Setup ansible.posix collection for firewalld
-        run: ansible-galaxy collection install ansible.posix
-      - name: Setup community.general collection for ufw
-        run: ansible-galaxy collection install community.general
+        uses: actions/checkout@v4
+      - name: Install required dependencies
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
@@ -98,13 +83,11 @@ jobs:
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Update ansible
         run: dnf install -y python39 && pip3.9 install -U ansible
-      - name: Setup ansible.posix collection for firewalld
-        run: ansible-galaxy collection install ansible.posix
-      - name: Setup community.general collection for ufw
-        run: ansible-galaxy collection install community.general
+      - name: Install required dependencies
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
@@ -141,11 +124,9 @@ jobs:
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Setup ansible.posix collection for firewalld
-        run: ansible-galaxy collection install ansible.posix
-      - name: Setup community.general collection for ufw
-        run: ansible-galaxy collection install community.general
+        uses: actions/checkout@v4
+      - name: Install required dependencies
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
