@@ -40,7 +40,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "centos:stream8"
           - "centos:stream9"
           - "fedora:38"
           - "fedora:39"
