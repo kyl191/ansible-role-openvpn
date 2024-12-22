@@ -1,6 +1,6 @@
 ---
 - name: Start ufw service
-  service:
+  ansible.builtin.service:
     name: ufw
     enabled: true
     state: started
@@ -12,7 +12,7 @@
     policy: allow
 
 - name: Enable forwarding - ufw
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/ufw
     regexp: "^DEFAULT_FORWARD_POLICY="
     line: DEFAULT_FORWARD_POLICY="ACCEPT"
@@ -31,7 +31,7 @@
     rule: allow
 
 - name: Setup nat table rules - ufw
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: /etc/ufw/before.rules
     state: present
     insertbefore: \*filter
@@ -43,10 +43,10 @@
       COMMIT
   when: not openvpn_masquerade_not_snat
   notify:
-    - restart ufw
+    - Restart ufw
 
 - name: Setup nat table rules with MASQUERADE - ufw
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: /etc/ufw/before.rules
     state: present
     insertbefore: \*filter
@@ -58,4 +58,4 @@
       COMMIT
   when: openvpn_masquerade_not_snat
   notify:
-    - restart ufw
+    - Restart ufw
