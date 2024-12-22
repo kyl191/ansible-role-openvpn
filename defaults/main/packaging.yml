@@ -1,3 +1,4 @@
+---
 # Packaging defaults for kyl191.openvpn
 epel_package_name: epel-release
 iptables_persistent_package_name: iptables-persistent

@@ -1,31 +1,31 @@
 ---
 - name: Disable openvpn auto-start & start
-  service:
+  ansible.builtin.service:
     name: "{{ openvpn_service_name }}"
     enabled: false
     state: stopped
 
 - name: Wipe out config directory
-  file:
+  ansible.builtin.file:
     path: "{{ openvpn_base_dir }}"
     state: absent
 
 - name: Remove openvpn logrotate config file
-  file:
+  ansible.builtin.file:
     path: /etc/logrotate.d/openvpn.conf
     state: absent
 
 - name: Uninstall OpenVPN
-  package:
+  ansible.builtin.package:
     name: "{{ openvpn_package_name }}"
     state: absent
 
 - name: Uninstall LDAP plugin
-  package:
+  ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: absent
   when: openvpn_use_ldap
 
 - name: Terminate playbook
-  fail:
+  ansible.builtin.fail:
     msg: "OpenVPN uninstalled, playbook stopped"
