@@ -7,8 +7,6 @@
     - "../vars/os/{{ ansible_os_family }}.yml"
     - "../vars/empty.yml"
 
-- name: Set facts
-  ansible.builtin.import_tasks: set_facts.yml
 - name: Uninstall OpenVPN
   ansible.builtin.import_tasks: uninstall.yml
   when: openvpn_uninstall
