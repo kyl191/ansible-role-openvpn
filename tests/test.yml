@@ -1,5 +1,6 @@
 ---
-- hosts: 127.0.0.1
+- name: Run CI tests
+  hosts: 127.0.0.1
   connection: local
   vars:
     ci_build: true

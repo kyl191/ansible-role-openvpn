@@ -60,8 +60,8 @@ client-config-dir {{ openvpn_client_config_dir }}
 push "redirect-gateway def1 bypass-dhcp"
 {% endif %}
 {% if openvpn_set_dns %}
-{% if openvpn_custom_dns %}
-{% for srv in openvpn_dns_servers %}
+{% if openvpn_custom_dns|length > 0 %}
+{% for srv in openvpn_custom_dns %}
 push "dhcp-option DNS {{ srv }}"
 {% endfor %}
 {% else %}
@@ -91,7 +91,12 @@ group {{ openvpn_service_group }}
 
 status status-{{ openvpn_config_file }}.log
 status-version {{ openvpn_status_version }}
+
+{% if openvpn_log_file is defined %}
 log-append {{ openvpn_log_dir }}/{{ openvpn_log_file }}
+{% else %}
+syslog openvpn
+{% endif %}
 verb 3
 
 {% if openvpn_verify_cn|bool %}
@@ -111,7 +116,11 @@ management-client-user {{ openvpn_management_client_user }}
 {% if ansible_os_family == 'Debian' %}
 plugin /usr/lib/openvpn/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% elif ansible_machine == "x86_64" %}
+{% if ansible_distribution in ['RedHat','Rocky'] and (ansible_distribution_major_version | int >= 8) %}
+plugin /usr/lib64/openvpn/plugins/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
+{% else %}
 plugin /usr/lib64/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
+{% endif %}
 {% else %}
 plugin /usr/lib/openvpn/plugin/lib/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
 {% endif %}

@@ -1,3 +1,4 @@
+---
 # Logrotate configuration
 openvpn_log_dir: /var/log
 openvpn_log_file: openvpn.log
