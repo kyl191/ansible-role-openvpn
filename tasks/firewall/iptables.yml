@@ -29,7 +29,7 @@
     jump: ACCEPT
     action: insert
     comment: "Allow VPN forwarding"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Allow incoming SSH connections - iptables
   ansible.builtin.iptables:
@@ -39,7 +39,7 @@
     jump: ACCEPT
     action: insert
     comment: "Allow incoming SSH connection"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Allow incoming VPN connections - iptables
   ansible.builtin.iptables:
@@ -49,7 +49,7 @@
     jump: ACCEPT
     action: insert
     comment: "Allow incoming VPN connection"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Accept packets from VPN tunnel adaptor - iptables
   ansible.builtin.iptables:
@@ -58,7 +58,7 @@
     jump: ACCEPT
     action: insert
     comment: "Accept packets from VPN tunnel adaptor"
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Perform NAT readdressing - iptables
   ansible.builtin.iptables:
@@ -71,7 +71,7 @@
     action: insert
     comment: "Perform NAT readdressing"
   when: not openvpn_masquerade_not_snat and not openvpn_no_nat
-  notify: "save iptables"
+  notify: "Save iptables"
 
 - name: Perform NAT readdressing with MASQUERADE - iptables
   ansible.builtin.iptables:
