@@ -6,7 +6,7 @@
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
+    - '{{ openvpn_cert_sync_revoke | default([]) }}'
 
 - name: Revoke certificates
   command: sh revoke.sh {{ item }}.crt
@@ -15,7 +15,7 @@
     chdir: "{{ openvpn_key_dir }}"
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
+    - '{{ openvpn_cert_sync_revoke | default([]) }}'
 
 - name: Remove client key
   file:
@@ -24,7 +24,7 @@
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
+    - '{{ openvpn_cert_sync_revoke | default([]) }}'
 
 - name: Remove client csr
   file:
@@ -33,4 +33,4 @@
     force: true
   with_items:
     - '{{ openvpn_revoke_these_certs }}'
-    - '{{ openvpn_cert_sync_revoke.stdout_lines | default([]) }}'
+    - '{{ openvpn_cert_sync_revoke | default([]) }}'
