@@ -1,3 +1,4 @@
+---
 ldap:
   url: ldap://host.example.com
   anonymous_bind: false
