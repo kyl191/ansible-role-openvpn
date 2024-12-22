@@ -45,7 +45,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required dependencies
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
@@ -87,7 +87,7 @@ jobs:
       - name: Update ansible
         run: dnf install -y python39 && pip3.9 install -U ansible
       - name: Install required dependencies
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
@@ -126,7 +126,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required dependencies
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/meta/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
