@@ -1,32 +1,25 @@
 ---
-- name: Install EPEL for CentOS
+# Install the EPEL repo RPM on RedHat-like machines
+# https://docs.fedoraproject.org/en-US/epel/getting-started/
+# Thankfully openvpn is available in the base EPEL repo and
+# I don't appear to have to worry about CRB/powertools/other repos
+# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
+# https://wiki.rockylinux.org/rocky/repo/#base-repositories
+# Also ignoring the request to install epel-next on CentOS Stream
+# because that's only requested for CentOS Stream 9
+- name: Install EPEL for CentOS & other RHEL clones
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky" or ansible_distribution=="AlmaLinux"
+  when: ansible_os_family == "RedHat" and ansible_distribution != "Fedora" and ansible_distribution !="RedHat"
 
+# EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
 - name: Install EPEL for RHEL
   ansible.builtin.dnf:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state: present
     disable_gpg_check: true
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
-
-- name: Enable extra repos for RHEL 8
-  community.general.rhsm_repository:
-    name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
-    state: enabled
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
-
-- name: Enable extra repos for RHEL 7
-  community.general.rhsm_repository:
-    name: "{{ item }}"
-    state: enabled
-  with_items:
-    - "rhel-*-optional-rpms"
-    - "rhel-*-extras-rpms"
-    - "rhel-ha-for-rhel-*-server-rpms"
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
+  when: ansible_distribution == "RedHat"
 
 - name: Install openvpn
   ansible.builtin.package:
