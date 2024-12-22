@@ -1,10 +1,10 @@
+---
 # Defaults for openvpn
 
 # Networking
 openvpn_client_register_dns: true
 openvpn_client_to_client: false
 openvpn_custom_dns: []
-openvpn_dns_servers: []
 openvpn_dualstack: true
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
@@ -17,6 +17,7 @@ openvpn_server_netmask: 255.255.255.0
 openvpn_server_network: 10.9.0.0
 openvpn_set_dns: true
 openvpn_tun_mtu:
+openvpn_lan_source_ip: "{{ ansible_default_ipv4.address }}"
 
 # Security
 openvpn_auth_alg: SHA256
@@ -44,7 +45,6 @@ openvpn_service_group: nogroup
 openvpn_service_user: nobody
 openvpn_status_version: 1
 
-
 # Client config - settings the server will push
 openvpn_client_config: false
 openvpn_client_config_dir: ccd
@@ -65,4 +65,3 @@ openvpn_client_configs: {}
 #     - push "route 192.168.1.0 255.255.255.0"
 #     - iroute 192.168.2.0 255.255.255.0
 #     - iroute 192.168.4.0 255.255.255.0
-
