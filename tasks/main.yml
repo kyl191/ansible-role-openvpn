@@ -2,9 +2,9 @@
 - name: Include vars for OpenVPN installation
   ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
-    - "../vars/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
-    - "../vars/{{ ansible_distribution }}.yml"
-    - "../vars/{{ ansible_os_family }}.yml"
+    - "../vars/os/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+    - "../vars/os/{{ ansible_distribution }}.yml"
+    - "../vars/os/{{ ansible_os_family }}.yml"
     - "../vars/empty.yml"
 
 - name: Set facts
