@@ -131,12 +131,8 @@ jobs:
       matrix:
         version:
           - "fedora:40"
-          - "fedora:41"
     container:
       image: ghcr.io/kyl191/ansible-${{ matrix.version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.github_token }}
       env:
         container: docker
       volumes:
