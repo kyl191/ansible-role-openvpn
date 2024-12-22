@@ -101,7 +101,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Update ansible
-        run: dnf install python39 && pip3.9 install -U ansible
+        run: dnf install -y python39 && pip3.9 install -U ansible
       - name: Setup ansible.posix collection for firewalld
         run: ansible-galaxy collection install ansible.posix
       - name: Setup community.general collection for ufw
