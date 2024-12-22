@@ -13,7 +13,8 @@
     path: "{{ openvpn_auth_ldap_bin_path }}"
   register: openvpn_auth_ldap_bin
 
-- when:
+- name: Compile openvpn-auth-ldap plugin
+  when:
     - not openvpn_auth_ldap_bin.stat.exists or not re2c_bin.stat.exists
   block:
     - name: Install gcc objc repo

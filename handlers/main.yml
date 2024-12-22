@@ -22,9 +22,10 @@
     state: restarted
 
 - name: Save iptables rules (Debian/Ubuntu and CentOS/RHEL/Fedora)
-  ansible.builtin.shell: "{{ iptables_save_command }}"
+  ansible.builtin.shell: "{{ iptables_save_command }}" # noqa command-instead-of-shell could have shell redirection
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "save iptables"
+  changed_when: true # always save iptables rules
 
 - name: Build and install policy
   ansible.builtin.command: "{{ item }}"
@@ -34,3 +35,5 @@
     - "checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te"
     - "semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod"
     - "semodule -i {{ openvpn_selinux_module }}.pp"
+  changed_when: true
+  when: ansible_selinux.status == 'enabled'

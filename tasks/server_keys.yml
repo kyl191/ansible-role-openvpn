@@ -66,7 +66,10 @@
     mode: "0400"
 
 - name: Sign server key
-  ansible.builtin.command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+  ansible.builtin.command: >
+    openssl x509 -req -in server.csr -out server.crt
+    -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650
+    -CAcreateserial -extfile openssl-server.ext
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: server.crt

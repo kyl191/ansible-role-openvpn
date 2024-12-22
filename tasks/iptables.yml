@@ -84,8 +84,9 @@
   notify: "save iptables"
 
 - name: Save existing iptables rule before start iptables service
-  ansible.builtin.shell: "{{ iptables_save_command }}"
+  ansible.builtin.shell: "{{ iptables_save_command }}" # noqa command-instead-of-shell
   when: __iptables_installed.changed | bool # noqa no-handler
+  changed_when: true
 
 - name: Enable iptables
   ansible.builtin.service:
