@@ -47,7 +47,7 @@
     # Workaround ansible issue: https://github.com/ansible/ansible/pull/21693
     # immediate: true
   notify:
-    - restart firewalld
+    - Restart firewalld
 
 # workaround for --permanent not working on non-NetworkManager managed ifaces
 # https://bugzilla.redhat.com/show_bug.cgi?id=1112742

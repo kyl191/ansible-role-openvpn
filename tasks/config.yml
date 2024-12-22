@@ -7,7 +7,7 @@
     group: root
     mode: "0644"
   notify:
-    - restart openvpn
+    - Restart openvpn
 
 - name: Copy up script if defined
   ansible.builtin.copy:
