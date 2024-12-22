@@ -36,20 +36,17 @@
     - "{{ openvpn_package_name }}"
     - "{{ openssl_package_name }}"
 
+# Use the built version:
+# Fedora/EPEL: https://packages.fedoraproject.org/pkgs/openvpn-auth-ldap/openvpn-auth-ldap/index.html
+# Debian: https://packages.debian.org/search?keywords=openvpn-auth-ldap
+# Ubuntu: https://launchpad.net/ubuntu/+source/openvpn-auth-ldap
 - name: Install LDAP plugin
-  become: true
   ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: present
   when:
     - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8" or ansible_distribution != "CentOS"
-
-- name: Compile LDAP plugin
-  ansible.builtin.include_tasks: compile_ldap_plugin.yml
-  when:
-    - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+    - openvpn_use_prebuilt_ldap_plugin
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
