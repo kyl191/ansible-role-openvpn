@@ -34,7 +34,7 @@
   when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Detect firewall type
-  ansible.builtin.import_tasks: firewall.yml
+  ansible.builtin.import_tasks: firewall/firewall.yml
   when:
     - not ci_build
     - manage_firewall_rules
