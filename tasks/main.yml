@@ -21,21 +21,16 @@
 - name: Copy or Generate server keys
   ansible.builtin.import_tasks: server_keys.yml
 
-# ignoreerrors is required for CentOS/RHEL 6
-# http://serverfault.com/questions/477718/sysctl-p-etc-sysctl-conf-returns-error
 - name: Enable ipv4 forwarding
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
-    ignoreerrors: true
-  failed_when: false
   when: not ci_build
 
 - name: Enable ipv6 forwarding
   ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: "1"
-    ignoreerrors: true
   when: openvpn_server_ipv6_network is defined and not ci_build
 
 - name: Detect firewall type
