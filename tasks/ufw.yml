@@ -39,7 +39,7 @@
       # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j SNAT --to-source {{ openvpn_lan_source_ip }}
+      -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24 -j SNAT --to-source {{ openvpn_lan_source_ip }}
       COMMIT
   when: not openvpn_masquerade_not_snat
   notify:
@@ -54,7 +54,7 @@
       # OpenVPN config
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j MASQUERADE
+      -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24  -j MASQUERADE
       COMMIT
   when: openvpn_masquerade_not_snat
   notify:
