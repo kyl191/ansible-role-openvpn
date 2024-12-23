@@ -21,6 +21,11 @@
     disable_gpg_check: true
   when: ansible_distribution == "RedHat"
 
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_pkg_mgr == "apt"
+
 - name: Install openvpn
   ansible.builtin.package:
     name: "{{ item }}"
