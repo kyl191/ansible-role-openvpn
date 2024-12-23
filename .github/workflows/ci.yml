@@ -168,7 +168,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Upgrade ansible
-        run: pip install --upgrade ansible ansible-core
+        run: apt update && apt-get install --only-upgrade ansible -y
       - name: Install required dependencies
         run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
