@@ -11,19 +11,17 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - "8"
         - "9"
     - name: Fedora
       versions:
         - "38"
         - "39"
         - "40"
-    - name: FreeBSD
+    - name: Debian
       versions:
-        - "12.0"
-        - "13.0"
+        - bookworm
     - name: Ubuntu
       versions:
-        - trusty
+        - jammy
   galaxy_tags:
     - networking
