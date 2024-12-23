@@ -145,7 +145,7 @@ jobs:
 
   build-debian-like:
     runs-on: ubuntu-latest
-    name: rhel-like-${{ matrix.version }}
+    name: debian-like-${{ matrix.version }}
     needs:
       - check-syntax
     strategy:
@@ -167,6 +167,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Upgrade ansible
+        run: pip install --upgrade ansible ansible-core
       - name: Install required dependencies
         run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
