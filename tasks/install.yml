@@ -23,7 +23,7 @@
 
 - name: Refresh apt cache
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
   when: ansible_pkg_mgr == "apt"
 
 - name: Install openvpn
