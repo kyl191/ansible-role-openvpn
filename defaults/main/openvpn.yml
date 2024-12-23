@@ -4,7 +4,7 @@
 # Networking
 openvpn_client_register_dns: true
 openvpn_client_to_client: false
-openvpn_custom_dns: []
+openvpn_custom_dns: ["1.0.0.1", "1.1.1.1", "8.8.8.8", "8.8.4.4"]
 openvpn_dualstack: true
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30

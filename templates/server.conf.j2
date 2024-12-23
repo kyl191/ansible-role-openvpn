@@ -59,17 +59,10 @@ client-config-dir {{ openvpn_client_config_dir }}
 {% if openvpn_redirect_gateway|bool %}
 push "redirect-gateway def1 bypass-dhcp"
 {% endif %}
-{% if openvpn_set_dns %}
-{% if openvpn_custom_dns|length > 0 %}
+{% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
 {% for srv in openvpn_custom_dns %}
 push "dhcp-option DNS {{ srv }}"
 {% endfor %}
-{% else %}
-push "dhcp-option DNS 1.0.0.1"
-push "dhcp-option DNS 1.1.1.1"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-{% endif %}
 {% endif %}
 {% if openvpn_push is defined %}
 {% for opt in openvpn_push %}
