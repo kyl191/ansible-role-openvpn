@@ -21,7 +21,7 @@ openvpn_lan_source_ip: "{{ ansible_default_ipv4.address }}"
 
 # Security
 openvpn_auth_alg: SHA256
-openvpn_cipher: AES-256-CBC
+openvpn_cipher: ~
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_use_crl: false
