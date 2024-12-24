@@ -7,14 +7,6 @@
     - "../vars/os/{{ ansible_os_family }}.yml"
     - "../vars/empty.yml"
 
-- name: Debug ci_build
-  ansible.builtin.debug:
-    var: ci_build
-
-- name: Debug ansible_service_mgr
-  ansible.builtin.debug:
-    var: ansible_service_mgr
-
 - name: Uninstall OpenVPN
   ansible.builtin.import_tasks: uninstall.yml
   when: openvpn_uninstall
