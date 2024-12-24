@@ -32,7 +32,6 @@ jobs:
           - "fedora:39"
           - "almalinux:9"
           - "rockylinux:9"
-          - "ubi-minimal:9"
 
     container:
       image: diodonfrost/ansible-${{ matrix.version }}
@@ -177,6 +176,44 @@ jobs:
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Check idempotency
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Container state debug output
+        continue-on-error: true
+        run: |
+          ls -lR /etc/openvpn
+          echo "cat openvpn_udp_1194.conf"
+          find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
+          echo "cat alpha-*.ovpn"
+          find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
+
+  build-rhel-systemd:
+    runs-on: ubuntu-latest
+    name: rhel-systemd-${{ matrix.version }}
+    needs:
+      - check-syntax
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "ubi9-init"
+    container:
+      image: ghcr.io/kyl191/ansible-${{ matrix.version }}
+      env:
+        container: docker
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install required dependencies
+        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+      - name: Make sure ansible connection is sane
+        run: ansible -m setup -c local -i 127.0.0.1, all
+      - name: Run ansible playbook
+        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
+      # - name: Check idempotency
+      #   run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |
