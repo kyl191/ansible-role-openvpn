@@ -10,7 +10,7 @@ Separate client will:
 
 Timeout/failure indicates that the OpenVPN connection didn't work for some reason. The IP address returned by #3 should be the IP address of the server, not the test client.
 
-Test client could fetch `icanhazip.com` again
+Test client could fetch `icanhazip.com` again to make sure the IP address changes as well.
 
 ## Implementation
 
@@ -27,3 +27,9 @@ Having one system run the ansible playbook is also ~straightforward.
 But should the system running the ansible playbook be the system testing the client connections? Potentially, but then there could be issues recovering from network misconfigurations (admittedly probably not).
 
 Having a separate script that SSHes to a test node would be better... except SSH outgoing packets might get caught and forced to go via the VPN tunnel?
+
+## Github Runner not suitable
+
+We can probably mess with the network settings directly on the machine [since sudo is usable](https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#administrative-privileges), but that doesn't help with triggering the client test.
+
+Maybe Github Actions could be the test runner that triggers the AWS build then tests locally?
