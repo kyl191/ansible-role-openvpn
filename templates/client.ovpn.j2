@@ -35,6 +35,7 @@ auth-user-pass
 route-method exe
 route-delay 2
 {% if openvpn_client_register_dns %}
+# Note: This is a Windows-specific directive, remove it if this is meant to be used on non-Windows
 register-dns
 {% endif %}
 
