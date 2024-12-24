@@ -212,6 +212,7 @@ jobs:
         run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=host --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn --user=root ghcr.io/kyl191/ansible-fedora:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
+      # https://www.jeffgeerling.com/blog/2020/resolving-fedora-dnf-error-no-such-file-or-directory-varlibdnfrpmdblockpid
       - name: Wait for container to start
         run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
       - name: Install firewalld
@@ -230,7 +231,7 @@ jobs:
         run: sudo podman exec ${{ matrix.version }} systemctl start openvpn-client@alpha-localhost.service
       - name: Wait for a bit
         run: sleep 5
-      - name: Attempt openvpn connection
+      - name: Stop openvpn connection
         run: sudo podman exec ${{ matrix.version }} systemctl stop openvpn-client@alpha-localhost.service
       - name: Container state debug output
         continue-on-error: true
@@ -240,5 +241,7 @@ jobs:
           sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
           echo "cat alpha-*.ovpn"
           sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
+          echo cat /var/log/openvpn.log
           sudo podman exec ${{ matrix.version }} cat /var/log/openvpn.log
+          echo journalctl -u openvpn-client@alpha-localhost.service
           sudo podman exec ${{ matrix.version }} journalctl -u openvpn-client@alpha-localhost.service
