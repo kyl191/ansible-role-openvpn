@@ -224,6 +224,14 @@ jobs:
         run: sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
       - name: Check idempotency
         run: sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Move generated client config file
+        run: sudo podman exec ${{ matrix.version }} cp /etc/openvpn/server/alpha-localhost.ovpn /etc/openvpn/client/alpha-localhost.conf
+      - name: Attempt openvpn connection
+        run: sudo podman exec ${{ matrix.version }} systemctl start openvpn-client@alpha-localhost.service
+      - name: Wait for a bit
+        run: sleep 5
+      - name: Attempt openvpn connection
+        run: sudo podman exec ${{ matrix.version }} systemctl stop openvpn-client@alpha-localhost.service
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -233,3 +241,4 @@ jobs:
           echo "cat alpha-*.ovpn"
           sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
           sudo podman exec ${{ matrix.version }} cat /var/log/openvpn.log
+          sudo podman exec ${{ matrix.version }} journalctl -u openvpn-client@alpha-localhost.service
