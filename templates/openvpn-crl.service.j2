@@ -1,0 +1,9 @@
+[Unit]
+Description=Check if OpenVPN CRL will expire soon
+
+[Service]
+Type=oneshot
+ExecStart=sh {{ openvpn_base_dir }}/crl-cron.sh
+
+[Install]
+WantedBy=multi-user.target

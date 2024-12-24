@@ -66,7 +66,7 @@ push "redirect-gateway def1 bypass-dhcp"
 push "dhcp-option DNS {{ srv }}"
 {% endfor %}
 {% endif %}
-{% if openvpn_push is defined %}
+{% if openvpn_push is defined and openvpn_push | length > 0 %}
 {% for opt in openvpn_push %}
 push "{{ opt }}"
 {% endfor %}
