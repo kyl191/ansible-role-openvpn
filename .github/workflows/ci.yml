@@ -201,12 +201,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: false
+          detached: true
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container
         run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=host --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn --user=root ghcr.io/kyl191/ansible-fedora:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
+      - name: Wait for container to start
+        run: sudo podman exec ${{ matrix.version }} /bin/bash while [ "$(systemctl is-system-running)" != "running" ]; do sleep 5; done
       - name: Install firewalld
         run: sudo podman exec ${{ matrix.version }} dnf -y install firewalld python3-firewall procps-ng
       - name: Install required dependencies from Ansible Galaxy
@@ -226,7 +233,3 @@ jobs:
           echo "cat alpha-*.ovpn"
           sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
           sudo podman exec ${{ matrix.version }} cat /var/log/openvpn.log
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: false
