@@ -48,16 +48,17 @@ These options change how the role works. This is a catch-all group, specific gro
 | Variable                     | Type    | Choices     | Default           | Comment                                                                       |
 |------------------------------|---------|-------------|-------------------|-------------------------------------------------------------------------------|
 | clients                      | list    |             | []                | List of clients to add to OpenVPN                                             |
-| openvpn_base_dir             | string  |             | /etc/openvpn      | Path where your OpenVPN config will be stored                                 |
+| openvpn_base_dir             | string  |             | /etc/openvpn/server      | Path where your OpenVPN config will be stored                                 |
 | openvpn_client_config_no_log | boolean | true, false | true              | Prevent client configuration files to be logged to stdout by Ansible          |
 | openvpn_key_dir              | string  |             | /etc/openvpn/keys | Path where your server private keys and CA will be stored                     |
 | openvpn_ovpn_dir             | string  |             | /etc/openvpn      | Path where your client configurations will be stored                          |
 | openvpn_revoke_these_certs   | list    |             | []                | List of client certificates to revoke.                                        |
 | openvpn_selinux_module       | string  |             | my-openvpn-server | Set the SELinux module name                                                   |
-| openvpn_service_name         | string  |             | openvpn           | Name of the service. Used by systemctl to start the service                   |
+| openvpn_service_name         | string  |             | openvpn-server@{{ openvpn_config_file }}.service           | Name of the service. Used by systemctl to start the service                   |
 | openvpn_sync_certs           | boolean | true, false | false             | Revoke certificates not explicitly defined in 'clients'                       |
 | openvpn_uninstall            | boolean | true, false | false             | Set to true to uninstall the OpenVPN service                                  |
 | openvpn_use_ldap             | boolean | true, false | false             | Active LDAP backend for authentication. Client certificate not needed anymore |
+| openvpn_use_prebuilt_ldap_plugin | boolean | true, false | true | Use a distro-distributed version of the LDAP plugin |
 
 ### Config fetching
 
@@ -91,7 +92,7 @@ These options change how OpenVPN itself works.
 |-----------------------------|--------------|-------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_client_register_dns | boolean      | true, false       | true                       | Add `register-dns` option to client config (Windows only).                                                                                           |
 | openvpn_client_to_client    | boolean      | true, false       | false                      | Set to true if you want clients to access each other.                                                                                                |
-| openvpn_custom_dns          | list[string] |                   | []                         | List of DNS servers, only applied if `openvpn_set_dns` is set to true                                                                                |
+| openvpn_custom_dns          | list[string] |                   | ["1.0.0.1", "1.1.1.1", "8.8.8.8", "8.8.4.4"] | List of DNS servers, only applied if `openvpn_set_dns` is set to true                                                                                |
 | openvpn_dualstack           | boolean      |                   | true                       | Whether or not to use a dualstack (IPv4 + v6) socket                                                                                                 |
 | openvpn_keepalive_ping      | int          |                   | 5                          | Set `keepalive` ping interval seconds.                                                                                                               |
 | openvpn_keepalive_timeout   | int          |                   | 30                         | Set `keepalive` timeout seconds                                                                                                                      |
@@ -113,7 +114,7 @@ These options change how OpenVPN itself works.
 |------------------------------------|---------|-------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_auth_alg                   | string  |             | SHA256      | Set `auth` authentication algoritm.                                                                                                                             |
 | openvpn_ca_key                     | dict    |             | `unset`     | Contain "crt" and "key". If not set, CA cert and key will be automatically generated on the target system.                                                      |
-| openvpn_cipher                     | string  |             | `unset`     | Set `data-cipher` option for server and client.                                                                                                                      |
+| openvpn_cipher                     | string  |             | `AES-256-GCM:AES-128-GCM:AES-256-CBC` | Set `data-cipher` option for server and client.                                                                                                                      |
 | openvpn_crl_path                   | string  |             | `unset`     | Define a path to the CRL file for server revocation check.                                                                                                      |
 | openvpn_duplicate_cn               | boolean | true, false | false       | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key. NOTE: client ip addresses won't be static anymore! |
 | openvpn_rsa_bits                   | int     |             | 2048        | Number of bits used to protect generated certificates                                                                                                           |
