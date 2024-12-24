@@ -4,7 +4,7 @@
 
 ansible-lint isn't complaining anymore. It's also added to the CI system so the role shouldn't regress.
 
-I've also added `truthy/falsy` to clauses to make sure the value is always coerced to a bool
+I've also added `truthy/falsy` to clauses to make sure a value is always coerced to a bool.
 
 ## Changed Supported OS Versions
 
@@ -38,7 +38,7 @@ Known issue: RHEL-alike 8 [can't manage packages using ansible-core >=2.17.0](ht
 Other notes on RHEL-alike 8 variants:
 
 * AlmaLinux 8 and Rocky Linux 8 need an out-of-band python upgrade with `dnf install python3.9` and setting the `ansible_python_interpreter` value to `/usr/bin/python3.9`
-* CentOS 8 and CentOS Stream 8 packages were vaulted ([CentOS 8](https://www.centos.org/centos-linux-eol/), [Stream 8](https://blog.centos.org/2023/04/end-dates-are-coming-for-centos-stream-8-and-centos-linux-7/)), which breaks Yum downloading packages
+* CentOS 8 and CentOS Stream 8 packages were vaulted ([CentOS 8 announcement](https://www.centos.org/centos-linux-eol/), [Stream 8 announcement](https://blog.centos.org/2023/04/end-dates-are-coming-for-centos-stream-8-and-centos-linux-7/)), which breaks Yum downloading packages
 
 ## Assuming OpenVPN 2.5+
 
@@ -57,7 +57,9 @@ Discussion in [this issue](https://github.com/kyl191/ansible-role-openvpn/issues
 
 ## LDAP plugin no longer built by default
 
-This thing has honestly made me nervous since merging it because I don't have anything that uses LDAP. I trust that it functions, but it seemed unecessarily complex to have in an Ansible playbook. Turns out Fedora/EPEL, Debian, and Ubuntu all provide packages for openvpn-auth-ldap so I'm dropping the compilation.
+This thing has honestly made me nervous since merging it because I don't have anything that uses LDAP. I trust that it functions, but [a compliation issue was reported](https://github.com/kyl191/ansible-role-openvpn/issues/174).
+
+Turns out Fedora/EPEL, Debian, and Ubuntu all provide packages for openvpn-auth-ldap so I'm dropping the compilation step to simplify the role.
 
 * Fedora/EPEL: <https://packages.fedoraproject.org/pkgs/openvpn-auth-ldap/openvpn-auth-ldap/index.html>
 * Debian: <https://packages.debian.org/search?keywords=openvpn-auth-ldap>
