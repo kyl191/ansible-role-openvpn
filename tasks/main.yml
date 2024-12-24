@@ -9,7 +9,7 @@
 
 - name: Uninstall OpenVPN
   ansible.builtin.import_tasks: uninstall.yml
-  when: openvpn_uninstall
+  when: openvpn_uninstall is truthy
 
 - name: Install OpenVPN
   ansible.builtin.import_tasks: install.yml
@@ -23,18 +23,18 @@
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
-  when: not (ci_build|bool)
+  when: ci_build is falsy
 
 - name: Enable ipv6 forwarding
   ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: "1"
-  when: openvpn_server_ipv6_network is defined and not (ci_build|bool)
+  when: openvpn_server_ipv6_network is defined and ci_build is falsy
 
 - name: Detect firewall type
   ansible.builtin.import_tasks: firewall/firewall.yml
   when:
-    - not (ci_build|bool)
+    - ci_build is falsy
     - manage_firewall_rules
   tags:
     - firewall
@@ -46,7 +46,7 @@
 
 - name: Compare existing certs against 'clients' variable
   ansible.builtin.import_tasks: cert_sync_detection.yml
-  when: openvpn_sync_certs
+  when: openvpn_sync_certs is truthy
   tags:
     - sync_certs
 
@@ -61,7 +61,7 @@
   when: >-
     (openvpn_revoke_these_certs is defined)
     or
-    (openvpn_sync_certs and cert_sync_certs_to_revoke.stdout_lines | length > 0)
+    (openvpn_sync_certs is truthy and cert_sync_certs_to_revoke.stdout_lines | length > 0)
 
 - name: Configure OpenVPN server
   ansible.builtin.import_tasks: config.yml

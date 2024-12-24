@@ -43,8 +43,8 @@
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: present
   when:
-    - openvpn_use_ldap
-    - openvpn_use_prebuilt_ldap_plugin
+    - openvpn_use_ldap is truthy
+    - openvpn_use_prebuilt_ldap_plugin is truthy
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'

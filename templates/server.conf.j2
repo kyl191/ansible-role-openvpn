@@ -18,7 +18,7 @@ dh {{ openvpn_key_dir }}/dh.pem
 {% if openvpn_crl_path is defined %}
 crl-verify {{ openvpn_crl_path }}
 {% endif %}
-{% if openvpn_use_crl|bool %}
+{% if openvpn_use_crl is truthy %}
 crl-verify {{ openvpn_key_dir }}/ca-crl.pem
 {% endif %}
 {% if tls_auth_required %}
@@ -32,17 +32,17 @@ data-ciphers {{ openvpn_cipher }}
 {% if openvpn_tun_mtu %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
-{% if openvpn_use_hardened_tls|bool %}
+{% if openvpn_use_hardened_tls is truthy %}
 tls-version-min 1.2
 {% endif %}
 {# Using Mozilla's modern cipher list + DHE for older clients #}
-{% if openvpn_use_modern_tls|bool %}
+{% if openvpn_use_modern_tls is truthy %}
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 {% endif %}
-{% if openvpn_duplicate_cn|bool %}
+{% if openvpn_duplicate_cn is truthy %}
 duplicate-cn
 {% endif %}
-{% if openvpn_client_to_client|bool %}
+{% if openvpn_client_to_client is truthy %}
 client-to-client
 {% endif %}
 
@@ -58,7 +58,7 @@ ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
 client-config-dir {{ openvpn_client_config_dir }}
 {% endif %}
 
-{% if openvpn_redirect_gateway|bool %}
+{% if openvpn_redirect_gateway is truthy %}
 push "redirect-gateway def1 bypass-dhcp"
 {% endif %}
 {% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
@@ -94,19 +94,19 @@ syslog openvpn
 {% endif %}
 verb 3
 
-{% if openvpn_verify_cn|bool %}
+{% if openvpn_verify_cn is truthy %}
 verify-x509-name OpenVPN-Client-{{ inventory_hostname[:24] }} name-prefix
 remote-cert-tls client
 {% endif %}
 
-{% if openvpn_enable_management|bool %}
+{% if openvpn_enable_management is truthy %}
 management {{ openvpn_management_bind }}
 {% if openvpn_management_client_user %}
 management-client-user {{ openvpn_management_client_user }}
 {% endif %}
 {% endif %}
 
-{% if openvpn_use_ldap|bool %}
+{% if openvpn_use_ldap is truthy %}
 ### LDAP AUTH ###
 {% if ansible_os_family == 'Debian' %}
 plugin /usr/lib/openvpn/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.conf"
