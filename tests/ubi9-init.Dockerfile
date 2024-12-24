@@ -1,4 +1,7 @@
 FROM redhat/ubi9-init:latest
+LABEL org.opencontainers.image.source=https://github.com/kyl191/ansible-role-openvpn
+LABEL org.opencontainers.image.title="RHEL UBI 9-init with Ansible"
+
 
 RUN dnf -y install \
            git \
