@@ -185,9 +185,9 @@ jobs:
           echo "cat alpha-*.ovpn"
           find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
 
-  build-rhel-systemd:
+  build-systemd:
     runs-on: ubuntu-latest
-    name: rhel-systemd-${{ matrix.version }}
+    name: systemd-${{ matrix.version }}
     needs:
       - check-syntax
     strategy:
@@ -195,38 +195,32 @@ jobs:
       matrix:
         version:
           - "ubi9-init"
-    container:
-      image: ghcr.io/kyl191/ansible-${{ matrix.version }}
-      env:
-        container: docker
-      volumes:
-        - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
-      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u kyl191 --password-stdin
+      - name: Create container
+        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=host --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn --user=root ghcr.io/kyl191/ansible-${{ matrix.version }}
+      - name: Start container
+        run: sudo podman start ${{ matrix.version }}
       - name: Install required dependencies
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
-        run: ansible -m setup -c local -i 127.0.0.1, all
+        run: sudo podman exec ${{ matrix.version }} ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
-      # - name: Check idempotency
-      #   run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
+      - name: Check idempotency
+        run: sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |
-          ls -lR /etc/openvpn
+          sudo podman exec ${{ matrix.version }} ls -lR /etc/openvpn
           echo "cat openvpn_udp_1194.conf"
-          find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
+          sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
           echo "cat alpha-*.ovpn"
-          find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
-  ssh-debug:
-    runs-on: ubuntu-latest
-    name: ssh-debug
-    steps:
-      - uses: actions/checkout@v4
+          sudo podman exec ${{ matrix.version }} find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
+          sudo podman exec ${{ matrix.version }} cat /var/log/openvpn.log
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         with:
