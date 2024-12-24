@@ -214,8 +214,6 @@ jobs:
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
       # - name: Check idempotency
       #   run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -224,3 +222,10 @@ jobs:
           find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
           echo "cat alpha-*.ovpn"
           find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
+  ssh-debug:
+    runs-on: ubuntu-latest
+    name: ssh-debug
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
