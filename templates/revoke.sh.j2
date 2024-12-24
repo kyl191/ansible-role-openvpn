@@ -1,9 +1,8 @@
 #!/bin/sh
 
-
 CADIR="{{ openvpn_key_dir }}"
 
-cd ${CADIR}
+cd "${CADIR}" || exit
 
 gen_crl () {
   # regenerate the certificate revocation list
@@ -22,13 +21,13 @@ crl_out () {
 
 crl_verify () {
   # verify that a certificate has been revoked
-  temp_pem="${mktemp}"
-  
-  cat ca.crt ca-crl.pem > ${temp_pem}
-  
-  openssl verify -extended_crl -verbose -CAfile ${temp_pem} -crl_check "${1}"
-  
-  rm -f ${temp_pem}
+  temp_pem="$(mktemp)"
+
+  cat ca.crt ca-crl.pem > "${temp_pem}"
+
+  openssl verify -extended_crl -verbose -CAfile "${temp_pem}" -crl_check "${1}"
+
+  rm -f "${temp_pem}"
 }
 
 gen_crl
