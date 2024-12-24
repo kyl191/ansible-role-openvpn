@@ -78,7 +78,7 @@
 - name: Create client config directory
   ansible.builtin.file:
     state: directory
-    path: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}"
+    path: "{{ openvpn_client_config_dir }}"
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
     mode: "0755"
@@ -87,7 +87,7 @@
 - name: Create client configs
   ansible.builtin.template:
     src: client_ccd.j2
-    dest: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}/{{ item.key }}"
+    dest: "{{ openvpn_client_config_dir }}/{{ item.key }}"
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
     mode: "0644"
@@ -95,14 +95,14 @@
   with_dict: "{{ openvpn_client_configs }}"
 
 - name: List client config directory
-  ansible.builtin.command: "ls -1 {{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}"
+  ansible.builtin.command: "ls -1 {{ openvpn_client_config_dir }}"
   register: __ccd_contents
   changed_when: false
   when: openvpn_client_config is truthy
 
 - name: Delete undeclared configs in client config directory
   ansible.builtin.file:
-    path: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}/{{ item }}"
+    path: "{{ openvpn_client_config_dir }}/{{ item }}"
     state: absent
   when:
     - item not in (openvpn_client_configs.keys() | list)
@@ -111,7 +111,7 @@
 
 - name: Delete client config directory
   ansible.builtin.file:
-    path: "{{ openvpn_base_dir }}/{{ openvpn_client_config_dir }}"
+    path: "{{ openvpn_client_config_dir }}"
     state: absent
   when: openvpn_client_config is falsy
 

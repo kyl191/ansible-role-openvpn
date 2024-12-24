@@ -49,7 +49,7 @@ openvpn_service_name: "openvpn-server@{{ openvpn_config_file }}.service"
 
 # Client config - settings the server will push
 openvpn_client_config: false
-openvpn_client_config_dir: ccd
+openvpn_client_config_dir: "{{ openvpn_base_dir }}/ccd"
 openvpn_client_configs: {}
 # Example:
 # openvpn_client_configs:
