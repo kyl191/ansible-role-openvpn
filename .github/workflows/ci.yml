@@ -213,7 +213,7 @@ jobs:
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
       - name: Wait for container to start
-        run: sudo podman exec ${{ matrix.version }} /bin/bash while [ "$(systemctl is-system-running)" != "running" ]; do sleep 5; done
+        run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
       - name: Install firewalld
         run: sudo podman exec ${{ matrix.version }} dnf -y install firewalld python3-firewall procps-ng
       - name: Install required dependencies from Ansible Galaxy
