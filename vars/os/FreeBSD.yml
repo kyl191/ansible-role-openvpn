@@ -7,3 +7,4 @@ openvpn_conf_user: root
 openvpn_conf_group: wheel
 openvpn_script_group: wheel
 openvpn_use_logrotate: false
+openvpn_service_name: openvpn

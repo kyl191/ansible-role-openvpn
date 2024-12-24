@@ -4,3 +4,4 @@ openvpn_base_dir: /opt/local/etc/openvpn
 openvpn_key_dir: /opt/local/etc/openvpn/keys
 openvpn_use_ldap: false
 openvpn_use_logrotate: false
+openvpn_service_name: openvpn

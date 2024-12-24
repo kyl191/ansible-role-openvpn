@@ -10,7 +10,7 @@
 # 2. Extract path attribute from dict list
 # 3. Keep only basename
 # 4. Remove extension
-- name: "[cert sync] Create list of existing client with  existing certs"
+- name: "[cert sync] Create list of existing client with existing certs"
   ansible.builtin.set_fact:
     openvpn_existing_client: "{{ openvpn_existing_cert.files | map(attribute='path') | map('basename') | map('replace', '.csr', '') | sort }}"
   when: (openvpn_existing_cert.files | length) > 0

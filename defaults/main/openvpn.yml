@@ -4,7 +4,7 @@
 # Networking
 openvpn_client_register_dns: true
 openvpn_client_to_client: false
-openvpn_custom_dns: []
+openvpn_custom_dns: ["1.0.0.1", "1.1.1.1", "8.8.8.8", "8.8.4.4"]
 openvpn_dualstack: true
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
@@ -21,7 +21,7 @@ openvpn_lan_source_ip: "{{ ansible_default_ipv4.address }}"
 
 # Security
 openvpn_auth_alg: SHA256
-openvpn_cipher: AES-256-CBC
+openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_use_crl: false
@@ -35,7 +35,7 @@ openvpn_script_security: 1
 # Operations
 openvpn_addl_client_options: []
 openvpn_addl_server_options: []
-openvpn_compression: lzo
+openvpn_compression: ~
 openvpn_enable_management: false
 openvpn_ifconfig_pool_persist_file: ipp.txt
 openvpn_management_bind: /var/run/openvpn/management unix
@@ -44,6 +44,8 @@ openvpn_push: []
 openvpn_service_group: nogroup
 openvpn_service_user: nobody
 openvpn_status_version: 1
+openvpn_config_file: "openvpn_{{ openvpn_proto }}_{{ openvpn_port }}"
+openvpn_service_name: "openvpn-server@{{ openvpn_config_file }}.service"
 
 # Client config - settings the server will push
 openvpn_client_config: false

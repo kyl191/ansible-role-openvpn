@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the OpenVPN CRL check & refresh script
+
+[Service]
+Type=oneshot
+ExecStart={{ openvpn_base_dir }}/crl-cron.sh
+
+[Exec]
+WorkingDirectory={{ openvpn_base_dir }}
+User={{ openvpn_script_user }}
+ProtectSystem=strict
+ReadWritePaths={{ openvpn_base_dir }}

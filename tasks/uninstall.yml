@@ -24,7 +24,7 @@
   ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: absent
-  when: openvpn_use_ldap
+  when: openvpn_use_ldap is truthy
 
 - name: Terminate playbook
   ansible.builtin.fail:

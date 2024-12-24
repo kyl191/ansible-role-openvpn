@@ -1,40 +1,30 @@
 ---
-- name: Install EPEL for CentOS
+# Install the EPEL repo RPM on RedHat-like machines
+# https://docs.fedoraproject.org/en-US/epel/getting-started/
+# Thankfully openvpn is available in the base EPEL repo and
+# I don't appear to have to worry about CRB/powertools/other repos
+# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
+# https://wiki.rockylinux.org/rocky/repo/#base-repositories
+# Also ignoring the request to install epel-next on CentOS Stream
+# because that's only requested for CentOS Stream 9
+- name: Install EPEL for CentOS & other RHEL clones
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_distribution == "CentOS" or ansible_distribution=="Rocky" or ansible_distribution=="AlmaLinux"
+  when: ansible_os_family == "RedHat" and ansible_distribution != "Fedora" and ansible_distribution !="RedHat"
 
+# EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
 - name: Install EPEL for RHEL
   ansible.builtin.dnf:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state: present
     disable_gpg_check: true
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
+  when: ansible_distribution == "RedHat"
 
-- name: Enable extra repos for RHEL 8
-  community.general.rhsm_repository:
-    name: "codeready-builder-for-rhel-8-{{ ansible_architecture }}-rpms"
-    state: enabled
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "8"
-
-- name: Enable extra repos for RHEL 7
-  community.general.rhsm_repository:
-    name: "{{ item }}"
-    state: enabled
-  with_items:
-    - "rhel-*-optional-rpms"
-    - "rhel-*-extras-rpms"
-    - "rhel-ha-for-rhel-*-server-rpms"
-  when: ansible_distribution=="RedHat" and ansible_distribution_major_version == "7"
-
-- name: Install python2-dnf for Fedora dnf support
-  ansible.builtin.raw: dnf install -y python2-dnf
-  when:
-    - ansible_distribution == "Fedora"
-    - ansible_python.version.major == 2
-  register: fedora_dnf
-  changed_when: '"Nothing to do." not in fedora_dnf.stdout'
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: ansible_pkg_mgr == "apt"
 
 - name: Install openvpn
   ansible.builtin.package:
@@ -44,20 +34,17 @@
     - "{{ openvpn_package_name }}"
     - "{{ openssl_package_name }}"
 
+# Use the built version:
+# Fedora/EPEL: https://packages.fedoraproject.org/pkgs/openvpn-auth-ldap/openvpn-auth-ldap/index.html
+# Debian: https://packages.debian.org/search?keywords=openvpn-auth-ldap
+# Ubuntu: https://launchpad.net/ubuntu/+source/openvpn-auth-ldap
 - name: Install LDAP plugin
-  become: true
   ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: present
   when:
-    - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version != "8" or ansible_distribution != "CentOS"
-
-- name: Compile LDAP plugin
-  ansible.builtin.include_tasks: compile_ldap_plugin.yml
-  when:
-    - openvpn_use_ldap
-    - ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+    - openvpn_use_ldap is truthy
+    - openvpn_use_prebuilt_ldap_plugin is truthy
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'

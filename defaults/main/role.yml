@@ -4,8 +4,11 @@
 clients: []
 
 # Directories
-openvpn_base_dir: /etc/openvpn
-openvpn_key_dir: /etc/openvpn/keys
+# Fedora, CentOS 8+, Debian and Ubuntu separate OpenVPN into client and server
+# /lib/systemd/system/openvpn-server@.service and /lib/systemd/system/openvpn-client@.service
+# We only care about the server directory
+openvpn_base_dir: "/etc/openvpn/server"
+openvpn_key_dir: "{{ openvpn_base_dir }}/keys"
 openvpn_ovpn_dir: "{{ openvpn_base_dir }}"
 
 # Config fetch settings
@@ -30,8 +33,8 @@ openvpn_script_group: root
 openvpn_client_config_no_log: true
 openvpn_revoke_these_certs: []
 openvpn_selinux_module: my-openvpn-server
-openvpn_service_name: openvpn
 openvpn_sync_certs: false
 openvpn_uninstall: false
 openvpn_use_ldap: false
+openvpn_use_prebuilt_ldap_plugin: true
 openvpn_use_logrotate: true

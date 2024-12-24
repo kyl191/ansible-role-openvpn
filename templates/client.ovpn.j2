@@ -2,9 +2,11 @@ client
 
 tls-client
 auth {{ openvpn_auth_alg }}
-cipher {{ openvpn_cipher }}
+{% if openvpn_cipher is truthy %}
+data-ciphers {{ openvpn_cipher }}
+{% endif %}
 remote-cert-tls server
-{% if openvpn_use_modern_tls %}
+{% if openvpn_use_modern_tls is truthy %}
 tls-version-min 1.2
 {% endif %}
 
@@ -15,14 +17,14 @@ dev tun
 resolv-retry {{ openvpn_resolv_retry }}
 nobind
 keepalive {{ openvpn_keepalive_ping }} {{ openvpn_keepalive_timeout }}
-{% if openvpn_compression is not undefined and openvpn_compression != "" %}
+{% if openvpn_compression is truthy %}
 compress {{ openvpn_compression }}
 {% endif %}
 persist-key
 persist-tun
 verb 3
 
-{% if openvpn_use_ldap %}
+{% if openvpn_use_ldap is truthy %}
 auth-user-pass
 {% endif %}
 
@@ -32,18 +34,19 @@ auth-user-pass
 
 route-method exe
 route-delay 2
-{% if openvpn_client_register_dns %}
+{% if openvpn_client_register_dns is truthy %}
+# Note: This is a Windows-specific directive, remove it if this is meant to be used on non-Windows
 register-dns
 {% endif %}
 
-{% if tls_auth_required %}
+{% if tls_auth_required is truthy %}
 key-direction 1
 {% endif %}
 <ca>
 {{ ca_cert.content|b64decode }}
 </ca>
 
-{% if tls_auth_required %}
+{% if tls_auth_required is truthy %}
 <tls-auth>
 {{ tls_auth.content|b64decode }}
 </tls-auth>
@@ -57,6 +60,6 @@ key-direction 1
 {{ item.1.content|b64decode }}
 </key>
 
-{% if openvpn_verify_cn|bool %}
+{% if openvpn_verify_cn is truthy %}
 verify-x509-name OpenVPN-Server-{{ inventory_hostname[:49] }} name
 {% endif %}
