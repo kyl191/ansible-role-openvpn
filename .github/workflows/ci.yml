@@ -214,6 +214,8 @@ jobs:
         run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e ci_build=False
       # - name: Check idempotency
       #   run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Container state debug output
         continue-on-error: true
         run: |
