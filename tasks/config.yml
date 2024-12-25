@@ -115,6 +115,22 @@
     state: absent
   when: openvpn_client_config is falsy
 
+- name: Create openvpn service override
+  when: ansible_service_mgr == "systemd"
+  block:
+    - name: Create openvpn service override directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/openvpn-server@.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Copy openvpn service override file
+      ansible.builtin.copy:
+        src: openvpn-server-override.conf
+        dest: /etc/systemd/system/openvpn-server@.service.d/override.conf
+        mode: "0644"
+
 - name: Setup openvpn auto-start & start
   ansible.builtin.service:
     name: "{{ openvpn_service_name }}"
