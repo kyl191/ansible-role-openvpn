@@ -35,7 +35,7 @@ openvpn_script_security: 1
 # Operations
 openvpn_addl_client_options: []
 openvpn_addl_server_options: []
-openvpn_compression: ~
+openvpn_compression:
 openvpn_enable_management: false
 openvpn_ifconfig_pool_persist_file: ipp.txt
 openvpn_management_bind: /var/run/openvpn/management unix
