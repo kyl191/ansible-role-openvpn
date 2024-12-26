@@ -22,7 +22,7 @@
     state: restarted
 
 - name: Save iptables rules (Debian/Ubuntu and CentOS/RHEL/Fedora)
-  ansible.builtin.shell: "{{ iptables_save_command }}" # noqa command-instead-of-shell could have shell redirection
+  ansible.builtin.shell: "{{ __iptables_save_command }}" # noqa command-instead-of-shell could have shell redirection
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "Save iptables"
   changed_when: true # always save iptables rules

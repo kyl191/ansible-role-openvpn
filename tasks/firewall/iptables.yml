@@ -1,7 +1,7 @@
 ---
 - name: firewall | iptables | Change facts to use netfilter-persistent on Debian >= 9 or Ubuntu >= 16
   ansible.builtin.set_fact:
-    iptables_save_command: "/usr/sbin/netfilter-persistent save"
+    __iptables_save_command: "/usr/sbin/netfilter-persistent save"
     openvpn_iptables_service: netfilter-persistent
   when: >-
     (ansible_distribution == 'Debian' and ansible_distribution_version|int >= 9)
@@ -87,7 +87,7 @@
     - Save iptables
 
 - name: firewall | iptables | Save existing iptables rule before start iptables service
-  ansible.builtin.shell: "{{ iptables_save_command }}" # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ __iptables_save_command }}" # noqa command-instead-of-shell
   when: __iptables_installed.changed is truthy # noqa no-handler
   changed_when: true
 
