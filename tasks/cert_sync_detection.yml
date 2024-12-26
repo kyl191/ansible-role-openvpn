@@ -18,7 +18,7 @@
 # Make difference between 2 list to have only cert to revoke
 - name: "cert_sync_detection | Create list of cert to revoke"
   ansible.builtin.set_fact:
-    openvpn_cert_sync_revoke: "{{ (openvpn_existing_client | default([])) | difference(clients | sort) }}"
+    openvpn_cert_sync_revoke: "{{ (openvpn_existing_client | default([])) | difference(openvpn_clients | sort) }}"
 
 - name: "cert_sync_detection | Debug: Certs to revoke (skipped if none)"
   ansible.builtin.debug:

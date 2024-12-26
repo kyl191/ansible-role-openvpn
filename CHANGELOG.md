@@ -7,6 +7,7 @@ ansible-lint isn't complaining anymore. It's also added to the CI system so the 
 * I've converted to using `truthy/falsy` instead of inconsistenly using `|bool` for boolean comparisons.
 * Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml))
 Notable variable changes include:
+  * `clients` becoming `openvpn_clients`
   * `ldap` dict becoming `openvpn_ldap`
   * `tls_auth_required` becoming `openvpn_tls_auth_required`
   * `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
