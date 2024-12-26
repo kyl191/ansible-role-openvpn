@@ -84,7 +84,7 @@ Change these options if you need to force a particular firewall or change how th
 
 ## OpenVPN Config Options
 
-These options change how OpenVPN itself works.
+These options change how OpenVPN itself works. Refer to the respective OpenVPN Reference Manual ([OpenVPN 2.5](https://openvpn.net/community-resources/reference-manual-for-openvpn-2-5/), [OpenVPN 2.6](https://openvpn.net/community-resources/reference-manual-for-openvpn-2-6/)) for the interpretations.
 
 ### Networking
 
@@ -92,6 +92,7 @@ These options change how OpenVPN itself works.
 |-----------------------------|--------------|-------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_client_register_dns | boolean      | true, false       | true                       | Add `register-dns` option to client config (Windows only).                                                                                           |
 | openvpn_client_to_client    | boolean      | true, false       | false                      | Set to true if you want clients to access each other.                                                                                                |
+| openvpn_set_dns             | boolean      | true, false       | true                       | Push a list of DNS Servers to use to the client |
 | openvpn_custom_dns          | list[string] |                   | ["1.0.0.1", "1.1.1.1", "8.8.8.8", "8.8.4.4"] | List of DNS servers, only applied if `openvpn_set_dns` is set to true                                                                                |
 | openvpn_dualstack           | boolean      |                   | true                       | Whether or not to use a dualstack (IPv4 + v6) socket                                                                                                 |
 | openvpn_keepalive_ping      | int          |                   | 5                          | Set `keepalive` ping interval seconds.                                                                                                               |
@@ -105,7 +106,6 @@ These options change how OpenVPN itself works.
 | openvpn_server_ipv6_network | string       |                   | `unset`                    | If set, the network address and prefix of an IPv6 network to assign to clients. If True, IPv4 still used too.                                        |
 | openvpn_server_netmask      | string       |                   | 255.255.255.0              | Netmask of the private network                                                                                                                       |
 | openvpn_server_network      | string       |                   | 10.9.0.0                   | Private network used by OpenVPN service                                                                                                              |
-| openvpn_set_dns             | boolean      | true, false       | true                       | Will push DNS to the client (Cloudflare and Google)                                                                                                  |
 | openvpn_tun_mtu             | int          |                   | `unset`                    | Set `tun-mtu` value. Empty for default.                                                                                                              |
 
 ### Security
