@@ -2,14 +2,28 @@
 - name: SELinux - check if module was loaded
   ansible.builtin.command: semodule --list-modules
   register: semodule_loaded
-  changed_when: "openvpn_selinux_module not in semodule_loaded.stdout"
-  notify:
-    - Build and install policy
+  changed_when: false
 
-- name: SELinux - copy type enforcement file
-  ansible.builtin.template:
-    src: "selinux_module.te.j2"
-    dest: /var/lib/selinux/{{ openvpn_selinux_module }}.te
-    mode: "0644"
-  notify:
-    - Build and install policy
+- name: SELinux - setup policy
+  when:
+    - ansible_selinux.status == 'enabled'
+    - semodule_loaded.stdout.find(openvpn_selinux_module) == -1
+  block:
+    - name: Copy selinux type enforcement file
+      ansible.builtin.template:
+        src: "selinux_module.te.j2"
+        dest: /var/lib/selinux/{{ openvpn_selinux_module }}.te
+        mode: "0644"
+    - name: Make sure selinux policy build RPM is installed
+      ansible.builtin.package:
+        name: checkpolicy
+        state: present
+    - name: Build and install selinux policy
+      ansible.builtin.command: "{{ item }}"
+      args:
+        chdir: /var/lib/selinux
+      with_items:
+        - "checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te"
+        - "semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod"
+        - "semodule -i {{ openvpn_selinux_module }}.pp"
+      changed_when: true

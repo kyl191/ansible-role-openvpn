@@ -26,14 +26,3 @@
   when: ansible_os_family == 'Debian' or ansible_os_family == 'RedHat'
   listen: "Save iptables"
   changed_when: true # always save iptables rules
-
-- name: Build and install policy
-  ansible.builtin.command: "{{ item }}"
-  args:
-    chdir: /var/lib/selinux
-  with_items:
-    - "checkmodule -M -m -o {{ openvpn_selinux_module }}.mod {{ openvpn_selinux_module }}.te"
-    - "semodule_package -o {{ openvpn_selinux_module }}.pp -m {{ openvpn_selinux_module }}.mod"
-    - "semodule -i {{ openvpn_selinux_module }}.pp"
-  changed_when: true
-  when: ansible_selinux.status == 'enabled'
