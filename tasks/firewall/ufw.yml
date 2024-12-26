@@ -1,36 +1,36 @@
 ---
-- name: Start ufw service
+- name: firewall | ufw | Start ufw service
   ansible.builtin.service:
     name: ufw
     enabled: true
     state: started
 
-- name: Enable ufw
+- name: firewall | ufw | Enable ufw
   community.general.ufw:
     direction: incoming
     state: enabled
     policy: allow
 
-- name: Enable forwarding - ufw
+- name: firewall | ufw | Enable forwarding - ufw
   ansible.builtin.lineinfile:
     dest: /etc/default/ufw
     regexp: "^DEFAULT_FORWARD_POLICY="
     line: DEFAULT_FORWARD_POLICY="ACCEPT"
 
-- name: Allow incoming VPN connections - ufw
+- name: firewall | ufw | Allow incoming VPN connections - ufw
   community.general.ufw:
     direction: in
     proto: "{{ openvpn_proto }}"
     to_port: "{{ openvpn_port | string }}"
     rule: allow
 
-- name: Accept packets from VPN tunnel adaptor - ufw
+- name: firewall | ufw | Accept packets from VPN tunnel adaptor - ufw
   community.general.ufw:
     direction: in
     interface: tun0
     rule: allow
 
-- name: Setup nat table rules - ufw
+- name: firewall | ufw | Setup nat table rules - ufw
   ansible.builtin.blockinfile:
     dest: /etc/ufw/before.rules
     state: present
@@ -45,7 +45,7 @@
   notify:
     - Restart ufw
 
-- name: Setup nat table rules with MASQUERADE - ufw
+- name: firewall | ufw | Setup nat table rules with MASQUERADE - ufw
   ansible.builtin.blockinfile:
     dest: /etc/ufw/before.rules
     state: present

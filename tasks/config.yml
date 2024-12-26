@@ -1,5 +1,5 @@
 ---
-- name: Create openvpn config file
+- name: config | Create openvpn config file
   ansible.builtin.template:
     src: server.conf.j2
     dest: "{{ openvpn_base_dir }}/{{ openvpn_config_file }}.conf"
@@ -9,48 +9,48 @@
   notify:
     - Restart openvpn
 
-- name: Copy up script if defined
+- name: config | Copy up script if defined
   ansible.builtin.copy:
     src: "{{ openvpn_script_up }}"
     dest: "{{ openvpn_base_dir }}/up.sh"
     mode: a+x
   when: openvpn_script_up is defined
 
-- name: Copy down script if defined
+- name: config | Copy down script if defined
   ansible.builtin.copy:
     src: "{{ openvpn_script_down }}"
     dest: "{{ openvpn_base_dir }}/down.sh"
     mode: a+x
   when: openvpn_script_down is defined
 
-- name: Copy client-connect script if defined
+- name: config | Copy client-connect script if defined
   ansible.builtin.copy:
     src: "{{ openvpn_script_client_connect }}"
     dest: "{{ openvpn_base_dir }}/client_connect.sh"
     mode: a+x
   when: openvpn_script_client_connect is defined
 
-- name: Copy client-disconnect script if defined
+- name: config | Copy client-disconnect script if defined
   ansible.builtin.copy:
     src: "{{ openvpn_script_client_disconnect }}"
     dest: "{{ openvpn_base_dir }}/client_disconnect.sh"
     mode: a+x
   when: openvpn_script_client_disconnect is defined
 
-- name: Ensure auth folder exist in openvpn dir
+- name: config | Ensure auth folder exist in openvpn dir
   ansible.builtin.file:
     path: "{{ openvpn_base_dir }}/auth"
     state: directory
     mode: "0755"
   when: openvpn_use_ldap is truthy
 
-- name: Delete auth folder in openvpn dir
+- name: config | Delete auth folder in openvpn dir
   ansible.builtin.file:
     path: "{{ openvpn_base_dir }}/auth"
     state: absent
   when: openvpn_use_ldap is falsy
 
-- name: Install LDAP config
+- name: config | Install LDAP config
   ansible.builtin.template:
     src: ldap.conf.j2
     dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
@@ -59,14 +59,14 @@
     mode: "0644"
   when: openvpn_use_ldap is truthy
 
-- name: Create log directory
+- name: config | Create log directory
   ansible.builtin.file:
     dest: "{{ openvpn_log_dir }}"
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
     mode: "0755"
 
-- name: Copy openvpn logrotate config file
+- name: config | Copy openvpn logrotate config file
   ansible.builtin.template:
     src: openvpn_logrotate.conf.j2
     dest: /etc/logrotate.d/openvpn-{{ openvpn_config_file }}.conf
@@ -75,7 +75,7 @@
     mode: "0400"
   when: openvpn_use_logrotate is truthy
 
-- name: Create client config directory
+- name: config | Create client config directory
   ansible.builtin.file:
     state: directory
     path: "{{ openvpn_client_config_dir }}"
@@ -84,7 +84,7 @@
     mode: "0755"
   when: openvpn_client_config is truthy
 
-- name: Create client configs
+- name: config | Create client configs
   ansible.builtin.template:
     src: client_ccd.j2
     dest: "{{ openvpn_client_config_dir }}/{{ item.key }}"
@@ -94,13 +94,13 @@
   when: openvpn_client_config is truthy
   with_dict: "{{ openvpn_client_configs }}"
 
-- name: List client config directory
+- name: config | List client config directory
   ansible.builtin.command: "ls -1 {{ openvpn_client_config_dir }}"
   register: __ccd_contents
   changed_when: false
   when: openvpn_client_config is truthy
 
-- name: Delete undeclared configs in client config directory
+- name: config | Delete undeclared configs in client config directory
   ansible.builtin.file:
     path: "{{ openvpn_client_config_dir }}/{{ item }}"
     state: absent
@@ -109,29 +109,29 @@
     - openvpn_client_config is truthy
   with_items: "{{ __ccd_contents.stdout_lines | default([]) }}"
 
-- name: Delete client config directory
+- name: config | Delete client config directory
   ansible.builtin.file:
     path: "{{ openvpn_client_config_dir }}"
     state: absent
   when: openvpn_client_config is falsy
 
-- name: Create openvpn service override
+- name: config | Create openvpn service override
   when: ansible_service_mgr == "systemd"
   block:
-    - name: Create openvpn service override directory
+    - name: config | Create openvpn service override directory
       ansible.builtin.file:
         path: /etc/systemd/system/openvpn-server@.service.d
         state: directory
         owner: root
         group: root
         mode: "0755"
-    - name: Copy openvpn service override file
+    - name: config | Copy openvpn service override file
       ansible.builtin.copy:
         src: openvpn-server-override.conf
         dest: /etc/systemd/system/openvpn-server@.service.d/override.conf
         mode: "0644"
 
-- name: Setup openvpn auto-start & start
+- name: config | Setup openvpn auto-start & start
   ansible.builtin.service:
     name: "{{ openvpn_service_name }}"
     enabled: true

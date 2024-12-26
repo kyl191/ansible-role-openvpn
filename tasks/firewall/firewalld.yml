@@ -1,12 +1,12 @@
 ---
-- name: Enable firewalld
+- name: firewall | firewalld | Enable firewalld
   ansible.builtin.service:
     name: firewalld
     enabled: true
     masked: false
     state: started
 
-- name: Enable OpenVPN Port (firewalld)
+- name: firewall | firewalld | Enable OpenVPN Port (firewalld)
   ansible.posix.firewalld:
     port: "{{ openvpn_port }}/{{ openvpn_proto }}"
     zone: "{{ firewalld_default_interface_zone }}"
@@ -14,7 +14,7 @@
     immediate: true
     state: enabled
 
-- name: Set tun0 interface to internal
+- name: firewall | firewalld | Set tun0 interface to internal
   ansible.posix.firewalld:
     interface: tun0
     zone: internal
@@ -22,7 +22,7 @@
     immediate: true
     state: enabled
 
-- name: Set default interface to external
+- name: firewall | firewalld | Set default interface to external
   ansible.posix.firewalld:
     interface: "{{ ansible_default_ipv4.interface }}"
     zone: "{{ firewalld_default_interface_zone }}"
@@ -30,7 +30,7 @@
     immediate: true
     state: enabled
 
-- name: Enable masquerading on external zone
+- name: firewall | firewalld | Enable masquerading on external zone
   ansible.posix.firewalld:
     masquerade: true
     zone: "{{ firewalld_default_interface_zone }}"
@@ -43,12 +43,12 @@
 
 # workaround for --permanent not working on non-NetworkManager managed ifaces
 # https://bugzilla.redhat.com/show_bug.cgi?id=1112742
-- name: Check if ifcfg file exists for {{ ansible_default_ipv4.interface }}
+- name: firewall | firewalld | Check if ifcfg file exists for {{ ansible_default_ipv4.interface }}
   ansible.builtin.stat:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
   register: ifcfg
 
-- name: Persist default interface in ifcfg file
+- name: firewall | firewalld | Persist default interface in ifcfg file
   ansible.builtin.lineinfile:
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     regexp: "^ZONE="

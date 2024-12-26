@@ -1,5 +1,5 @@
 ---
-- name: Remove client config
+- name: revocation | Remove client config
   ansible.builtin.file:
     path: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
     state: absent
@@ -8,7 +8,7 @@
     - "{{ openvpn_revoke_these_certs }}"
     - "{{ openvpn_cert_sync_revoke | default([]) }}"
 
-- name: Revoke certificates
+- name: revocation | Revoke certificates
   ansible.builtin.command: sh revoke.sh {{ item }}.crt
   changed_when: true
   args:
@@ -17,7 +17,7 @@
     - "{{ openvpn_revoke_these_certs }}"
     - "{{ openvpn_cert_sync_revoke | default([]) }}"
 
-- name: Remove client key
+- name: revocation | Remove client key
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}/{{ item }}.key"
     state: absent
@@ -26,7 +26,7 @@
     - "{{ openvpn_revoke_these_certs }}"
     - "{{ openvpn_cert_sync_revoke | default([]) }}"
 
-- name: Remove client csr
+- name: revocation | Remove client csr
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}/{{ item }}.csr"
     state: absent
@@ -35,7 +35,7 @@
     - "{{ openvpn_revoke_these_certs }}"
     - "{{ openvpn_cert_sync_revoke | default([]) }}"
 
-- name: Remove client cert
+- name: revocation | Remove client cert
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}/{{ item }}.crt"
     state: absent
