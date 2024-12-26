@@ -3,7 +3,7 @@
   hosts: 127.0.0.1
   connection: local
   vars:
-    ci_build: true
+    openvpn_ci_build: true
     openvpn_client_register_dns: false
     openvpn_use_pregenerated_dh_params: true
   roles:

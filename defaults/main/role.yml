@@ -24,7 +24,7 @@ openvpn_masquerade_not_snat: false
 openvpn_no_nat: false
 
 # Misc
-ci_build: false
+openvpn_ci_build: false
 openvpn_conf_user: root
 openvpn_conf_group: root
 openvpn_script_user: root
