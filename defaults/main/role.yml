@@ -1,7 +1,7 @@
 ---
 # Defaults for the role operation
 
-clients: []
+openvpn_clients: []
 # Directories
 # Fedora, CentOS 8+, Debian and Ubuntu separate OpenVPN into client and server
 # /lib/systemd/system/openvpn-server@.service and /lib/systemd/system/openvpn-client@.service

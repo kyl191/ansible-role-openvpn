@@ -21,14 +21,14 @@
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ item }}.key"
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"
 
 - name: client_keys | Protect client keys
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}/{{ item }}.key"
     mode: "0400"
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"
 
 - name: client_keys | Sign client key
   ansible.builtin.command: openssl x509 -req -in {{ item }}.csr -out {{ item }}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
@@ -36,7 +36,7 @@
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ item }}.crt"
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"
 
 - name: client_keys | Register server ca key
   ansible.builtin.slurp:
@@ -52,14 +52,14 @@
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/{{ item }}.crt"
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"
   register: __client_certs
 
 - name: client_keys | Register client keys
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/{{ item }}.key"
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"
   register: __client_keys
 
 - name: client_keys | Generate client config
@@ -81,4 +81,4 @@
     flat: true
   when: openvpn_fetch_client_configs is truthy
   with_items:
-    - "{{ clients }}"
+    - "{{ openvpn_clients }}"

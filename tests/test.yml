@@ -8,6 +8,6 @@
     openvpn_use_pregenerated_dh_params: true
   roles:
     - role: ansible-role-openvpn
-      clients:
+      openvpn_clients:
         - alpha
         - omega
