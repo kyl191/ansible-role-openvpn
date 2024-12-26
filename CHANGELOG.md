@@ -1,21 +1,78 @@
 # Version 3.0 (2024-12-26)
 
+## Manually Backwards Compatible Variable changes
+
+In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable and variable defaults were changed.
+
+* `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. It is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
+  * Restore the old behaviour with `openvpn_tls_version_min: "1.2"`
+* `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). There is no equivalent replacement, it is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults.
+  * Restore the old behaviour with
+
+  ```yaml
+  openvpn_addl_server_options: ["tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256"]
+  ```
+
+* `openvpn_cipher` now sets the `data-cipher` option instead of `cipher`. The new default is `AES-256-GCM:AES-128-GCM:AES-256-CBC`.
+  * Restore the old behaviour with
+
+  ```yaml
+  openvpn_cipher: ~
+  openvpn_addl_server_options: ["cipher AES-256-CBC"]
+  ```
+
+* `openvpn_tls_auth_required` has been replaced with `openvpn_use_tls_crypt`. The default for `openvpn_tls_auth_required` is now `false`.
+  * Restore the old behaviour with `openvpn_tls_auth_required: true`
+
+Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
+
+Configurable variable renames include:
+
+* `clients` becoming `openvpn_clients`
+* `ldap` dict becoming `openvpn_ldap`
+* `tls_auth_required` becoming `openvpn_tls_auth_required`
+* `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
+* `iptables_service` becoming `openvpn_iptables_service`
+
+There are some internal variables that have been renamed to have a `__` prefix to indicate they are internal.
+
+### Future variable changes
+
+* `openvpn_cipher` will be unset and fallback to using the OpenVPN defaults
+* `openvpn_tls_auth_required` will be removed completely
+
 ## Updated to latest Ansible recommendations
 
-ansible-lint isn't complaining anymore. It's also added to the CI system so the role shouldn't regress. A few more changes:
+ansible-lint isn't complaining anymore. I've added it to the CI system so the role shouldn't regress.
 
-* I've converted to using `truthy/falsy` instead of inconsistenly using `|bool` for boolean comparisons.
-* Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml))
-Notable variable changes include:
-  * `clients` becoming `openvpn_clients`
-  * `ldap` dict becoming `openvpn_ldap`
-  * `tls_auth_required` becoming `openvpn_tls_auth_required`
-  * `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
-  * `iptables_service` becoming `openvpn_iptables_service`
-* The TLS settings are cleaned up:
-  * `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. That is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
-  * `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). This is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults.
-  * TLS Auth for the control channel (`openvpn_tls_auth_required`) is deprecated in favour of TLS Crypt for the control channel (`openvpn_use_tls_crypt`)
+I've also started using `is truthy/falsy` instead of inconsistently using `|bool` for boolean comparisons. If you overriding variables on the CLI when invoking the playbook, the behaviour may change.
+
+## Requiring OpenVPN 2.5+
+
+Versions early than 2.5 are [uniformly out of support](https://endoflife.date/openvpn) and OpenVPN [enourages people to "upgrade to a newer release ASAP"](https://community.openvpn.net/openvpn/wiki/SupportedVersions).
+
+### `cipher` vs `data-cipher`
+
+Biggest change (as far as I can tell) is OpenVPN deprecated `cipher` and replaced it with `data-cipher`. All the supported OSes are OpenVPN2.5+, so I've updated the server config to use `data-cipher` when `openvpn_cipher` is set.
+
+If the event you need fallback support on the server for older clients, set the value `data-ciphers-fallback` through the playbook option `openvpn_addl_server_options`.
+
+If you're forced to use OpenVPN 2.4 or earlier, this should work:
+
+* Unset `openvpn_cipher` in your vars file, eg `openvpn_cipher: ~`
+* Include `cipher` in `openvpn_addl_server_options`, eg `openvpn_addl_server_options: ["cipher AES-256-CBC"]`
+
+Similarly on the client, you can use `openvpn_addl_client_options` to set `cipher` if needed.
+
+Discussion in [this issue](https://github.com/kyl191/ansible-role-openvpn/issues/196).
+
+### TLS Changes
+
+The TLS settings are cleaned up because they were confusing me:
+
+* `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. It is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
+* `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). It is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults. If you need to set
+* TLS Auth for the control channel (`openvpn_tls_auth_required`) is deprecated in favour of TLS Crypt for the control channel (`openvpn_use_tls_crypt`)
 
 ## Changed Supported OS Versions
 
@@ -50,23 +107,6 @@ Other notes on RHEL-alike 8 variants:
 
 * AlmaLinux 8 and Rocky Linux 8 need an out-of-band python upgrade with `dnf install python3.9` and setting the `ansible_python_interpreter` value to `/usr/bin/python3.9`
 * CentOS 8 and CentOS Stream 8 packages were vaulted ([CentOS 8 announcement](https://www.centos.org/centos-linux-eol/), [Stream 8 announcement](https://blog.centos.org/2023/04/end-dates-are-coming-for-centos-stream-8-and-centos-linux-7/)), which breaks Yum downloading packages
-
-## Only Supporting OpenVPN 2.5+
-
-Versions early than 2.5 are [uniformly out of support](https://endoflife.date/openvpn) and OpenVPN [enourages people to "upgrade to a newer release ASAP"](https://community.openvpn.net/openvpn/wiki/SupportedVersions).
-
-Biggest change (as far as I can tell) is OpenVPN deprecated `cipher` and replaced it with `data-cipher`. All the supported OSes are OpenVPN2.5+, so I've updated the server config to use `data-cipher` when `openvpn_cipher` is set.
-
-If the event you need fallback support on the server for older clients, set the value `data-ciphers-fallback` through the playbook option `openvpn_addl_server_options`.
-
-If you're forced to use OpenVPN 2.4 or earlier, this should work:
-
-* Unset `openvpn_cipher` in your vars file, eg `openvpn_cipher: ~`
-* Include `cipher` in `openvpn_addl_server_options`, eg `openvpn_addl_server_options: ["cipher AES-256-CBC"]`
-
-Similarly on the client, you can use `openvpn_addl_client_options` to set `cipher` if needed.
-
-Discussion in [this issue](https://github.com/kyl191/ansible-role-openvpn/issues/196).
 
 ## LDAP plugin no longer built by default
 
