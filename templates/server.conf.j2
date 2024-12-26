@@ -32,12 +32,8 @@ data-ciphers {{ openvpn_cipher }}
 {% if openvpn_tun_mtu %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
-{% if openvpn_use_hardened_tls is truthy %}
-tls-version-min 1.2
-{% endif %}
-{# Using Mozilla's modern cipher list + DHE for older clients #}
-{% if openvpn_use_modern_tls is truthy %}
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384:TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+{% if openvpn_tls_version_min %}
+tls-version-min {{ openvpn_tls_version_min }}
 {% endif %}
 {% if openvpn_duplicate_cn is truthy %}
 duplicate-cn

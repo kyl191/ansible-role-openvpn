@@ -121,9 +121,8 @@ These options change how OpenVPN itself works.
 | openvpn_script_security            | int     |             | 1           | Set openvpn script security option                                                                                                                              |
 | openvpn_tls_auth_key               | string  |             | `unset`     | Single item with a pre-generated TLS authentication key.                                                                                                        |
 | openvpn_use_crl                    | boolean | true, false | false       | Configure OpenVPN server to honor certificate revocation list.                                                                                                  |
-| openvpn_use_hardened_tls           | boolean | true, false | true        | Require a minimum version of TLS 1.2                                                                                                                            |
-| openvpn_use_modern_tls             | boolean | true, false | true        | Use modern Cipher for TLS encryption (Not recommended with OpenVPN 2.4)                                                                                         |
-| openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default                                                                                                              |
+| openvpn_tls_version_min  | string |  | `1.2 or-highest` | Set the minimum required TLS version  |
+| openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default |
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
 | openvpn_tls_auth_required                  | boolean | true, false | true        | Ask the client to push the generated ta.key of the server during the connection                                                                                 |
 

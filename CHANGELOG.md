@@ -12,6 +12,9 @@ Notable variable changes include:
   * `tls_auth_required` becoming `openvpn_tls_auth_required`
   * `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
   * `iptables_service` becoming `openvpn_iptables_service`
+* The TLS settings are cleaned up:
+  * `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. That is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
+  * `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). This is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults.
 
 ## Changed Supported OS Versions
 
@@ -47,7 +50,9 @@ Other notes on RHEL-alike 8 variants:
 * AlmaLinux 8 and Rocky Linux 8 need an out-of-band python upgrade with `dnf install python3.9` and setting the `ansible_python_interpreter` value to `/usr/bin/python3.9`
 * CentOS 8 and CentOS Stream 8 packages were vaulted ([CentOS 8 announcement](https://www.centos.org/centos-linux-eol/), [Stream 8 announcement](https://blog.centos.org/2023/04/end-dates-are-coming-for-centos-stream-8-and-centos-linux-7/)), which breaks Yum downloading packages
 
-## Assuming OpenVPN 2.5+
+## Only Supporting OpenVPN 2.5+
+
+Versions early than 2.5 are [uniformly out of support](https://endoflife.date/openvpn) and OpenVPN [enourages people to "upgrade to a newer release ASAP"](https://community.openvpn.net/openvpn/wiki/SupportedVersions).
 
 Biggest change (as far as I can tell) is OpenVPN deprecated `cipher` and replaced it with `data-cipher`. All the supported OSes are OpenVPN2.5+, so I've updated the server config to use `data-cipher` when `openvpn_cipher` is set.
 
