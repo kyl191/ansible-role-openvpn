@@ -1,13 +1,13 @@
 ---
 - name: selinux | Check if module was loaded
   ansible.builtin.command: semodule --list-modules
-  register: semodule_loaded
+  register: __semodule_loaded
   changed_when: false
 
 - name: selinux | Setup policy
   when:
     - ansible_selinux.status == 'enabled'
-    - semodule_loaded.stdout.find(openvpn_selinux_module) == -1
+    - __semodule_loaded.stdout.find(openvpn_selinux_module) == -1
   block:
     - name: selinux | Copy selinux type enforcement file
       ansible.builtin.template:

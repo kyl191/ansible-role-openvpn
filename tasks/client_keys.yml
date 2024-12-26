@@ -41,26 +41,26 @@
 - name: client_keys | Register server ca key
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/ca.crt"
-  register: ca_cert
+  register: __ca_cert
 
 - name: client_keys | Register tls-auth key
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/ta.key"
-  register: tls_auth
+  register: __tls_auth
 
 - name: client_keys | Register client certs
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/{{ item }}.crt"
   with_items:
     - "{{ clients }}"
-  register: client_certs
+  register: __client_certs
 
 - name: client_keys | Register client keys
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/{{ item }}.key"
   with_items:
     - "{{ clients }}"
-  register: client_keys
+  register: __client_keys
 
 - name: client_keys | Generate client config
   no_log: "{{ openvpn_client_config_no_log }}"
@@ -71,8 +71,8 @@
     group: "{{ openvpn_conf_group }}"
     mode: "0400"
   with_together:
-    - "{{ client_certs.results }}"
-    - "{{ client_keys.results }}"
+    - "{{ __client_certs.results }}"
+    - "{{ __client_keys.results }}"
 
 - name: client_keys | Fetch client config
   ansible.builtin.fetch:

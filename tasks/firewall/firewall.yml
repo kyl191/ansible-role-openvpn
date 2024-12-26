@@ -1,21 +1,21 @@
 ---
 - name: firewall | firewall | Check for firewalld
   ansible.builtin.command: which firewall-cmd
-  register: firewalld
+  register: __firewalld
   check_mode: false
   changed_when: false # Never report as changed
   failed_when: false
 
 - name: firewall | firewall | Check for ufw
   ansible.builtin.command: which ufw
-  register: ufw
+  register: __ufw
   check_mode: false
   changed_when: false # Never report as changed
   failed_when: false
 
 - name: firewall | firewall | Check for iptables
   ansible.builtin.command: which iptables
-  register: iptables
+  register: __iptables
   check_mode: false
   changed_when: false # Never report as changed
   failed_when: false
@@ -23,30 +23,30 @@
 - name: firewall | firewall | Fail on both firewalld & ufw
   ansible.builtin.fail:
     msg: "Both FirewallD and UFW are detected, firewall situation is unknown"
-  when: openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc == 0
+  when: openvpn_firewall == 'auto' and __firewalld.rc == 0 and __ufw.rc == 0
 
 - name: firewall | firewall | Fail on no firewall detected
   ansible.builtin.fail:
     msg: "No firewall detected, install one before proceeding (firewalld||ufw||iptables)"
-  when: firewalld.rc != 0 and ufw.rc != 0 and iptables.rc != 0
+  when: __firewalld.rc != 0 and __ufw.rc != 0 and __iptables.rc != 0
 
 - name: firewall | firewall | Add port rules (iptables)
   ansible.builtin.include_tasks: iptables.yml
   when: >-
     (openvpn_firewall == 'iptables')
     or
-    (openvpn_firewall == 'auto' and firewalld.rc != 0 and ufw.rc != 0 and iptables.rc == 0)
+    (openvpn_firewall == 'auto' and __firewalld.rc != 0 and __ufw.rc != 0 and __iptables.rc == 0)
 
 - name: firewall | firewall | Add port rules (firewalld)
   ansible.builtin.include_tasks: firewalld.yml
   when: >-
     (openvpn_firewall == 'firewalld')
     or
-    (openvpn_firewall == 'auto' and firewalld.rc == 0 and ufw.rc != 0)
+    (openvpn_firewall == 'auto' and __firewalld.rc == 0 and __ufw.rc != 0)
 
 - name: firewall | firewall | Add port rules (ufw)
   ansible.builtin.include_tasks: ufw.yml
   when: >-
     (openvpn_firewall == 'ufw')
     or
-    (openvpn_firewall == 'auto' and firewalld.rc != 0 and ufw.rc == 0)
+    (openvpn_firewall == 'auto' and __firewalld.rc != 0 and __ufw.rc == 0)

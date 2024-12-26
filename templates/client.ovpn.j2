@@ -43,12 +43,12 @@ register-dns
 key-direction 1
 {% endif %}
 <ca>
-{{ ca_cert.content|b64decode }}
+{{ __ca_cert.content|b64decode }}
 </ca>
 
 {% if tls_auth_required is truthy %}
 <tls-auth>
-{{ tls_auth.content|b64decode }}
+{{ __tls_auth.content|b64decode }}
 </tls-auth>
 {% endif %}
 
