@@ -1,7 +1,7 @@
 ---
 profile: production
 loop_var_prefix: "^(__|{role}_)"
-var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+var_naming_pattern: "^(_|openvpn)_[a-z_][a-z0-9_]*|^.*_package_name$"
 
 enable_list:
   - args
