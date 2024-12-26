@@ -1,2 +1,2 @@
 ---
-iptables_save_command: "iptables-save > /etc/sysconfig/iptables"
+__iptables_save_command: "iptables-save > /etc/sysconfig/iptables"
