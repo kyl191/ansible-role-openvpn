@@ -11,6 +11,7 @@ Notable variable changes include:
   * `ldap` dict becoming `openvpn_ldap`
   * `tls_auth_required` becoming `openvpn_tls_auth_required`
   * `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
+  * `iptables_service` becoming `openvpn_iptables_service`
 
 ## Changed Supported OS Versions
 
