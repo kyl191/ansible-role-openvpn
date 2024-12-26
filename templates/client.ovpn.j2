@@ -6,8 +6,8 @@ auth {{ openvpn_auth_alg }}
 data-ciphers {{ openvpn_cipher }}
 {% endif %}
 remote-cert-tls server
-{% if openvpn_use_modern_tls is truthy %}
-tls-version-min 1.2
+{% if openvpn_tls_version_min %}
+tls-version-min {{ openvpn_tls_version_min }}
 {% endif %}
 
 proto {{ openvpn_proto }}
