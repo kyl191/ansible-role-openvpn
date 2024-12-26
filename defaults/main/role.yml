@@ -18,7 +18,7 @@ openvpn_fetch_client_configs_suffix: ""
 # Firewall
 openvpn_firewalld_default_interface_zone: public
 iptables_service: iptables
-manage_firewall_rules: true
+openvpn_manage_firewall_rules: true
 openvpn_firewall: auto
 openvpn_masquerade_not_snat: false
 openvpn_no_nat: false

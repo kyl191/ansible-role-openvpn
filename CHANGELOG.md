@@ -9,6 +9,7 @@ ansible-lint isn't complaining anymore. It's also added to the CI system so the 
 Notable variable changes include:
   * `ldap` dict becoming `openvpn_ldap`
   * `tls_auth_required` becoming `openvpn_tls_auth_required`
+  * `manage_firewall_rules` becoming `openvpn_manage_firewall_rules`
 
 ## Changed Supported OS Versions
 
