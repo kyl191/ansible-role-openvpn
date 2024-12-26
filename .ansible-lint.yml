@@ -1,0 +1,12 @@
+---
+profile: production
+loop_var_prefix: "^(__|{role}_)"
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+enable_list:
+  - args
+  - empty-string-compare # opt-in
+  - no-log-password # opt-in
+  - no-same-owner # opt-in
+  - name[prefix] # opt-in
+  - galaxy-version-incorrect # opt-in
