@@ -93,11 +93,11 @@ jobs:
       - name: Run ansible playbook
         run: >
           ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
-          -e '{"openvpn_tls_auth_required": false}'
+          -e '{"openvpn_tls_auth_required": false, "openvpn_use_tls_crypt": false}'
       - name: Check idempotency
         run: >
           ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
-          -e '{"openvpn_tls_auth_required": false}'
+          -e '{"openvpn_tls_auth_required": false, "openvpn_use_tls_crypt": false}'
       - name: Container state debug output
         continue-on-error: true
         run: |
