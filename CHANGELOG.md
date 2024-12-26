@@ -107,6 +107,7 @@ Other notes on RHEL-alike 8 variants:
 
 * AlmaLinux 8 and Rocky Linux 8 need an out-of-band python upgrade with `dnf install python3.9` and setting the `ansible_python_interpreter` value to `/usr/bin/python3.9`
 * CentOS 8 and CentOS Stream 8 packages were vaulted ([CentOS 8 announcement](https://www.centos.org/centos-linux-eol/), [Stream 8 announcement](https://blog.centos.org/2023/04/end-dates-are-coming-for-centos-stream-8-and-centos-linux-7/)), which breaks Yum downloading packages
+* The OpenVPN version in EPEL 8 is 2.4.12, which doesn't work with the new `openvpn genkey` syntax. Generating tls-auth or tls-crypt OpenVPN keys will fail, add `openvpn_use_tls_crypt: false`.
 
 ## LDAP plugin no longer built by default
 
