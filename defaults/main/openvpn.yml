@@ -28,7 +28,8 @@ openvpn_use_crl: false
 openvpn_tls_version_min: 1.2 or-highest
 openvpn_use_pregenerated_dh_params: false
 openvpn_verify_cn: false
-openvpn_tls_auth_required: true
+openvpn_tls_auth_required: false
+openvpn_use_tls_crypt: true
 openvpn_script_security: 1
 
 # Operations
