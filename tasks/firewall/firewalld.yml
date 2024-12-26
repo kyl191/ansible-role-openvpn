@@ -9,7 +9,7 @@
 - name: firewall | firewalld | Enable OpenVPN Port (firewalld)
   ansible.posix.firewalld:
     port: "{{ openvpn_port }}/{{ openvpn_proto }}"
-    zone: "{{ firewalld_default_interface_zone }}"
+    zone: "{{ openvpn_firewalld_default_interface_zone }}"
     permanent: true
     immediate: true
     state: enabled
@@ -25,7 +25,7 @@
 - name: firewall | firewalld | Set default interface to external
   ansible.posix.firewalld:
     interface: "{{ ansible_default_ipv4.interface }}"
-    zone: "{{ firewalld_default_interface_zone }}"
+    zone: "{{ openvpn_firewalld_default_interface_zone }}"
     permanent: true
     immediate: true
     state: enabled
@@ -33,7 +33,7 @@
 - name: firewall | firewalld | Enable masquerading on external zone
   ansible.posix.firewalld:
     masquerade: true
-    zone: "{{ firewalld_default_interface_zone }}"
+    zone: "{{ openvpn_firewalld_default_interface_zone }}"
     permanent: true
     state: enabled
     # Workaround ansible issue: https://github.com/ansible/ansible/pull/21693
@@ -52,5 +52,5 @@
   ansible.builtin.lineinfile:
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     regexp: "^ZONE="
-    line: "ZONE={{ firewalld_default_interface_zone }}"
+    line: "ZONE={{ openvpn_firewalld_default_interface_zone }}"
   when: __ifcfg.stat.exists
