@@ -185,7 +185,7 @@ This role pulls in a bunch of different packages. Override the names as necessar
 
 | Variable            | Type   | Choices                   | Default                                 | Comment                                                                                      |
 |---------------------|--------|---------------------------|-----------------------------------------|----------------------------------------------------------------------------------------------|
-| ldap                | dict   |                           |                                         | Dictionary that contain LDAP configuration                                                   |
+| openvpn_ldap                | dict   |                           |                                         | Dictionary that contain LDAP configuration                                                   |
 | url                 | string |                           | ldap://host.example.com                 | Address of you LDAP backend with syntax ldap[s]://host[:port]                                |
 | anonymous_bind      | string | False , True              | False                                   | This is not an Ansible boolean but a string that will be pushed into the configuration file. |
 | bind_dn             | string |                           | uid=Manager,ou=People,dc=example,dc=com | Bind DN used if "anonymous_bind" set to "False"                                              |

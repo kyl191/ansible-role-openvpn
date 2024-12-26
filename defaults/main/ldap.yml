@@ -1,5 +1,5 @@
 ---
-ldap:
+openvpn_ldap:
   url: ldap://host.example.com
   anonymous_bind: false
   bind_dn: uid=Manager,ou=People,dc=example,dc=com

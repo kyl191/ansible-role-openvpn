@@ -2,9 +2,12 @@
 
 ## Updated to latest Ansible recommendations
 
-ansible-lint isn't complaining anymore. It's also added to the CI system so the role shouldn't regress.
+ansible-lint isn't complaining anymore. It's also added to the CI system so the role shouldn't regress. A few more changes:
 
-I've also added `truthy/falsy` to clauses to make sure a value is always coerced to a bool.
+* I've converted to using `truthy/falsy` instead of inconsistenly using `|bool` for boolean comparisons.
+* Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml))
+Notable variable changes include:
+  * `ldap` dict becoming `openvpn_ldap`
 
 ## Changed Supported OS Versions
 
@@ -57,9 +60,7 @@ Discussion in [this issue](https://github.com/kyl191/ansible-role-openvpn/issues
 
 ## LDAP plugin no longer built by default
 
-This thing has honestly made me nervous since merging it because I don't have anything that uses LDAP. I trust that it functions, but [a compliation issue was reported](https://github.com/kyl191/ansible-role-openvpn/issues/174).
-
-Turns out Fedora/EPEL, Debian, and Ubuntu all provide packages for openvpn-auth-ldap so I'm dropping the compilation step to simplify the role.
+This thing has honestly made me nervous since merging it because it's rather complicated. [A compliation issue was reported](https://github.com/kyl191/ansible-role-openvpn/issues/174), and Fedora/EPEL, Debian, and Ubuntu all provide packages for openvpn-auth-ldap so I'm dropping the compilation step to simplify the role.
 
 * Fedora/EPEL: <https://packages.fedoraproject.org/pkgs/openvpn-auth-ldap/openvpn-auth-ldap/index.html>
 * Debian: <https://packages.debian.org/search?keywords=openvpn-auth-ldap>

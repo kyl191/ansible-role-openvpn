@@ -1,26 +1,26 @@
 <LDAP>
     # LDAP server URL
-    URL {{ ldap.url }}
+    URL {{ openvpn_ldap.url }}
 
-{% if not ldap.anonymous_bind %}
+{% if not openvpn_ldap.anonymous_bind %}
     # Bind DN (If your LDAP server doesn't support anonymous binds)
-    BindDN {{ ldap.bind_dn }}
+    BindDN {{ openvpn_ldap.bind_dn }}
     # Bind Password
-    Password {{ ldap.bind_password }}
+    Password {{ openvpn_ldap.bind_password }}
 {% endif %}
 
     # Network timeout (in seconds)
     Timeout 15
 
     # Enable Start TLS
-    TLSEnable {{ ldap.tls_enable }}
+    TLSEnable {{ openvpn_ldap.tls_enable }}
 
     # Follow LDAP Referrals (anonymously)
     FollowReferrals no
 
-{% if ldap.tls_ca_cert_file is defined %}
+{% if openvpn_ldap.tls_ca_cert_file is defined %}
     # TLS CA Certificate File
-    TLSCACertFile {{ ldap.tls_ca_cert_file }}
+    TLSCACertFile {{ openvpn_ldap.tls_ca_cert_file }}
 {% endif %}
 
     # TLS CA Certificate Directory
@@ -28,11 +28,11 @@
 
     # Client Certificate and key
     # If TLS client authentication is required
-{% if ldap.tls_cert_file is defined %}
-    TLSCertFile {{ ldap.tls_cert_file }}
+{% if openvpn_ldap.tls_cert_file is defined %}
+    TLSCertFile {{ openvpn_ldap.tls_cert_file }}
 {% endif %}
-{% if ldap.tls_key_file is defined %}
-    TLSKeyFile {{ ldap.tls_key_file }}
+{% if openvpn_ldap.tls_key_file is defined %}
+    TLSKeyFile {{ openvpn_ldap.tls_key_file }}
 {% endif %}
 
     # Cipher Suite
@@ -42,20 +42,20 @@
 
 <Authorization>
     # Base DN
-    BaseDN "{{ ldap.base_dn }}"
+    BaseDN "{{ openvpn_ldap.base_dn }}"
 
     # User Search Filter
-    SearchFilter "{{ ldap.search_filter }}"
+    SearchFilter "{{ openvpn_ldap.search_filter }}"
 
-{% if ldap.require_group %}
+{% if openvpn_ldap.require_group %}
     # Require Group Membership
     RequireGroup True
     # Add non-group members to a PF table (disabled)
     #PFTable ips_vpn_users
 
     <Group>
-        BaseDN "{{ ldap.group_base_dn }}"
-        SearchFilter "{{ ldap.group_search_filter }}"
+        BaseDN "{{ openvpn_ldap.group_base_dn }}"
+        SearchFilter "{{ openvpn_ldap.group_search_filter }}"
         MemberAttribute uniqueMember
         # Add group members to a PF table (disabled)
         #PFTable ips_vpn_eng
