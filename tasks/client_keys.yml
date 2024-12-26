@@ -46,7 +46,14 @@
 - name: client_keys | Register tls-auth key
   ansible.builtin.slurp:
     src: "{{ openvpn_key_dir }}/ta.key"
+  when: openvpn_tls_auth_required is truthy
   register: __tls_auth
+
+- name: client_keys | Register tls-crypt key
+  ansible.builtin.slurp:
+    src: "{{ openvpn_key_dir }}/tls-crypt.key"
+  when: openvpn_use_tls_crypt is truthy
+  register: __tls_crypt
 
 - name: client_keys | Register client certs
   ansible.builtin.slurp:

@@ -118,13 +118,15 @@ These options change how OpenVPN itself works.
 | openvpn_crl_path                   | string  |             | `unset`     | Define a path to the CRL file for server revocation check.                                                                                                      |
 | openvpn_duplicate_cn               | boolean | true, false | false       | Add `duplicate-cn` option to server config - this allows clients to connect multiple times with the one key. NOTE: client ip addresses won't be static anymore! |
 | openvpn_rsa_bits                   | int     |             | 2048        | Number of bits used to protect generated certificates                                                                                                           |
-| openvpn_script_security            | int     |             | 1           | Set openvpn script security option                                                                                                                              |
-| openvpn_tls_auth_key               | string  |             | `unset`     | Single item with a pre-generated TLS authentication key.                                                                                                        |
+| openvpn_script_security            | int     |             | 1           | Set openvpn script security option  |
+| openvpn_use_tls_crypt               | boolean  | true, false | true     | Use TLS to encrypt OpenVPN control packets |
+| openvpn_tls_crypt_key               | string  |             | `unset`     | Path to a pre-generated OpenVPN key. |
+| openvpn_tls_auth_required | boolean | true, false | false        | Use TLS to sign OpenVPN control packets (deprecated in favour of `openvpn_use_tls_crypt`) |
+| openvpn_tls_auth_key               | string  |             | `unset`     | Path to a pre-generated OpenVPN key.   |
 | openvpn_use_crl                    | boolean | true, false | false       | Configure OpenVPN server to honor certificate revocation list.                                                                                                  |
 | openvpn_tls_version_min  | string |  | `1.2 or-highest` | Set the minimum required TLS version  |
 | openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default |
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
-| openvpn_tls_auth_required                  | boolean | true, false | true        | Ask the client to push the generated ta.key of the server during the connection                                                                                 |
 
 ### Operations
 

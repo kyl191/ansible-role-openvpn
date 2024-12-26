@@ -15,6 +15,7 @@ Notable variable changes include:
 * The TLS settings are cleaned up:
   * `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. That is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
   * `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). This is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults.
+  * TLS Auth for the control channel (`openvpn_tls_auth_required`) is deprecated in favour of TLS Crypt for the control channel (`openvpn_use_tls_crypt`)
 
 ## Changed Supported OS Versions
 
