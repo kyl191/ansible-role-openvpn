@@ -125,7 +125,7 @@ These options change how OpenVPN itself works.
 | openvpn_use_modern_tls             | boolean | true, false | true        | Use modern Cipher for TLS encryption (Not recommended with OpenVPN 2.4)                                                                                         |
 | openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default                                                                                                              |
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
-| tls_auth_required                  | boolean | true, false | true        | Ask the client to push the generated ta.key of the server during the connection                                                                                 |
+| openvpn_tls_auth_required                  | boolean | true, false | true        | Ask the client to push the generated ta.key of the server during the connection                                                                                 |
 
 ### Operations
 

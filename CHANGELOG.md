@@ -8,6 +8,7 @@ ansible-lint isn't complaining anymore. It's also added to the CI system so the 
 * Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml))
 Notable variable changes include:
   * `ldap` dict becoming `openvpn_ldap`
+  * `tls_auth_required` becoming `openvpn_tls_auth_required`
 
 ## Changed Supported OS Versions
 

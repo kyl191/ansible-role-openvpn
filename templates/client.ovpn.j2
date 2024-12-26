@@ -39,14 +39,14 @@ route-delay 2
 register-dns
 {% endif %}
 
-{% if tls_auth_required is truthy %}
+{% if openvpn_tls_auth_required is truthy %}
 key-direction 1
 {% endif %}
 <ca>
 {{ __ca_cert.content|b64decode }}
 </ca>
 
-{% if tls_auth_required is truthy %}
+{% if openvpn_tls_auth_required is truthy %}
 <tls-auth>
 {{ __tls_auth.content|b64decode }}
 </tls-auth>
