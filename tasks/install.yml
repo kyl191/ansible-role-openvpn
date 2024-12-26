@@ -7,26 +7,26 @@
 # https://wiki.rockylinux.org/rocky/repo/#base-repositories
 # Also ignoring the request to install epel-next on CentOS Stream
 # because that's only requested for CentOS Stream 9
-- name: Install EPEL for CentOS & other RHEL clones
+- name: install | Install EPEL for CentOS & other RHEL clones
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
   when: ansible_os_family == "RedHat" and ansible_distribution != "Fedora" and ansible_distribution !="RedHat"
 
 # EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
-- name: Install EPEL for RHEL
+- name: install | Install EPEL for RHEL
   ansible.builtin.dnf:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state: present
     disable_gpg_check: true
   when: ansible_distribution == "RedHat"
 
-- name: Refresh apt cache
+- name: install | Refresh apt cache
   ansible.builtin.apt:
     update_cache: true
   when: ansible_pkg_mgr == "apt"
 
-- name: Install openvpn
+- name: install | Install openvpn
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
@@ -38,7 +38,7 @@
 # Fedora/EPEL: https://packages.fedoraproject.org/pkgs/openvpn-auth-ldap/openvpn-auth-ldap/index.html
 # Debian: https://packages.debian.org/search?keywords=openvpn-auth-ldap
 # Ubuntu: https://launchpad.net/ubuntu/+source/openvpn-auth-ldap
-- name: Install LDAP plugin
+- name: install | Install LDAP plugin
   ansible.builtin.package:
     name: "{{ openvpn_ldap_plugin_package_name }}"
     state: present
@@ -48,7 +48,7 @@
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
-- name: Ensure group 'nogroup' is present
+- name: install | Ensure group 'nogroup' is present
   ansible.builtin.group:
     name: nogroup
     state: present
