@@ -143,13 +143,6 @@
     chdir: "{{ openvpn_key_dir }}"
     creates: crl_number
 
-- name: server_keys | Generate tls-auth key
-  ansible.builtin.command: openvpn --genkey --secret ta.key
-  args:
-    chdir: "{{ openvpn_key_dir }}"
-    creates: ta.key
-  when: openvpn_tls_auth_key is not defined
-
 - name: server_keys | Install revocation script
   ansible.builtin.template:
     src: revoke.sh.j2
