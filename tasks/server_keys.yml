@@ -139,14 +139,14 @@
 - name: server_keys | Check if certificate revocation list database exists
   ansible.builtin.stat:
     path: "{{ openvpn_key_dir }}/index.txt"
-  register: file_result
+  register: __file_result
 
 - name: server_keys | Create certificate revocation list database if required
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}/index.txt"
     state: touch
     mode: "0644"
-  when: not file_result.stat.exists
+  when: not __file_result.stat.exists
 
 - name: server_keys | Set up certificate revocation list
   ansible.builtin.command: sh revoke.sh

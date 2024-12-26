@@ -46,11 +46,11 @@
 - name: firewall | firewalld | Check if ifcfg file exists for {{ ansible_default_ipv4.interface }}
   ansible.builtin.stat:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
-  register: ifcfg
+  register: __ifcfg
 
 - name: firewall | firewalld | Persist default interface in ifcfg file
   ansible.builtin.lineinfile:
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     regexp: "^ZONE="
     line: "ZONE={{ firewalld_default_interface_zone }}"
-  when: ifcfg.stat.exists
+  when: __ifcfg.stat.exists
