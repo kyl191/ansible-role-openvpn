@@ -204,7 +204,8 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container
-        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=host --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn --user=root ghcr.io/kyl191/ansible-fedora:${{ matrix.version }}
+        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=host --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn
+          --user=root ghcr.io/kyl191/ansible-fedora:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
       # https://www.jeffgeerling.com/blog/2020/resolving-fedora-dnf-error-no-such-file-or-directory-varlibdnfrpmdblockpid
