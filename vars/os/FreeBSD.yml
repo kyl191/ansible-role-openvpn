@@ -1,5 +1,5 @@
 ---
-manage_firewall_rules: false
+openvpn_manage_firewall_rules: false
 openvpn_config_file: "openvpn"
 openvpn_base_dir: /usr/local/etc/openvpn
 openvpn_key_dir: /usr/local/etc/openvpn/keys

@@ -35,7 +35,7 @@
   ansible.builtin.import_tasks: firewall/firewall.yml
   when:
     - openvpn_ci_build is falsy
-    - manage_firewall_rules
+    - openvpn_manage_firewall_rules
   tags:
     - firewall
 
