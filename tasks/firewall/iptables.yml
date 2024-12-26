@@ -2,7 +2,7 @@
 - name: firewall | iptables | Change facts to use netfilter-persistent on Debian >= 9 or Ubuntu >= 16
   ansible.builtin.set_fact:
     iptables_save_command: "/usr/sbin/netfilter-persistent save"
-    iptables_service: netfilter-persistent
+    openvpn_iptables_service: netfilter-persistent
   when: >-
     (ansible_distribution == 'Debian' and ansible_distribution_version|int >= 9)
     or
@@ -93,6 +93,6 @@
 
 - name: firewall | iptables | Enable iptables
   ansible.builtin.service:
-    name: "{{ iptables_service }}"
+    name: "{{ openvpn_iptables_service }}"
     enabled: true
     state: started
