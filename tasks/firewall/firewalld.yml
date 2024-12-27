@@ -34,7 +34,7 @@
     immediate: true
     state: enabled
 
-- name: firewall | firewalld | Enable masquerading on external zone
+- name: firewall | firewalld | Enable masquerading on default interface's zone
   ansible.posix.firewalld:
     masquerade: true
     zone: "{{ __firewalld_default_zone.stdout }}"
