@@ -6,26 +6,30 @@
     masked: false
     state: started
 
+# Default interface is the one that routes the traffic
+# Assume that's what we want for a server
+# https://medium.com/opsops/ansible-default-ipv4-is-not-what-you-think-edb8ab154b10
+- name: firewall | firewalld | Get zone of default interface
+  ansible.builtin.command: firewall-cmd --get-zone-of-interface={{ ansible_default_ipv4.interface }}
+  register: __firewalld_default_zone
+  check_mode: false
+  changed_when: false # Read only, never report as changed
+  failed_when: false
+
 - name: firewall | firewalld | Enable OpenVPN Port (firewalld)
   ansible.posix.firewalld:
     port: "{{ openvpn_port }}/{{ openvpn_proto }}"
-    zone: "{{ openvpn_firewalld_default_interface_zone }}"
+    zone: "{{ __firewalld_default_zone.stdout }}"
     permanent: true
     immediate: true
     state: enabled
 
-- name: firewall | firewalld | Set tun0 interface to internal
+- name: firewall | firewalld | Set tun0 interface to trusted
+  # We need the tun0 interface to be trusted so that packets from other systems
+  # can be routed through the VPN tunnel.
   ansible.posix.firewalld:
     interface: tun0
-    zone: internal
-    permanent: true
-    immediate: true
-    state: enabled
-
-- name: firewall | firewalld | Set default interface to external
-  ansible.posix.firewalld:
-    interface: "{{ ansible_default_ipv4.interface }}"
-    zone: "{{ openvpn_firewalld_default_interface_zone }}"
+    zone: trusted
     permanent: true
     immediate: true
     state: enabled
@@ -33,24 +37,9 @@
 - name: firewall | firewalld | Enable masquerading on external zone
   ansible.posix.firewalld:
     masquerade: true
-    zone: "{{ openvpn_firewalld_default_interface_zone }}"
+    zone: "{{ __firewalld_default_zone.stdout }}"
     permanent: true
     state: enabled
-    # Workaround ansible issue: https://github.com/ansible/ansible/pull/21693
-    # immediate: true
+    immediate: true
   notify:
     - Restart firewalld
-
-# workaround for --permanent not working on non-NetworkManager managed ifaces
-# https://bugzilla.redhat.com/show_bug.cgi?id=1112742
-- name: firewall | firewalld | Check if ifcfg file exists for {{ ansible_default_ipv4.interface }}
-  ansible.builtin.stat:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
-  register: __ifcfg
-
-- name: firewall | firewalld | Persist default interface in ifcfg file
-  ansible.builtin.lineinfile:
-    dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
-    regexp: "^ZONE="
-    line: "ZONE={{ openvpn_firewalld_default_interface_zone }}"
-  when: __ifcfg.stat.exists
