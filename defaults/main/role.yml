@@ -16,7 +16,6 @@ openvpn_fetch_client_configs_dir: /tmp/ansible
 openvpn_fetch_client_configs_suffix: ""
 
 # Firewall
-openvpn_firewalld_default_interface_zone: public
 openvpn_iptables_service: iptables
 openvpn_manage_firewall_rules: true
 openvpn_firewall: auto
