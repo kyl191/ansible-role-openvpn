@@ -24,6 +24,9 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * `openvpn_tls_auth_required` has been replaced with `openvpn_use_tls_crypt`. The default for `openvpn_tls_auth_required` is now `false`.
   * Restore the old behaviour with `openvpn_tls_auth_required: true`
 
+* Functionality needing the `openvpn_firewalld_default_interface_zone` has been replaced by using the zone from the interface with the default route. The `openvpn_firewalld_default_interface_zone` variable has been removed.
+  * It is not possible to restore the old behaviour
+
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 
 Configurable variable renames include:
