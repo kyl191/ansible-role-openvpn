@@ -23,6 +23,8 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 
 * `openvpn_tls_auth_required` has been replaced with `openvpn_use_tls_crypt`. The default for `openvpn_tls_auth_required` is now `false`.
   * Restore the old behaviour with `openvpn_tls_auth_required: true`
+* `openvpn_server_hostname` default is now `{{ ansible_host }}`
+  * Restore the old behaviour with `openvpn_server_hostname: "{{ inventory_hostname }}"`
 
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 

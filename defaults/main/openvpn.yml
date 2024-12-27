@@ -12,7 +12,7 @@ openvpn_port: 1194
 openvpn_proto: udp
 openvpn_redirect_gateway: true
 openvpn_resolv_retry: 5
-openvpn_server_hostname: "{{ inventory_hostname }}"
+openvpn_server_hostname: "{{ ansible_host }}"
 openvpn_server_netmask: 255.255.255.0
 openvpn_server_network: 10.9.0.0
 openvpn_set_dns: true
