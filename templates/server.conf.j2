@@ -59,12 +59,18 @@ client-config-dir {{ openvpn_client_config_dir }}
 
 {% if openvpn_redirect_gateway is truthy %}
 push "redirect-gateway def1 bypass-dhcp"
-# Experimental IPv6 support
-# push "route-ipv6 2000::/3"
+{% if openvpn_server_ipv6_network is defined %}
+push "route-ipv6 2000::/3"
+{% endif %}
 {% endif %}
 {% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
 {% for srv in openvpn_custom_dns %}
 push "dhcp-option DNS {{ srv }}"
+{% endfor %}
+{% endif %}
+{% if openvpn_set_dns and openvpn_custom_ipv6_dns|length > 0%}
+{% for srv in openvpn_custom_ipv6_dns %}
+push "dhcp-option DNS6 {{ srv }}"
 {% endfor %}
 {% endif %}
 {% if openvpn_push is defined and openvpn_push | length > 0 %}
