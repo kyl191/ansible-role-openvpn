@@ -17,7 +17,7 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
   * Restore the old behaviour with
 
   ```yaml
-  openvpn_cipher: ~
+  openvpn_cipher: null
   openvpn_addl_server_options: ["cipher AES-256-CBC"]
   ```
 
