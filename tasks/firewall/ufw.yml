@@ -49,7 +49,7 @@
 
     - name: firewall | ufw | Setup IPv6 SNAT rules
       ansible.builtin.blockinfile:
-        dest: /etc/ufw/before.rules
+        dest: /etc/ufw/before6.rules
         state: present
         insertbefore: \*filter
         block: |
@@ -78,7 +78,7 @@
           COMMIT
     - name: firewall | ufw | Setup IPv6 NAT with MASQUERADE
       ansible.builtin.blockinfile:
-        dest: /etc/ufw/before.rules
+        dest: /etc/ufw/before6.rules
         state: present
         insertbefore: \*filter
         block: |

@@ -75,6 +75,7 @@
         jump: SNAT
         action: insert
         comment: "Perform NAT IPv6 readdressing"
+        ip_version: ipv6
       when: openvpn_server_ipv6_network is defined
 
 - name: firewall | iptables | Perform NAT readdressing with MASQUERADE
@@ -99,6 +100,7 @@
         jump: MASQUERADE
         action: insert
         comment: "Perform NAT IPv6 readdressing"
+        ip_version: ipv6
       when: openvpn_server_ipv6_network is defined
 
 - name: firewall | iptables | Save existing iptables rule before start iptables service
