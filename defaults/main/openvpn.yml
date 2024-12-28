@@ -11,7 +11,7 @@ openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
 openvpn_port: 1194
 openvpn_proto: udp
-openvpn_redirect_gateway: "redirect-gateway def1 bypass-dhcp ipv6"
+openvpn_redirect_gateway: "def1 bypass-dhcp ipv6"
 openvpn_resolv_retry: 5
 openvpn_server_hostname: "{{ inventory_hostname }}"
 openvpn_server_netmask: 255.255.255.0
