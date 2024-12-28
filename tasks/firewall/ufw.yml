@@ -11,20 +11,20 @@
     state: enabled
     policy: allow
 
-- name: firewall | ufw | Enable forwarding - ufw
+- name: firewall | ufw | Enable forwarding
   ansible.builtin.lineinfile:
     dest: /etc/default/ufw
     regexp: "^DEFAULT_FORWARD_POLICY="
     line: DEFAULT_FORWARD_POLICY="ACCEPT"
 
-- name: firewall | ufw | Allow incoming VPN connections - ufw
+- name: firewall | ufw | Allow incoming VPN connections
   community.general.ufw:
     direction: in
     proto: "{{ openvpn_proto }}"
     to_port: "{{ openvpn_port | string }}"
     rule: allow
 
-- name: firewall | ufw | Accept packets from VPN tunnel adaptor - ufw
+- name: firewall | ufw | Accept packets from VPN tunnel adaptor
   community.general.ufw:
     direction: in
     interface: tun0
