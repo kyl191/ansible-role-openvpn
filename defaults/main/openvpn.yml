@@ -5,13 +5,7 @@
 openvpn_client_register_dns: true
 openvpn_client_to_client: false
 openvpn_custom_dns: ["1.0.0.1", "1.1.1.1", "8.8.8.8", "8.8.4.4"]
-openvpn_custom_ipv6_dns:
-  [
-    "2606:4700:4700::1111",
-    "2606:4700:4700::1001",
-    "2001:4860:4860::8888",
-    "2001:4860:4860::8844",
-  ]
+openvpn_custom_ipv6_dns: ["2606:4700:4700::1111", "2606:4700:4700::1001", "2001:4860:4860::8888", "2001:4860:4860::8844"]
 openvpn_dualstack: true
 openvpn_keepalive_ping: 5
 openvpn_keepalive_timeout: 30
@@ -24,7 +18,7 @@ openvpn_server_netmask: 255.255.255.0
 openvpn_server_network: 10.9.0.0
 openvpn_server_ipv6_network: "fdbf:dd0d:1a49:2091::/64"
 openvpn_set_dns: true
-openvpn_tun_mtu: null
+openvpn_tun_mtu:
 openvpn_lan_source_ip: "{{ ansible_default_ipv4.address }}"
 
 # Security
