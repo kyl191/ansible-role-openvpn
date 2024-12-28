@@ -43,3 +43,14 @@
     immediate: true
   notify:
     - Restart firewalld
+
+- name: firewall | firewalld | Enable masquerading on ipv6
+  ansible.posix.firewalld:
+    rich_rule: rule family=ipv6 masquerade
+    zone: "{{ __firewalld_default_zone.stdout }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: openvpn_server_ipv6_network is truthy
+  notify:
+    - Restart firewalld
