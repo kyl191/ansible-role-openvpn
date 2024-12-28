@@ -27,6 +27,12 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * Functionality needing the `openvpn_firewalld_default_interface_zone` has been replaced by using the zone from the interface with the default route. The `openvpn_firewalld_default_interface_zone` variable has been removed.
   * It is not possible to restore the old behaviour
 
+* `openvpn_redirect_gateway` is now the string `redirect-gateway def1 bypass-dhcp ipv6` instead of a boolean
+  * Restore the old behaviour with `openvpn_redirect_gateway: "redirect-gateway def1 bypass-dhcp"`
+
+* `openvpn_server_ipv6_network` defaults to `"fdbf:dd0d:1a49:2091::/64"`
+  * Restore the old behaviour with `openvpn_server_ipv6_network: null`
+
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 
 Configurable variable renames include:

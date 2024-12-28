@@ -57,11 +57,8 @@ ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
 client-config-dir {{ openvpn_client_config_dir }}
 {% endif %}
 
-{% if openvpn_redirect_gateway is truthy %}
-push "redirect-gateway def1 bypass-dhcp"
-{% if openvpn_server_ipv6_network is defined %}
-push "route-ipv6 2000::/3"
-{% endif %}
+{% if openvpn_redirect_gateway is defined %}
+push "{{ openvpn_redirect_gateway }}"
 {% endif %}
 {% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
 {% for srv in openvpn_custom_dns %}
