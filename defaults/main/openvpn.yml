@@ -25,8 +25,6 @@ openvpn_server_network: 10.9.0.0
 openvpn_set_dns: true
 openvpn_tun_mtu:
 openvpn_lan_source_ip: "{{ ansible_default_ipv4.address }}"
-# this should have random values
-openvpn_server_ipv6_network: "fdbf:dd0d:1a49:2091::/64"
 
 # Security
 openvpn_auth_alg: SHA256
