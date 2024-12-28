@@ -30,6 +30,7 @@
     interface: tun0
     rule: allow
 
+# yamllint disable rule:line-length
 - name: firewall | ufw | Setup SNAT table rules
   when: openvpn_no_nat is falsy and openvpn_masquerade_not_snat is falsy
   notify:
@@ -44,7 +45,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_lan_source_ip }}
+          -A POSTROUTING -s {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_lan_source_ip }}   # noqa: yaml[line-length]
           COMMIT
 
     - name: firewall | ufw | Setup IPv6 SNAT rules
@@ -88,3 +89,4 @@
           -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }}  -j MASQUERADE
           COMMIT
       when: openvpn_server_ipv6_network is defined
+# yamllint enable rule:line-length
