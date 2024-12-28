@@ -86,6 +86,32 @@
   notify:
     - Save iptables
 
+- name: firewall | iptables | Perform NAT IPv6 readdressing
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{ openvpn_server_ipv6_network }}"
+    destination: "! {{ openvpn_server_ipv6_network }}"
+    to_source: "{{ ansible_default_ipv6.address }}"
+    jump: SNAT
+    action: insert
+    comment: "Perform NAT IPv6 readdressing"
+  when: openvpn_masquerade_not_snat is falsy and openvpn_no_nat is falsy
+  notify: "Save iptables"
+
+- name: firewall | iptables | Perform NAT IPv6 readdressing with MASQUERADE
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{ openvpn_server_ipv6_network }}"
+    destination: "! {{ openvpn_server_ipv6_network }}"
+    jump: MASQUERADE
+    action: insert
+    comment: "Perform NAT IPv6 readdressing"
+  when: openvpn_masquerade_not_snat is truthy and openvpn_no_nat is falsy
+  notify:
+    - Save iptables
+
 - name: firewall | iptables | Save existing iptables rule before start iptables service
   ansible.builtin.shell: "{{ __iptables_save_command }}" # noqa command-instead-of-shell
   when: __iptables_installed.changed is truthy # noqa no-handler
