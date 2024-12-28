@@ -30,32 +30,61 @@
     interface: tun0
     rule: allow
 
-- name: firewall | ufw | Setup nat table rules - ufw
-  ansible.builtin.blockinfile:
-    dest: /etc/ufw/before.rules
-    state: present
-    insertbefore: \*filter
-    block: |
-      # OpenVPN config
-      *nat
-      :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24 -j SNAT --to-source {{ openvpn_lan_source_ip }}
-      COMMIT
-  when: openvpn_masquerade_not_snat is falsy
+- name: firewall | ufw | Setup SNAT table rules
+  when: openvpn_no_nat is falsy and openvpn_masquerade_not_snat is falsy
   notify:
     - Restart ufw
+  block:
+    - name: firewall | ufw | Setup IPv4 SNAT rules
+      ansible.builtin.blockinfile:
+        dest: /etc/ufw/before.rules
+        state: present
+        insertbefore: \*filter
+        block: |
+          # OpenVPN config
+          *nat
+          :POSTROUTING ACCEPT [0:0]
+          -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24 -j SNAT --to-source {{ openvpn_lan_source_ip }}
+          COMMIT
 
-- name: firewall | ufw | Setup nat table rules with MASQUERADE - ufw
-  ansible.builtin.blockinfile:
-    dest: /etc/ufw/before.rules
-    state: present
-    insertbefore: \*filter
-    block: |
-      # OpenVPN config
-      *nat
-      :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24  -j MASQUERADE
-      COMMIT
-  when: openvpn_masquerade_not_snat is truthy
+    - name: firewall | ufw | Setup IPv6 SNAT rules
+      ansible.builtin.blockinfile:
+        dest: /etc/ufw/before.rules
+        state: present
+        insertbefore: \*filter
+        block: |
+          # OpenVPN config
+          *nat
+          :POSTROUTING ACCEPT [0:0]
+          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }} -j SNAT --to-source {{ ansible_default_ipv6.address }}
+          COMMIT
+      when: openvpn_server_ipv6_network is defined
+
+- name: firewall | ufw | Setup NAT with MASQUERADE
+  when: openvpn_masquerade_not_snat is truthy and openvpn_no_nat is falsy
   notify:
     - Restart ufw
+  block:
+    - name: firewall | ufw | Setup IPv4 NAT with MASQUERADE
+      ansible.builtin.blockinfile:
+        dest: /etc/ufw/before.rules
+        state: present
+        insertbefore: \*filter
+        block: |
+          # OpenVPN config
+          *nat
+          :POSTROUTING ACCEPT [0:0]
+          -A POSTROUTING -s {{ openvpn_server_network }}/24 ! -d {{ openvpn_server_network }}/24  -j MASQUERADE
+          COMMIT
+    - name: firewall | ufw | Setup IPv6 NAT with MASQUERADE
+      ansible.builtin.blockinfile:
+        dest: /etc/ufw/before.rules
+        state: present
+        insertbefore: \*filter
+        block: |
+          # OpenVPN config
+          *nat
+          :POSTROUTING ACCEPT [0:0]
+          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }}  -j MASQUERADE
+          COMMIT
+      when: openvpn_server_ipv6_network is defined
