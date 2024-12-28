@@ -70,6 +70,10 @@ openvpn_addl_client_options: ["block-ipv6"]
 openvpn_addl_server_options: ["block-ipv6"]
 ```
 
+### Routed IPv6
+
+If you want to use routed IPv6, set the `openvpn_server_ipv6_network` to the IPv6 netblock you want to assign to the VPN. You will need to perform any other external changes yourself (eg [splitting an assigned /64 into two /65s](https://community.openvpn.net/openvpn/wiki/IPv6#SplittingasingleroutableIPv6netblock)).
+
 ## Updated to latest Ansible recommendations
 
 ansible-lint isn't complaining anymore. I've added it to the CI system so the role shouldn't regress.
