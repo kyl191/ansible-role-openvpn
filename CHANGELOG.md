@@ -27,11 +27,11 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * Functionality needing the `openvpn_firewalld_default_interface_zone` has been replaced by using the zone from the interface with the default route. The `openvpn_firewalld_default_interface_zone` variable has been removed.
   * It is not possible to restore the old behaviour
 
-* `openvpn_redirect_gateway` is now the string `redirect-gateway def1 bypass-dhcp ipv6` instead of a boolean
-  * Restore the old behaviour with `openvpn_redirect_gateway: "redirect-gateway def1 bypass-dhcp"`
-
-* `openvpn_server_ipv6_network` defaults to `"fdbf:dd0d:1a49:2091::/64"`
+* `openvpn_server_ipv6_network` defaults to `"fdbf:dd0d:1a49:2091::/64"`, enabling IPv6
   * Restore the old behaviour with `openvpn_server_ipv6_network: null`
+
+* `openvpn_redirect_gateway` is now the string `def1 bypass-dhcp ipv6` instead of a boolean
+  * Restore the old behaviour with `openvpn_redirect_gateway: "def1 bypass-dhcp"`
 
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 
@@ -49,6 +49,26 @@ There are some internal variables that have been renamed to have a `__` prefix t
 
 * `openvpn_cipher` will be unset and fallback to using the OpenVPN defaults
 * `openvpn_tls_auth_required` will be removed completely
+
+## NAT IPv6 Support by default
+
+IPv6 wasn't routed through the VPN, so traffic to IPv6 addresses would leak. Instead of disabling IPv6, I've added NAT IPv6 support using [private IPv6 addresses](https://abayard.com/how-to-setup-a-dual-stack-vpn-with-a-single-ipv6/)
+
+If desired, you can generate your own IPv6 network address with
+
+* <https://simpledns.plus/private-ipv6> (look for "Combined/CID")
+* <https://unique-local-ipv6.com/> (look for "First subnet")
+
+I do not recommend generating addresses dynamically without using some fixed seed.
+
+### Block IPv6
+
+Because of the potential for leaking IPv6 traffic, continue routing IPv6 traffic over the VPN but enable the OpenVPN `block-ipv6` directive with
+
+```yaml
+openvpn_addl_client_options: ["block-ipv6"]
+openvpn_addl_server_options: ["block-ipv6"]
+```
 
 ## Updated to latest Ansible recommendations
 
