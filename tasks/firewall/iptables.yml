@@ -22,16 +22,16 @@
   register: __iptables_installed
   when: ansible_os_family == "RedHat"
 
-- name: firewall | iptables | Allow VPN forwarding - iptables
+- name: firewall | iptables | Allow forwarding from tun devices
   ansible.builtin.iptables:
     chain: FORWARD
-    source: "{{ openvpn_server_network }}/24"
+    in_interface: tun+
     jump: ACCEPT
     action: insert
-    comment: "Allow VPN forwarding"
+    comment: "Allow forwarding from tun devices"
   notify: "Save iptables"
 
-- name: firewall | iptables | Allow incoming SSH connections - iptables
+- name: firewall | iptables | Allow incoming SSH connections
   ansible.builtin.iptables:
     chain: INPUT
     protocol: tcp
@@ -41,7 +41,7 @@
     comment: "Allow incoming SSH connection"
   notify: "Save iptables"
 
-- name: firewall | iptables | Allow incoming VPN connections - iptables
+- name: firewall | iptables | Allow incoming VPN connections
   ansible.builtin.iptables:
     chain: INPUT
     protocol: "{{ openvpn_proto }}"
@@ -51,16 +51,7 @@
     comment: "Allow incoming VPN connection"
   notify: "Save iptables"
 
-- name: firewall | iptables | Accept packets from VPN tunnel adaptor - iptables
-  ansible.builtin.iptables:
-    chain: INPUT
-    in_interface: tun0
-    jump: ACCEPT
-    action: insert
-    comment: "Accept packets from VPN tunnel adaptor"
-  notify: "Save iptables"
-
-- name: firewall | iptables | Perform NAT readdressing - iptables
+- name: firewall | iptables | Perform NAT readdressing
   ansible.builtin.iptables:
     table: nat
     chain: POSTROUTING
@@ -73,7 +64,7 @@
   when: openvpn_masquerade_not_snat is falsy and openvpn_no_nat is falsy
   notify: "Save iptables"
 
-- name: firewall | iptables | Perform NAT readdressing with MASQUERADE - iptables
+- name: firewall | iptables | Perform NAT readdressing with MASQUERADE
   ansible.builtin.iptables:
     table: nat
     chain: POSTROUTING
