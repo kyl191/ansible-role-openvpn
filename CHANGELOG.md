@@ -1,4 +1,4 @@
-# Version 3.0 (2024-12-26)
+# Version 3.0 (2024-12-28)
 
 ## Manually Backwards Compatible Variable changes
 
