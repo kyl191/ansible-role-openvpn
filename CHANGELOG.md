@@ -33,6 +33,9 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * `openvpn_redirect_gateway` is now the string `def1 bypass-dhcp ipv6` instead of a boolean
   * Restore the old behaviour with `openvpn_redirect_gateway: "def1 bypass-dhcp"`
 
+* Setting both `openvpn_crl_path` and `openvpn_use_crl` resulted in duplicate `crl-verify` directives. This has been resolved in favour of removing `openvpn_crl_path` for consistency since the other certificate paths can't be set.
+  * It is not possible to restore the old behaviour
+
 * `openvpn_ldap.verify_client_cert` now defaults to `none`, was previously unset so the default `client-cert-not-required` would be set instead. [`client-cert-not-required` is deprecated](https://community.openvpn.net/openvpn/wiki/DeprecatedOptions#Option:--client-cert-not-requiredStatus:RemovedinOpenVPNv2.5), `verify_client_cert none` is functionally identical
   * There is no functional change in behaviour
 
@@ -109,6 +112,8 @@ The TLS settings are cleaned up because they were confusing me:
 * `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. It is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
 * `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). It is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults. If you need to set
 * TLS Auth for the control channel (`openvpn_tls_auth_required`) is deprecated in favour of TLS Crypt for the control channel (`openvpn_use_tls_crypt`)
+
+Finally, I've also moved the Certificate Revocation List management behind a `openvpn_use_crl` check. Previously it was unconditionally setup (including adding a cronjob) even though it wasn't enabled in the OpenVPN config.
 
 ## Changed Supported OS Versions
 
