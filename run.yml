@@ -1,0 +1,15 @@
+---
+- name: Dev run
+  hosts:
+    - all
+  gather_facts: true
+  become: true
+  # strategy: free
+  roles:
+    - role: ../ansible-role-openvpn # noqa: role-name[path]
+      openvpn_clients:
+        - alpha
+        - omega
+      openvpn_use_pregenerated_dh_params: true
+      openvpn_client_register_dns: false
+      openvpn_server_hostname: "{{ ansible_host }}"
