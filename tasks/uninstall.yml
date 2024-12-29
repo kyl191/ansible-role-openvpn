@@ -27,5 +27,4 @@
   when: openvpn_use_ldap is truthy
 
 - name: uninstall | Terminate playbook
-  ansible.builtin.fail:
-    msg: "OpenVPN uninstalled, playbook stopped"
+  ansible.builtin.meta: end_host
