@@ -1,0 +1,63 @@
+- name: server_keys_crl | Create initial certificate revocation list squence number
+  ansible.builtin.shell: "echo 00 > crl_number"
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: crl_number
+
+- name: server_keys_crl | Install revocation script
+  ansible.builtin.template:
+    src: revoke.sh.j2
+    dest: "{{ openvpn_key_dir }}/revoke.sh"
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
+    mode: "0744"
+
+- name: server_keys_crl | Check if certificate revocation list database exists
+  ansible.builtin.stat:
+    path: "{{ openvpn_key_dir }}/index.txt"
+  register: __file_result
+
+- name: server_keys_crl | Create certificate revocation list database if required
+  ansible.builtin.file:
+    path: "{{ openvpn_key_dir }}/index.txt"
+    state: touch
+    mode: "0644"
+  when: not __file_result.stat.exists
+
+- name: server_keys_crl | Set up certificate revocation list
+  ansible.builtin.command: sh revoke.sh
+  args:
+    chdir: "{{ openvpn_key_dir }}"
+    creates: "{{ openvpn_key_dir }}/ca-crl.pem"
+
+- name: server_keys_crl | Install crl-cron script
+  ansible.builtin.template:
+    src: crl-cron.sh.j2
+    dest: "{{ openvpn_base_dir }}/crl-cron.sh"
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
+    mode: "0744"
+
+- name: server_keys_crl | Install crl-cron service
+  ansible.builtin.template:
+    src: openvpn-crl-refresh.service.j2
+    dest: /etc/systemd/system/openvpn-crl-refresh.service
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
+    mode: "0744"
+
+- name: server_keys_crl | Install crl-cron systemd timer
+  ansible.builtin.copy:
+    src: openvpn-crl-refresh.timer
+    dest: /etc/systemd/system/openvpn-crl-refresh.timer
+    owner: "{{ openvpn_script_user }}"
+    group: "{{ openvpn_script_group }}"
+    mode: "0744"
+
+- name: server_keys_crl | Activate systemd timer to check daily if the CRL needs to be renewed
+  ansible.builtin.systemd:
+    name: openvpn-crl-refresh.timer
+    enabled: true
+    state: started
+    daemon_reload: true
+  when: ansible_service_mgr == "systemd"
