@@ -31,10 +31,19 @@
   when: openvpn_ca_key is defined
 
 - name: server_keys | Generate CA key
-  ansible.builtin.command: >-
-    openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout ca-key.pem -out ca-csr.pem
-    -days 3650 -subj /CN=OpenVPN-CA-{{ inventory_hostname[:53] }}/
-  args:
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -nodes
+      - -newkey
+      - rsa:{{ openvpn_rsa_bits }}
+      - -keyout
+      - ca-key.pem
+      - -out
+      - ca-csr.pem
+      - -subj
+      - /CN=OpenVPN-CA-{{ inventory_hostname[:53] }}/
     chdir: "{{ openvpn_key_dir }}"
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
@@ -53,9 +62,19 @@
   when: openvpn_ca_key is not defined
 
 - name: server_keys | Generate server key
-  ansible.builtin.command: >-
-    openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout server.key -out server.csr
-    -days 3650 -subj /CN=OpenVPN-Server-{{ inventory_hostname[:49] }}/
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -nodes
+      - -newkey
+      - rsa:{{ openvpn_rsa_bits }}
+      - -keyout
+      - server.key
+      - -out
+      - server.csr
+      - -subj
+      - /CN=OpenVPN-Server-{{ inventory_hostname[:49] }}/
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: server.key
@@ -66,11 +85,25 @@
     mode: "0400"
 
 - name: server_keys | Sign server key
-  ansible.builtin.command: >
-    openssl x509 -req -in server.csr -out server.crt
-    -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650
-    -CAcreateserial -extfile openssl-server.ext
-  args:
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - server.csr
+      - -out
+      - server.crt
+      - -CA
+      - ca.crt
+      - -CAkey
+      - ca-key.pem
+      - -sha256
+      - -days
+      - 3650
+      - -CAcreateserial
+      - -extfile
+      - openssl-server.ext
     chdir: "{{ openvpn_key_dir }}"
     creates: server.crt
 

@@ -14,10 +14,19 @@
     mode: "0400"
 
 - name: client_keys | Generate client key
-  ansible.builtin.command: >-
-    openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout {{ item }}.key -out {{ item }}.csr
-    -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/
-  args:
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -nodes
+      - -newkey
+      - rsa:{{ openvpn_rsa_bits }}
+      - -keyout
+      - "{{ item }}.key"
+      - -out
+      - "{{ item }}.csr"
+      - -subj
+      - /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item[:24] }}/
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ item }}.key"
   with_items:
