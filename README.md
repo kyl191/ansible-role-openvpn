@@ -200,7 +200,7 @@ This role pulls in a bunch of different packages. Override the names as necessar
 | require_group       | string | False , True              |                                         | This is not an Ansible boolean but a string that will be pushed into the configuration file. |
 | group_base_dn       | string |                           | ou=Groups,dc=example,dc=com             | Precise the group to look for. Required if require_group is set to "True"                    |
 | group_search_filter | string |                           | ((cn=developers)(cn=artists))           | Precise valid groups                                                                         |
-| verify_client_cert  | string | none , optional , require | client-cert-not-required                | In OpenVPN 2.4+ `client-cert-not-required` is deprecated. Use `verify-client-cert` instead.  |
+| verify_client_cert  | string | none , optional , require | none | Defaults to none because of historical default of `client-cert-not-required`, which is deprecated. |
 
 ## Dependencies
 

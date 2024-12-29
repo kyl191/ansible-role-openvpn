@@ -33,6 +33,9 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * `openvpn_redirect_gateway` is now the string `def1 bypass-dhcp ipv6` instead of a boolean
   * Restore the old behaviour with `openvpn_redirect_gateway: "def1 bypass-dhcp"`
 
+* `openvpn_ldap.verify_client_cert` now defaults to `none`, was previously unset so the default `client-cert-not-required` would be set instead. [`client-cert-not-required` is deprecated](https://community.openvpn.net/openvpn/wiki/DeprecatedOptions#Option:--client-cert-not-requiredStatus:RemovedinOpenVPNv2.5), `verify_client_cert none` is functionally identical
+  * There is no functional change in behaviour
+
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 
 Configurable variable renames include:
