@@ -11,6 +11,4 @@ openvpn_ldap:
   require_group: false
   group_base_dn: ou=Groups,dc=example,dc=com
   group_search_filter: (|(cn=developers)(cn=artists))
-# verify_client_cert is in the readme, but not set here
-# because the task checks for the _existence_ of the default
-# future change will set it
+  verify_client_cert: none
