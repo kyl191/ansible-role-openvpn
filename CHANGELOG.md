@@ -59,11 +59,10 @@ There are some internal variables that have been renamed to have a `__` prefix t
 
 * `openvpn_cipher` will be unset and fallback to using the OpenVPN defaults
 * `openvpn_tls_auth_required` will be removed completely
-* `openvpn_topology` will default to `subnet`
 
 ## NAT IPv6 Support by default
 
-IPv6 wasn't routed through the VPN, so traffic to IPv6 addresses would leak. Instead of disabling IPv6, I've added NAT IPv6 support using [private IPv6 addresses](https://abayard.com/how-to-setup-a-dual-stack-vpn-with-a-single-ipv6/)
+IPv6 wasn't routed through the VPN, so traffic to IPv6 addresses would leak. Instead of disabling IPv6, I've added NAT IPv6 support using [private IPv6 addresses](https://abayard.com/how-to-setup-a-dual-stack-vpn-with-a-single-ipv6/).
 
 If desired, you can generate your own IPv6 network address with
 
@@ -72,7 +71,7 @@ If desired, you can generate your own IPv6 network address with
 
 I do not recommend generating addresses dynamically without using some fixed seed.
 
-### Block IPv6
+### If IPv6 isn't supported on your OpenVPN server
 
 Because of the potential for leaking IPv6 traffic, continue routing IPv6 traffic over the VPN but enable the OpenVPN `block-ipv6` directive with
 
@@ -83,7 +82,7 @@ openvpn_addl_server_options: ["block-ipv6"]
 
 ### Routed IPv6
 
-If you want to use routed IPv6, set the `openvpn_server_ipv6_network` to the IPv6 netblock you want to assign to the VPN. You will need to perform any other external changes yourself (eg [splitting an assigned /64 into two /65s](https://community.openvpn.net/openvpn/wiki/IPv6#SplittingasingleroutableIPv6netblock)).
+If you want to use routed IPv6, set `openvpn_server_ipv6_network` to the IPv6 netblock you want to assign to the VPN. You will need to perform any other external changes yourself (eg [splitting an assigned /64 into two /65s](https://community.openvpn.net/openvpn/wiki/IPv6#SplittingasingleroutableIPv6netblock)).
 
 ## Updated to latest Ansible recommendations
 
@@ -97,7 +96,7 @@ Versions early than 2.5 are [uniformly out of support](https://endoflife.date/op
 
 ### `cipher` vs `data-cipher`
 
-Biggest change (as far as I can tell) is OpenVPN deprecated `cipher` and replaced it with `data-cipher`. All the supported OSes are OpenVPN2.5+, so I've updated the server config to use `data-cipher` when `openvpn_cipher` is set.
+OpenVPN deprecated `cipher` and replaced it with `data-cipher`. All the supported OSes are OpenVPN2.5+, so I've updated the server config to use `data-cipher` when `openvpn_cipher` is set.
 
 If the event you need fallback support on the server for older clients, set the value `data-ciphers-fallback` through the playbook option `openvpn_addl_server_options`.
 
@@ -115,7 +114,7 @@ Discussion in [this issue](https://github.com/kyl191/ansible-role-openvpn/issues
 The TLS settings are cleaned up because they were confusing me:
 
 * `openvpn_use_hardened_tls` hardcoded the Minimum TLS version to `1.2`. It is replaced by `openvpn_tls_version_min` which is now a string, and defaults to `1.2 or-highest`.
-* `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). It is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults. If you need to set
+* `openvpn_use_modern_tls` hardcoded the [(then) Mozilla Modern Cipher List](https://wiki.mozilla.org/Security/Server_Side_TLS). It is dropped in favour of using the OpenVPN defaults, which are the crypto library's defaults.
 * TLS Auth for the control channel (`openvpn_tls_auth_required`) is deprecated in favour of TLS Crypt for the control channel (`openvpn_use_tls_crypt`)
 
 Finally, I've also moved the Certificate Revocation List management behind a `openvpn_use_crl` check. Previously it was unconditionally setup (including adding a cronjob) even though it wasn't enabled in the OpenVPN config.
@@ -127,7 +126,7 @@ Actually supported - I make sure an OpenVPN connection works before putting up a
 * Fedora 38+ ([OpenVPN 2.6](https://packages.fedoraproject.org/pkgs/openvpn/openvpn/))
 * CentOS Stream 9/AlmaLinux/Rocky/RHEL 9+ ([OpenVPN 2.5](https://packages.fedoraproject.org/pkgs/openvpn/openvpn/))
 
-Kind of supported - CI does sanity checks:
+Kind of supported - CI does sanity checks, I do manual checks if I've got time:
 
 * Ubuntu 22.04+ ([OpenVPN 2.5](https://launchpad.net/ubuntu/+source/openvpn), [list of distro releases](https://wiki.ubuntu.com/Releases))
 * Debian 12 ([OpenVPN 2.6](https://packages.debian.org/search?keywords=openvpn), [list of distro releases](https://www.debian.org/releases/))
@@ -137,7 +136,7 @@ Community contributions - no automated checks, they might work:
 * FreeBSD
 * Solaris
 
-Older OSes might work - there's no explicit blocking, but workarounds will be removed with EOLed OSes to simplify the role.
+Older OSes might work - I avoid explicitly blocking OS versions, but workarounds will be removed with EOLed OSes to simplify the role.
 
 ### Removed Workarounds
 
