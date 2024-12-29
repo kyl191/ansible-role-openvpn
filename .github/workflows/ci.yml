@@ -222,6 +222,8 @@ jobs:
         run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
       - name: Install firewalld
         run: sudo podman exec ${{ matrix.version }} dnf -y install firewalld python3-firewall procps-ng
+      - name: Install iproute so ansible can discover interfaces
+        run: sudo podman exec ${{ matrix.version }} dnf -y install iproute
       - name: Install required dependencies from Ansible Galaxy
         run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
