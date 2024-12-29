@@ -1,0 +1,23 @@
+---
+# Sample inventory file for Ansible
+all:
+  hosts:
+    alma9:
+      ansible_host: 52.53.165.25
+    # rocky9:
+    #   ansible_host: 35.88.19.83
+    # stream9:
+    #   ansible_host: 18.237.105.93
+    #   openvpn_proto: udp
+    rhel9:
+      ansible_host: 54.183.159.247
+    ubuntu22:
+      ansible_host: 3.101.154.105
+    debian12:
+      ansible_host: 54.67.78.159
+  vars:
+    ansible_user: cloud_user
+    ansible_password: GGPX6106vhei2
+    ansible_become_password: GGPX6106vhei2
+    openvpn_port: 443
+    openvpn_proto: tcp
