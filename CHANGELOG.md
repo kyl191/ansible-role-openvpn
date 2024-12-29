@@ -39,6 +39,10 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 * `openvpn_ldap.verify_client_cert` now defaults to `none`, was previously unset so the default `client-cert-not-required` would be set instead. [`client-cert-not-required` is deprecated](https://community.openvpn.net/openvpn/wiki/DeprecatedOptions#Option:--client-cert-not-requiredStatus:RemovedinOpenVPNv2.5), `verify_client_cert none` is functionally identical
   * There is no functional change in behaviour
 
+* `openvpn_topology` defaults to `subnet` per the [OpenVPN recommendation to opt-in early](https://community.openvpn.net/openvpn/wiki/DeprecatedOptions#Changedefault--topologynet30tosubnetStatus:Pending):
+  > OpenVPN recommends using topology subnet now, so that when the default is changed, you will not be affected.
+  * Restore the old behaviour with `openvpn_topology: net30`
+
 Variables are prefixed with `openvpn_` to make sure they are isolated to this role. (There are [limited exceptions](.ansible-lint.yml)) You will need to update any variable you have overriden.
 
 Configurable variable renames include:
@@ -55,6 +59,7 @@ There are some internal variables that have been renamed to have a `__` prefix t
 
 * `openvpn_cipher` will be unset and fallback to using the OpenVPN defaults
 * `openvpn_tls_auth_required` will be removed completely
+* `openvpn_topology` will default to `subnet`
 
 ## NAT IPv6 Support by default
 

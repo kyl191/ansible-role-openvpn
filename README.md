@@ -148,7 +148,7 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_service_group              | string  |             | nogroup                                          | Set the openvpn service group.                                                                                                                                                |
 | openvpn_service_user               | string  |             | nobody                                           | Set the openvpn service user.                                                                                                                                                 |
 | openvpn_status_version             | int     | 1, 2, 3     | 1                                                | Define the formatting of the openvpn-status.log file where are listed current client connection                                                                               |
-| openvpn_topology                   | string  |             | `unset`                                          | the "topology" keyword will be set in the server config with the specified value.                                                                                             |
+| openvpn_topology                   | string  |             | `subnet`                                          | the "topology" keyword will be set in the server config with the specified value.                                                                                             |
 
 ### OpenVPN custom client config (server pushed)
 
