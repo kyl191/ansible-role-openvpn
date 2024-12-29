@@ -34,6 +34,7 @@ openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_use_crl: false
+openvpn_manage_crl_without_systemd: false
 openvpn_tls_version_min: 1.2 or-highest
 openvpn_use_pregenerated_dh_params: false
 openvpn_verify_cn: false

@@ -122,7 +122,8 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_tls_crypt_key               | string  |             | `unset`     | Path to a pre-generated OpenVPN key. |
 | openvpn_tls_auth_required | boolean | true, false | false        | Use TLS to sign OpenVPN control packets (deprecated in favour of `openvpn_use_tls_crypt`) |
 | openvpn_tls_auth_key               | string  |             | `unset`     | Path to a pre-generated OpenVPN key.   |
-| openvpn_use_crl                    | boolean | true, false | false       | Configure OpenVPN server to honor certificate revocation list.                                                                                                  |
+| openvpn_use_crl                    | boolean | true, false | false       | Configure OpenVPN server to honor certificate revocation list.  |
+| openvpn_manage_crl_without_systemd  | boolean | true, false | false       | Acknowledge that you're going to renew the CRL through a different method |
 | openvpn_tls_version_min  | string |  | `1.2 or-highest` | Set the minimum required TLS version  |
 | openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default |
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
