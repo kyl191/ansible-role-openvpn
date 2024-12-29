@@ -56,6 +56,7 @@ openvpn_service_user: nobody
 openvpn_status_version: 1
 openvpn_config_file: "openvpn_{{ openvpn_proto }}_{{ openvpn_port }}"
 openvpn_service_name: "openvpn-server@{{ openvpn_config_file }}.service"
+openvpn_topology: subnet
 
 # Client config - settings the server will push
 openvpn_client_config: false
