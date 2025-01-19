@@ -1,4 +1,0 @@
-#!/bin/bash
-set -ev
-sudo docker exec ${OS} yum -y install epel-release
-sudo docker exec ${OS} yum -y install ansible
