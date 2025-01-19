@@ -107,8 +107,7 @@ jobs:
           echo "cat alpha-*.ovpn"
           find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
 
-  # diodonfrost's images are broken for fedora 40 (thinks it's rawhide) and fedora 41 doesn't exist, so I built my own
-  build-broken-fedora:
+  build-ubi9:
     runs-on: ubuntu-latest
     name: fedora-${{ matrix.version }}
     needs:
@@ -193,7 +192,7 @@ jobs:
 
   build-systemd:
     runs-on: ubuntu-latest
-    name: systemd-${{ matrix.version }}
+    name: fedora-${{ matrix.version }}
     needs:
       - check-syntax
     strategy:
@@ -215,10 +214,6 @@ jobs:
       # https://www.jeffgeerling.com/blog/2020/resolving-fedora-dnf-error-no-such-file-or-directory-varlibdnfrpmdblockpid
       - name: Wait for container to start
         run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
-      - name: Install firewalld
-        run: sudo podman exec ${{ matrix.version }} dnf -y install firewalld python3-firewall procps-ng
-      - name: Install iproute so ansible can discover interfaces
-        run: sudo podman exec ${{ matrix.version }} dnf -y install iproute
       - name: Install required dependencies from Ansible Galaxy
         run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
       - name: Make sure ansible connection is sane
