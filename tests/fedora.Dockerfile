@@ -1,7 +1,8 @@
-FROM fedora:41
+ARG VERSION=latest
+FROM fedora:$VERSION
 LABEL org.opencontainers.image.source=https://github.com/kyl191/ansible-role-openvpn
-LABEL org.opencontainers.image.title="Fedora 41 with Ansible"
-LABEL org.opencontainers.image.description="Fedora 41 with Ansible, based off https://github.com/diodonfrost/docker-ansible/blob/master/fedora-ansible/Dockerfile.fedora-40"
+LABEL org.opencontainers.image.title="Fedora $VERSION with Ansible"
+LABEL org.opencontainers.image.description="Fedora with Ansible, based off https://github.com/diodonfrost/docker-ansible/blob/master/fedora-ansible/Dockerfile.fedora-40"
 
 # Update Fedora
 RUN dnf -y update && dnf clean all
@@ -17,6 +18,7 @@ rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*; \
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 
+# Install Ansible
 RUN dnf -y install \
            git \
            ansible \
@@ -29,6 +31,12 @@ RUN dnf -y install \
            libxcrypt-compat \
            fuse-libs \
    && dnf clean all
+
+# Install packages for ansible-role-openvpn
+RUN dnf -y install \
+    firewalld python3-firewall procps-ng \
+    iproute\
+    && dnf clean all
 
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
