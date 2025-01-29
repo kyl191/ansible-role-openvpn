@@ -232,6 +232,9 @@ jobs:
         run: sleep 5
       - name: Stop openvpn connection
         run: sudo podman exec ${{ matrix.version }} systemctl stop openvpn-client@alpha-localhost.service
+      - name: Check revocation
+        run: >
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/revocation-test.yml -vv -e '{"openvpn_ci_build": false}'
       - name: Container state debug output
         continue-on-error: true
         run: |
