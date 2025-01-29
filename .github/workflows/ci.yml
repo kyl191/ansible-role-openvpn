@@ -23,9 +23,9 @@ jobs:
       - name: Run ansible-lint
         uses: ansible/ansible-lint@main
         with:
-          args: ansible-role-openvpn
-          working_directory: /home/runner/work/ansible-role-openvpn
-          requirements_file: ansible-role-openvpn/requirements.yml
+          args: --exclude .ansible/roles
+          # working_directory: /home/runner/work/ansible-role-openvpn
+          requirements_file: requirements.yml
 
   build-rhel-like:
     runs-on: ubuntu-latest
