@@ -21,7 +21,7 @@ jobs:
           limit-access-to-actor: false
           detached: true
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@main
+        uses: ansible/ansible-lint@4eaedaa7f7a363dc868f6f19ce2752f5377a47dc
 
   build-rhel-like:
     runs-on: ubuntu-latest
