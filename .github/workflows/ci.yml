@@ -21,7 +21,11 @@ jobs:
           limit-access-to-actor: false
           detached: true
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@6178262c7e0d5e9792b5990d40029047760b8f09
+        uses: ansible/ansible-lint@main
+        with:
+          args: ansible-role-openvpn
+          working_directory: /home/runner/work/ansible-role-openvpn
+          requirements_file: ansible-role-openvpn/requirements.yml
 
   build-rhel-like:
     runs-on: ubuntu-latest
