@@ -15,16 +15,9 @@ jobs:
     name: check-syntax
     steps:
       - uses: actions/checkout@v4
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: false
-          detached: true
       - name: Run ansible-lint
         uses: ansible/ansible-lint@main
         with:
-          args: --exclude .ansible/roles
-          # working_directory: /home/runner/work/ansible-role-openvpn
           requirements_file: requirements.yml
 
   build-rhel-like:
