@@ -48,19 +48,19 @@ jobs:
         container: docker
       volumes:
         - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+        - ${{ github.workspace }}:/etc/ansible/roles/kyl191.openvpn
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required dependencies from Ansible Galaxy
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -88,7 +88,7 @@ jobs:
         container: docker
       volumes:
         - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+        - ${{ github.workspace }}:/etc/ansible/roles/kyl191.openvpn
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
@@ -96,16 +96,16 @@ jobs:
       - name: Update ansible
         run: dnf install -y python39 && pip3.9 install -U ansible
       - name: Install required dependencies from Ansible Galaxy
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
         run: >
-          ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
           -e '{"openvpn_use_tls_crypt": false}'
       - name: Check idempotency
         run: >
-          ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
           -e '{"openvpn_use_tls_crypt": false}'
       - name: Container state debug output
         continue-on-error: true
@@ -134,19 +134,19 @@ jobs:
         container: docker
       volumes:
         - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+        - ${{ github.workspace }}:/etc/ansible/roles/kyl191.openvpn
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required dependencies from Ansible Galaxy
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -175,7 +175,7 @@ jobs:
         container: docker
       volumes:
         - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/ansible-role-openvpn
+        - ${{ github.workspace }}:/etc/ansible/roles/kyl191.openvpn
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
@@ -183,13 +183,13 @@ jobs:
       - name: Upgrade ansible
         run: apt update && apt-get install --only-upgrade ansible -y
       - name: Install required dependencies from Ansible Galaxy
-        run: ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -216,7 +216,7 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container
-        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/ansible-role-openvpn
+        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/kyl191.openvpn
           --user=root ghcr.io/kyl191/ansible-images:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
@@ -224,15 +224,15 @@ jobs:
       - name: Wait for container to start
         run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
       - name: Install required dependencies from Ansible Galaxy
-        run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/ansible-role-openvpn/requirements.yml
+        run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
         run: sudo podman exec ${{ matrix.version }} ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
       - name: Check idempotency
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
       - name: Move generated client config file
         run: sudo podman exec ${{ matrix.version }} cp /etc/openvpn/server/alpha-localhost.ovpn /etc/openvpn/client/alpha-localhost.conf
       - name: Attempt openvpn connection
@@ -243,7 +243,7 @@ jobs:
         run: sudo podman exec ${{ matrix.version }} systemctl stop openvpn-client@alpha-localhost.service
       - name: Check revocation
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/ansible-role-openvpn/tests/revocation-test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/revocation-test.yml -vv -e '{"openvpn_ci_build": false}'
       - name: Container state debug output
         continue-on-error: true
         run: |
