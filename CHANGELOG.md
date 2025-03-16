@@ -1,3 +1,9 @@
+# Version 3.0.1 (2025-03-16)
+
+* Fix a bug in UFW rule creation that broke UFW ([#232](https://github.com/kyl191/ansible-role-openvpn/issues/232))
+* Only run cert revocation steps when `openvpn_use_crl` is truthy ([#228](https://github.com/kyl191/ansible-role-openvpn/issues/228))
+* Test cleanups
+
 # Version 3.0 (2024-12-28)
 
 ## Manually Backwards Compatible Variable changes
