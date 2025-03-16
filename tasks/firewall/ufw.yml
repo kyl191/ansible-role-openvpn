@@ -45,7 +45,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_lan_source_ip }}   # noqa: yaml[line-length]
+          -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_lan_source_ip }}
           COMMIT
 
     - name: firewall | ufw | Setup IPv6 SNAT rules
@@ -75,7 +75,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}//{{ openvpn_server_netmask_cidr }}  -j MASQUERADE
+          -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}  -j MASQUERADE
           COMMIT
     - name: firewall | ufw | Setup IPv6 NAT with MASQUERADE
       ansible.builtin.blockinfile:
