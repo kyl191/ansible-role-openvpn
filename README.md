@@ -52,7 +52,7 @@ These options change how the role works. This is a catch-all group, specific gro
 | openvpn_client_config_no_log | boolean | true, false | true              | Prevent client configuration files to be logged to stdout by Ansible          |
 | openvpn_key_dir              | string  |             | /etc/openvpn/keys | Path where your server private keys and CA will be stored                     |
 | openvpn_ovpn_dir             | string  |             | /etc/openvpn      | Path where your client configurations will be stored                          |
-| openvpn_revoke_these_certs   | list    |             | []                | List of client certificates to revoke.                                        |
+| openvpn_revoke_these_certs   | list    |             | []                | List of client certificates to revoke (requires `openvpn_use_crl` to be true). |
 | openvpn_selinux_module       | string  |             | my-openvpn-server | Set the SELinux module name                                                   |
 | openvpn_service_name         | string  |             | openvpn-server@{{ openvpn_config_file }}.service           | Name of the service. Used by systemctl to start the service                   |
 | openvpn_sync_certs           | boolean | true, false | false             | Revoke certificates not explicitly defined in 'clients'                       |
