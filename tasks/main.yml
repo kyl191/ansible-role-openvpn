@@ -59,9 +59,13 @@
 - name: Generate revocation list and clean up
   ansible.builtin.import_tasks: revocation.yml
   when: >-
-    (openvpn_revoke_these_certs is defined)
-    or
-    (openvpn_sync_certs is truthy and cert_sync_certs_to_revoke.stdout_lines | length > 0)
+    openvpn_use_crl is truthy
+    and
+    (
+      (openvpn_revoke_these_certs is defined)
+      or
+      (openvpn_sync_certs is truthy and cert_sync_certs_to_revoke.stdout_lines | length > 0)
+    )
 
 - name: Configure OpenVPN server
   ansible.builtin.import_tasks: config.yml
