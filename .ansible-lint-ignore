@@ -1,2 +1,3 @@
 # This file contains ignores rule violations for ansible-lint
 .github/workflows/ci.yml yaml[line-length]
+tasks/firewall/ufw.yml yaml[line-length]
