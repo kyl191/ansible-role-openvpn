@@ -38,6 +38,7 @@ In part because of [Requiring OpenVPN 2.5](#requiring-openvpn-25), some variable
 
 * `openvpn_redirect_gateway` is now the string `def1 bypass-dhcp ipv6` instead of a boolean
   * Restore the old behaviour with `openvpn_redirect_gateway: "def1 bypass-dhcp"`
+  * Disable it by setting it to ''
 
 * Setting both `openvpn_crl_path` and `openvpn_use_crl` resulted in duplicate `crl-verify` directives. This has been resolved in favour of removing `openvpn_crl_path` for consistency since the other certificate paths can't be set.
   * It is not possible to restore the old behaviour
