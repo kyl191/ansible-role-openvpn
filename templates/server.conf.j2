@@ -54,7 +54,7 @@ ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
 client-config-dir {{ openvpn_client_config_dir }}
 {% endif %}
 
-{% if openvpn_redirect_gateway is defined %}
+{% if openvpn_redirect_gateway is defined and openvpn_redirect_gateway != '' %}
 push "redirect-gateway {{ openvpn_redirect_gateway }}"
 {% endif %}
 {% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
