@@ -99,7 +99,7 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_local               | string       |                   | `unset`                    | Local host name or IP address for bind.  If specified, OpenVPN will bind to this address only.  If unspecified, OpenVPN will bind to all interfaces. |
 | openvpn_port                | int          |                   | 1194                       | The port you want OpenVPN to run on. If you have different ports on different servers, I suggest you set the port in your inventory file.            |
 | openvpn_proto               | string       | udp, tcp          | udp                        | The protocol you want OpenVPN to use  |
-| openvpn_redirect_gateway    | string      |       | `def1 bypass-dhcp ipv6` | Flag values |
+| openvpn_redirect_gateway    | boolean/string |                 | `def1 bypass-dhcp ipv6`    | Set to false to disable. Use a string to customize. Flag values. |
 | openvpn_resolv_retry        | int/string   | any int, infinite | 5                          | Hostname resolv failure retry seconds. Set "infinite" to retry indefinitely in case of poor connection or laptop sleep mode recovery etc.            |
 | openvpn_server_hostname     | string       |                   | `{{ inventory_hostname }}` | The server name to place in the client configuration file                                                                                            |
 | openvpn_server_ipv6_network | string       |                   | `fdbf:dd0d:1a49:2091::/64` | The network address and prefix of an IPv6 network to assign to clients. |
