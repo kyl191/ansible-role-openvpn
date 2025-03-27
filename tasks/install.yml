@@ -21,10 +21,18 @@
     disable_gpg_check: true
   when: ansible_distribution == "RedHat"
 
+- name: install | Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
 - name: install | Refresh apt cache
   ansible.builtin.apt:
     update_cache: true
-  when: ansible_pkg_mgr == "apt"
+  when: 
+    - ansible_pkg_mgr == "apt"
+    - openvpn_package_name not in ansible_facts.packages
+    # - openssl_package_name not in ansible_facts.packages
+    # - "openvpn_ldap_plugin_package_name not in ansible_facts.packages and openvpn_use_ldap is truthy and openvpn_use_prebuilt_ldap_plugin is truthy"
 
 - name: install | Install openvpn
   ansible.builtin.package:
