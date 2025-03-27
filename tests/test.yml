@@ -2,6 +2,7 @@
 - name: Run CI tests
   hosts: 127.0.0.1
   connection: local
+  become: true
   vars:
     openvpn_ci_build: true
     openvpn_client_register_dns: false
