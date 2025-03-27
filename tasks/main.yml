@@ -70,4 +70,4 @@
 - name: Configure OpenVPN server
   ansible.builtin.import_tasks: config.yml
   tags:
-  - config
+    - config
