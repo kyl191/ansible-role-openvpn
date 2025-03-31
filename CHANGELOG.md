@@ -1,3 +1,9 @@
+# Version 3.0.2 (2025-03-30)
+
+* Update documentation to reflect change from `clients` to `openvpn_clients` ([#237](https://github.com/kyl191/ansible-role-openvpn/issues/237))
+* `openvpn_redirect_gateway` now accepts an empty string to disable sending `redirect-gateway` to clients ([#235](https://github.com/kyl191/ansible-role-openvpn/issues/235))
+* New tag `config` to only run just the config steps (run with `ansible-playbook --tags config ...`)
+
 # Version 3.0.1 (2025-03-16)
 
 * Fix a bug in UFW rule creation that broke UFW ([#232](https://github.com/kyl191/ansible-role-openvpn/issues/232))
