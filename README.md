@@ -158,6 +158,12 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_client_config_dir | string  |         | ccd     | Path of `client-config-dir`                          |
 | openvpn_client_configs    | dict    |         | {}      | Dict of settings custom client configs               |
 
+## Arbitrary extra options
+
+| Variable                  | Type  | Choices | Default | Comment                                          |
+|---------------------------|-------|---------|---------|--------------------------------------------------|
+| openvpn_server_extra_opts | list  |         | []      | Lines to add to the OpenVPN server configuration |
+
 ## Logrotate/Syslog
 
 Set your own custom logrotate options

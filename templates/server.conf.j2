@@ -141,3 +141,9 @@ client-connect {{ openvpn_base_dir }}/client_connect.sh
 {% if openvpn_script_client_disconnect is defined %}
 client-disconnect {{ openvpn_base_dir }}/client_disconnect.sh
 {% endif %}
+
+{% if openvpn_server_extra_opts is defined and openvpn_server_extra_opts | length > 0 %}
+{% for opt in openvpn_server_extra_opts %}
+{{ opt }}
+{% endfor %}
+{% endif %}
