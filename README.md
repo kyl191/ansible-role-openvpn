@@ -80,7 +80,7 @@ Change these options if you need to force a particular firewall or change how th
 | openvpn_manage_firewall_rules    | boolean | true, false                    | true     | Allow playbook to manage iptables                                                                           |
 | openvpn_firewall                 | string  | auto, firewalld, ufw, iptables | auto     | The firewall software to configure network rules. "auto" will attempt to detect it by inspecting the system |
 | openvpn_masquerade_not_snat      | boolean | true, false                    | false    | Set to true if you want to set up MASQUERADE instead of the default SNAT in iptables.                       |
-| openvpn_openvpn_no_nat           | boolean | true, false                    | false    | Disable NAT configuration                                                                                   |
+| openvpn_no_nat           | boolean | true, false                    | false    | Disable NAT configuration                                                                                   |
 
 ## OpenVPN Config Options
 
