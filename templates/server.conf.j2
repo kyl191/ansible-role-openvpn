@@ -43,7 +43,7 @@ client-to-client
 {% endif %}
 
 server {{ openvpn_server_network }} {{ openvpn_server_netmask }}
-{% if openvpn_server_ipv6_network is defined %}
+{% if openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network %}
 server-ipv6 {{ openvpn_server_ipv6_network }}
 {% endif %}
 {% if openvpn_topology is defined %}

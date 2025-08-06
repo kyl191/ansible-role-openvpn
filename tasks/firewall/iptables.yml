@@ -76,7 +76,7 @@
         action: insert
         comment: "Perform NAT IPv6 readdressing"
         ip_version: ipv6
-      when: openvpn_server_ipv6_network is defined
+      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network
 
 - name: firewall | iptables | Perform NAT readdressing with MASQUERADE
   when: openvpn_masquerade_not_snat is truthy and openvpn_no_nat is falsy
