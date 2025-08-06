@@ -101,7 +101,7 @@
         action: insert
         comment: "Perform NAT IPv6 readdressing"
         ip_version: ipv6
-      when: openvpn_server_ipv6_network is defined
+      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network
 
 - name: firewall | iptables | Save existing iptables rule before start iptables service
   ansible.builtin.shell: "{{ __iptables_save_command }}" # noqa command-instead-of-shell
