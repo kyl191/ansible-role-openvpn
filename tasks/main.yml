@@ -29,7 +29,7 @@
   ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: "1"
-  when: openvpn_server_ipv6_network is defined and openvpn_ci_build is falsy
+  when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network and openvpn_ci_build is falsy
 
 - name: Detect firewall type
   ansible.builtin.import_tasks: firewall/firewall.yml

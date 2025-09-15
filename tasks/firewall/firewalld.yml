@@ -51,6 +51,6 @@
     permanent: true
     state: enabled
     immediate: true
-  when: openvpn_server_ipv6_network is defined
+  when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network
   notify:
     - Restart firewalld
