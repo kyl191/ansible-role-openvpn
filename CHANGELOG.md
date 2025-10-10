@@ -1,3 +1,8 @@
+# Version 3.0.3 (2025-10-10)
+
+* Fix for ipv6 being required ([#245](https://github.com/kyl191/ansible-role-openvpn/pull/245), [#246](https://github.com/kyl191/ansible-role-openvpn/pull/246))
+* Document the `openvpn_no_nat` variable ([#243](https://github.com/kyl191/ansible-role-openvpn/pull/243))
+
 # Version 3.0.2 (2025-03-30)
 
 * Update documentation to reflect change from `clients` to `openvpn_clients` ([#237](https://github.com/kyl191/ansible-role-openvpn/issues/237))
