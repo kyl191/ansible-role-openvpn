@@ -1,3 +1,5 @@
 # This file contains ignores rule violations for ansible-lint
 .github/workflows/ci.yml yaml[line-length]
 tasks/firewall/ufw.yml yaml[line-length]
+tests/ec2.yml role-name[path]
+tests/ec2.yml syntax-check[specific]

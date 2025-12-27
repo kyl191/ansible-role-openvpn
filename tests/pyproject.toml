@@ -1,0 +1,14 @@
+[project]
+name = "tests"
+version = "0.1.0"
+description = "Manage Python dependencies for test scripts"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.42.30",
+]
+
+[dependency-groups]
+dev = [
+    "pyrefly>=0.48.2",
+    "ruff>=0.14.13",
+]

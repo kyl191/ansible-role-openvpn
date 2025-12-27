@@ -1,0 +1,21 @@
+[project]
+name = "ansible-role-openvpn"
+version = "0.1.0"
+description = "Manage Python package dependencies for Ansible role"
+requires-python = ">=3.13"
+dependencies = [
+    "ansible>=13.2.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = [
+    "tests",
+]
+
+[dependency-groups]
+dev = [
+    "ansible-lint>=26.1.1",
+]
