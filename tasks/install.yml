@@ -3,6 +3,7 @@
 # https://docs.fedoraproject.org/en-US/epel/getting-started/
 # Thankfully openvpn is available in the base EPEL repo and
 # I don't appear to have to worry about CRB/powertools/other repos
+# for versions < 10
 # https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
 # https://wiki.rockylinux.org/rocky/repo/#base-repositories
 # Also ignoring the request to install epel-next on CentOS Stream
@@ -20,6 +21,20 @@
     state: present
     disable_gpg_check: true
   when: ansible_facts['distribution'] == "RedHat"
+
+- name: install | Manage CRB repository
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version >= "10"
+    - ansible_distribution != "Fedora"
+  block:
+    - name: install | Check if CRB repository is enabled
+      ansible.builtin.command: dnf repolist --enabled {{ 'codeready-builder' if ansible_distribution == 'RedHat' else 'crb' }}
+      register: __crb_repolist
+      changed_when: false
+    - name: install | Enable CRB repository for RHEL-like 10
+      ansible.builtin.command: dnf config-manager --set-enabled {{ 'codeready-builder' if ansible_distribution == 'RedHat' else 'crb' }}
+      when: (__crb_repolist.stdout is not search('codeready-builder' if ansible_distribution == 'RedHat' else 'crb'))
 
 - name: install | Refresh apt cache
   ansible.builtin.apt:
