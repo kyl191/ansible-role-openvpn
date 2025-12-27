@@ -1,0 +1,12 @@
+# End-to-End Test Configuration
+
+[aws]
+region = "us-west-2"
+profile = "acg"
+# tag_key = "Environment"
+# Optional: tag_value = "Test"
+
+[ssh]
+default_user = "ec2-user"
+# Path to SSH key can be overridden here or via CLI (CLI preferred for secrets)
+# key_path = "~/.ssh/id_rsa"

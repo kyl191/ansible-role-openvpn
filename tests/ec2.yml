@@ -1,0 +1,12 @@
+- name: Test OpenVPN role on EC2
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - role: ../kyl191.openvpn
+      openvpn_port: 4300
+      openvpn_sync_certs: true
+      openvpn_client_register_dns: false
+      openvpn_clients:
+        - client1
+        - client2

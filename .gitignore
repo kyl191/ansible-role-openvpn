@@ -1,1 +1,4 @@
-.ansible
+.ansible/
+tests/e2e_report.md
+tests/__pycache__
+tests/.ruff_cache
