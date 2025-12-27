@@ -18,6 +18,14 @@
       ansible.builtin.package:
         name: checkpolicy
         state: present
+    - name: selinux | Install selinux-policy-targeted-extra for RHEL 10 and variants
+      ansible.builtin.package:
+        name: selinux-policy-targeted-extra
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - ansible_distribution_major_version >= "10"
+        - ansible_distribution != "Fedora"
     - name: selinux | Build and install selinux policy
       ansible.builtin.command: "{{ item }}"
       args:
