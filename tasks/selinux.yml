@@ -23,9 +23,9 @@
         name: selinux-policy-targeted-extra
         state: present
       when:
-        - ansible_os_family == "RedHat"
-        - ansible_distribution_major_version >= "10"
-        - ansible_distribution != "Fedora"
+        - ansible_facts['os_family'] == "RedHat"
+        - ansible_facts['distribution_major_version']|int >= 10
+        - ansible_facts['distribution'] != "Fedora"
     - name: selinux | Build and install selinux policy
       ansible.builtin.command: "{{ item }}"
       args:
