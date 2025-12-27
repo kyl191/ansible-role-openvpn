@@ -30,8 +30,6 @@ jobs:
       matrix:
         version:
           - "centos:stream9"
-          - "fedora:38"
-          - "fedora:39"
           - "almalinux:9"
           - "rockylinux:9"
 
@@ -201,8 +199,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "fedora-40"
-          - "fedora-41"
+          - "fedora-42"
+          - "fedora-43"
+          - "rockylinux-10"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

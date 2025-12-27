@@ -24,17 +24,19 @@
 
 - name: install | Manage CRB repository
   when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version >= "10"
-    - ansible_distribution != "Fedora"
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version']|int >= 10
+    - ansible_facts['distribution'] != "Fedora"
   block:
     - name: install | Check if CRB repository is enabled
-      ansible.builtin.command: dnf repolist --enabled {{ 'codeready-builder' if ansible_distribution == 'RedHat' else 'crb' }}
+      ansible.builtin.command: dnf repolist --enabled {{ 'codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb' }}
       register: __crb_repolist
       changed_when: false
     - name: install | Enable CRB repository for RHEL-like 10
-      ansible.builtin.command: dnf config-manager --set-enabled {{ 'codeready-builder' if ansible_distribution == 'RedHat' else 'crb' }}
-      when: (__crb_repolist.stdout is not search('codeready-builder' if ansible_distribution == 'RedHat' else 'crb'))
+      ansible.builtin.command: dnf config-manager --set-enabled {{ 'codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb' }}
+      when: (__crb_repolist.stdout is not search('codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb'))
+      register: __crb_enabled
+      changed_when: __crb_enabled.rc == 0
 
 - name: install | Refresh apt cache
   ansible.builtin.apt:
