@@ -10,7 +10,7 @@
 # Assume that's what we want for a server
 # https://medium.com/opsops/ansible-default-ipv4-is-not-what-you-think-edb8ab154b10
 - name: firewall | firewalld | Get zone of default interface
-  ansible.builtin.command: firewall-cmd --get-zone-of-interface={{ ansible_default_ipv4.interface }}
+  ansible.builtin.command: firewall-cmd --get-zone-of-interface={{ ansible_facts['default_ipv4']['interface'] }}
   register: __firewalld_default_zone
   check_mode: false
   changed_when: false # Read only, never report as changed

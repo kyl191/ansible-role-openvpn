@@ -56,7 +56,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }} -j SNAT --to-source {{ ansible_default_ipv6.address }}
+          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }} -j SNAT --to-source {{ ansible_facts['default_ipv6']['address'] }}
           COMMIT
       when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
 

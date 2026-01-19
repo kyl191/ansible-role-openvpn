@@ -4,23 +4,23 @@
     __iptables_save_command: "/usr/sbin/netfilter-persistent save"
     openvpn_iptables_service: netfilter-persistent
   when: >-
-    (ansible_distribution == 'Debian' and ansible_distribution_version|int >= 9)
+    (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_version']|int >= 9)
     or
-    (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 16)
+    (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['lsb']['major_release']|int >= 16)
 
 - name: firewall | iptables | Install iptables-persistent (Debian/Ubuntu)
   ansible.builtin.package:
     name: "{{ iptables_persistent_package_name }}"
     state: present
   register: __iptables_installed
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: firewall | iptables | Install iptables-services (RedHat/CentOS)
   ansible.builtin.package:
     name: "{{ iptables_services_package_name }}"
     state: present
   register: __iptables_installed
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts['os_family'] == "RedHat"
 
 - name: firewall | iptables | Allow forwarding from tun devices
   ansible.builtin.iptables:
@@ -61,7 +61,7 @@
         chain: POSTROUTING
         source: "{{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
         destination: "! {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }}"
-        to_source: "{{ ansible_default_ipv4.address }}"
+        to_source: "{{ ansible_facts['default_ipv4']['address'] }}"
         jump: SNAT
         action: insert
         comment: "Perform NAT readdressing"
@@ -71,7 +71,7 @@
         chain: POSTROUTING
         source: "{{ openvpn_server_ipv6_network }}"
         destination: "! {{ openvpn_server_ipv6_network }}"
-        to_source: "{{ ansible_default_ipv6.address }}"
+        to_source: "{{ ansible_facts['default_ipv6']['address'] }}"
         jump: SNAT
         action: insert
         comment: "Perform NAT IPv6 readdressing"
