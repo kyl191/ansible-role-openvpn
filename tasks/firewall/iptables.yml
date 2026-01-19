@@ -76,7 +76,7 @@
         action: insert
         comment: "Perform NAT IPv6 readdressing"
         ip_version: ipv6
-      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network
+      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
 
 - name: firewall | iptables | Perform NAT readdressing with MASQUERADE
   when: openvpn_masquerade_not_snat is truthy and openvpn_no_nat is falsy
@@ -101,7 +101,7 @@
         action: insert
         comment: "Perform NAT IPv6 readdressing"
         ip_version: ipv6
-      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network
+      when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
 
 - name: firewall | iptables | Save existing iptables rule before start iptables service
   ansible.builtin.shell: "{{ __iptables_save_command }}" # noqa command-instead-of-shell
