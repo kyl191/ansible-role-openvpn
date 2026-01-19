@@ -116,7 +116,7 @@
   when: openvpn_client_config is falsy
 
 - name: config | Create openvpn service override
-  when: ansible_service_mgr == "systemd"
+  when: ansible_facts['service_mgr'] == "systemd"
   block:
     - name: config | Create openvpn service override directory
       ansible.builtin.file:
@@ -137,4 +137,4 @@
     enabled: true
     state: started
   # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
-  when: ansible_service_mgr != "tail"
+  when: ansible_facts['service_mgr'] != "tail"

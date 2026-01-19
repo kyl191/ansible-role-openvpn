@@ -60,7 +60,7 @@
     enabled: true
     state: started
     daemon_reload: true
-  when: ansible_service_mgr == "systemd"
+  when: ansible_facts['service_mgr'] == "systemd"
 
 - name: server_keys_crl | Fail if there's no systemd
   ansible.builtin.fail:
@@ -69,5 +69,5 @@
       "This is unsupported - You must setup an alternate method to renew the CRL manually. "
       "Set the variable openvpn_manage_crl_without_systemd to true to disable this check."
   when:
-    - ansible_service_mgr != "systemd"
+    - ansible_facts['service_mgr'] != "systemd"
     - openvpn_manage_crl_without_systemd is falsy

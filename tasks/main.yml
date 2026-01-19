@@ -2,9 +2,9 @@
 - name: Include vars for OpenVPN installation
   ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
-    - "../vars/os/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
-    - "../vars/os/{{ ansible_distribution }}.yml"
-    - "../vars/os/{{ ansible_os_family }}.yml"
+    - "../vars/os/{{ ansible_facts['distribution'] }}{{ ansible_facts['distribution_major_version'] }}.yml"
+    - "../vars/os/{{ ansible_facts['distribution'] }}.yml"
+    - "../vars/os/{{ ansible_facts['os_family'] }}.yml"
     - "../vars/empty.yml"
 
 - name: Uninstall OpenVPN
@@ -42,7 +42,7 @@
 - name: Configure SELinux
   ansible.builtin.import_tasks: selinux.yml
   when:
-    - ansible_selinux.status == "enabled"
+    - ansible_facts['selinux']['status'] == "enabled"
 
 - name: Compare existing certs against 'clients' variable
   ansible.builtin.import_tasks: cert_sync_detection.yml

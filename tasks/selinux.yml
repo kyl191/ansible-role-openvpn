@@ -6,7 +6,7 @@
 
 - name: selinux | Setup policy
   when:
-    - ansible_selinux.status == 'enabled'
+    - ansible_facts['selinux']['status'] == 'enabled'
     - __semodule_loaded.stdout.find(openvpn_selinux_module) == -1
   block:
     - name: selinux | Copy selinux type enforcement file

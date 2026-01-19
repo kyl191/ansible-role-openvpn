@@ -11,20 +11,20 @@
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_os_family == "RedHat" and ansible_distribution != "Fedora" and ansible_distribution !="RedHat"
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] != "Fedora" and ansible_facts['distribution'] !="RedHat"
 
 # EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
 - name: install | Install EPEL for RHEL
   ansible.builtin.dnf:
-    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
     state: present
     disable_gpg_check: true
-  when: ansible_distribution == "RedHat"
+  when: ansible_facts['distribution'] == "RedHat"
 
 - name: install | Refresh apt cache
   ansible.builtin.apt:
     update_cache: true
-  when: ansible_pkg_mgr == "apt"
+  when: ansible_facts['pkg_mgr'] == "apt"
 
 - name: install | Install openvpn
   ansible.builtin.package:
