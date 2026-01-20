@@ -66,6 +66,15 @@
     group: "{{ openvpn_conf_group }}"
     mode: "0755"
 
+- name: config | Ensure logrotate.d directory exists
+  ansible.builtin.file:
+    path: /etc/logrotate.d
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  when: openvpn_use_logrotate is truthy
+
 - name: config | Copy openvpn logrotate config file
   ansible.builtin.template:
     src: openvpn_logrotate.conf.j2
