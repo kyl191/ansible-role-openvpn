@@ -38,6 +38,10 @@
       register: __crb_enabled
       changed_when: __crb_enabled.rc == 0
 
+- name: install | Gather the installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
 - name: install | Refresh apt cache
   ansible.builtin.apt:
     update_cache: true
