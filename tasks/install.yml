@@ -42,10 +42,14 @@
   ansible.builtin.package_facts:
     manager: auto
 
+# We must refresh apt cache because attempting to install packages with an empty cache fails
+# If openvpn isn't installed then assume we need to refresh the cache
 - name: install | Refresh apt cache
   ansible.builtin.apt:
     update_cache: true
-  when: ansible_facts['pkg_mgr'] == "apt"
+  when:
+    - ansible_facts["pkg_mgr"] == "apt"
+    - openvpn_package_name not in ansible_facts.packages
 
 - name: install | Install openvpn
   ansible.builtin.package:
