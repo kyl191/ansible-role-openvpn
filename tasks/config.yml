@@ -64,6 +64,7 @@
     dest: "{{ openvpn_log_dir }}"
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
+    state: directory
     mode: "0755"
 
 - name: config | Copy openvpn logrotate config file
