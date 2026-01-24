@@ -177,7 +177,7 @@ def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -
             line = f"{inst.hostname} ansible_user={inst.ssh_user} "
             if key_path:
                 line += f"ansible_ssh_private_key_file={key_path} "
-
+            line += "ansible_python_interpreter=auto_silent "
             line += "ansible_ssh_common_args='-o StrictHostKeyChecking=no' "
             line += f"openvpn_server_hostname={inst.public_ip}\n"
             inventory.write(line)
