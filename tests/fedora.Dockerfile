@@ -33,9 +33,11 @@ RUN dnf -y install \
    && dnf clean all
 
 # Install packages for ansible-role-openvpn
+# python3-dnf required for ansible.builtin.package_facts
 RUN dnf -y install \
     firewalld python3-firewall procps-ng \
-    iproute\
+    iproute \
+    python3-dnf \
     && dnf clean all
 
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
