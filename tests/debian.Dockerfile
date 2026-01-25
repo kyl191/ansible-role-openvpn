@@ -24,8 +24,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ansible \
-    firewalld python3-firewall \
+    firewalld python3-firewall nftables \
     python3-apt \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN dpkg-divert --local --rename --add /sbin/udevadm && ln -s /bin/true /sbin/udevadm

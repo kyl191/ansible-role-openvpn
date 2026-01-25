@@ -1,5 +1,5 @@
 ARG VERSION=latest
-FROM fedora:$VERSION
+FROM registry.fedoraproject.org/fedora:$VERSION
 LABEL org.opencontainers.image.source=https://github.com/kyl191/ansible-role-openvpn
 LABEL org.opencontainers.image.title="Fedora $VERSION with Ansible"
 LABEL org.opencontainers.image.description="Fedora with Ansible, based off https://github.com/diodonfrost/docker-ansible/blob/master/fedora-ansible/Dockerfile.fedora-40"

@@ -25,6 +25,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ansible \
     firewalld python3-firewall \
     python3-apt \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure udev for docker integration
