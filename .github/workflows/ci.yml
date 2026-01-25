@@ -30,8 +30,6 @@ jobs:
       matrix:
         version:
           - "centos:stream9"
-          - "almalinux:9"
-          - "rockylinux:9"
 
     container:
       image: diodonfrost/ansible-${{ matrix.version }}
@@ -158,7 +156,6 @@ jobs:
         version:
           - "ubuntu:22.04"
           - "debian:12"
-          - "debian:testing"
 
     container:
       image: diodonfrost/ansible-${{ matrix.version }}
@@ -201,14 +198,21 @@ jobs:
         version:
           - "fedora-42"
           - "fedora-43"
+          - "almalinux-9"
+          - "almalinux-10"
+          - "rockylinux-9"
           - "rockylinux-10"
+          - "debian-13"
+          - "ubuntu-24.04"
+          - "ubuntu-25.10"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container
-        run: sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/kyl191.openvpn
+        run:
+          sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/kyl191.openvpn
           --user=root ghcr.io/kyl191/ansible-images:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
