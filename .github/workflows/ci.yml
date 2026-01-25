@@ -211,14 +211,17 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container
-        run:
-          sudo podman create --name ${{ matrix.version }} --privileged --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/kyl191.openvpn
-          --user=root ghcr.io/kyl191/ansible-images:${{ matrix.version }}
+        run: sudo podman create --name ${{ matrix.version }} --privileged --cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun --cgroupns=host --network=bridge --systemd=always --volume=${GITHUB_WORKSPACE}:/etc/ansible/roles/kyl191.openvpn --user=root ghcr.io/kyl191/ansible-images:${{ matrix.version }}
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
       # https://www.jeffgeerling.com/blog/2020/resolving-fedora-dnf-error-no-such-file-or-directory-varlibdnfrpmdblockpid
       - name: Wait for container to start
-        run: while [ "$(sudo podman exec ${{ matrix.version }} systemctl is-system-running)" != "running" ]; do sleep 5; done
+        run: |
+          until sudo podman exec ${{ matrix.version }} systemctl is-active --quiet multi-user.target; do
+            echo "Waiting for systemd... Current failed units:"
+            sudo podman exec ${{ matrix.version }} systemctl list-units --failed --no-legend --no-pager
+            sleep 5
+          done
       - name: Install required dependencies from Ansible Galaxy
         run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
