@@ -11,6 +11,7 @@
   ansible.builtin.fail:
     msg: "No firewall detected, install one before proceeding (firewalld||ufw||iptables)"
   when:
+    - openvpn_firewall == 'auto'
     - "'firewalld' not in ansible_facts.packages"
     - "'ufw' not in ansible_facts.packages"
     - "'iptables' not in ansible_facts.packages"
