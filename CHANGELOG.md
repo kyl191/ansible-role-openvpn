@@ -1,10 +1,45 @@
-# v Next
+# vNext
 
-* Added support for `semanage` to manage SELinux ports instead of compiling a custom SELinux module. This is now the default behavior.
-  * The variable `openvpn_selinux_use_semanage` controls this (defaults to `true`).
-  * To revert to the legacy behavior: `openvpn_selinux_use_semanage: false`.
-  * The legacy module compilation method is deprecated and will be removed in a future release.
-  * When `openvpn_selinux_use_semanage` is enabled, any existing legacy SELinux module will be unloaded and removed.
+## Planned Deprecations
+
+1. Support for compiling and installing the OpenVPN SELinux module is being removed
+
+# Version 3.1.0 (2026-02-08)
+
+## Behaviour Changes
+
+1. Prior to this release the role compiled a SELinux module to allow OpenVPN to listen on any port. This release adds support to use native SELinux tooling to allow the configured protocol and port. The variable `openvpn_selinux_use_semanage` controls this behaviour and it defaults to `true`.
+
+    * When `openvpn_selinux_use_semanage` is enabled, any existing legacy SELinux module will be unloaded and removed.
+    * To revert to the previous behavior, set `openvpn_selinux_use_semanage: false`.
+    * Packages previously installed to support compiling the module will not be removed
+
+2. Firewall detection is now based on installed packages instead of checking if commands are available:
+    * This might result in different firewalls being detected.
+    * `package_facts` relies on [`python3-dnf`/`python3-apt`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/package_facts_module.html#parameter-manager) being installed - if not installed no firewall will be detected
+    * Force a specific firewall to be used with `openvpn_firewall`
+
+3. The log directory (defaulted to `/var/log`) wasn't forced to be a directory and could be created as a file. This release explicitly creates the log directory as a directory going forward
+
+* Note: Ansible will silently install `python3-apt` as needed thanks to the use of [`ansible.builtin.apt`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/apt_module.html#notes).
+
+## CentOS 10 Support
+
+This version introduces support for CentOS 10 and derivatives (AlmaLinux/Rocky Linux/similar). RHEL 10 is officially unsupported - The RHEL UBI images don't have firewalld or iptables available and fail CI tests.
+
+1. Automatically enables the CodeReady Builder DNF repo on CentOS Stream 10 & derivatives when `openvpn_selinux_use_semanage` is set to `false`
+2.
+
+## Improvements
+
+* Fix for IPv6 SNAT broken conditionals failure ([#247](https://github.com/kyl191/ansible-role-openvpn/issues/247))
+* Cleanup/Address INJECT_FACTS_AS_VARS warnings
+
+## Developer Improvements
+
+1. CI now builds against more images running systemd
+2. Image builds happen weekly & are automatically pushed
+3. `uv` used to control ansible version & dependencies instead of whatever I have installed
 
 # Version 3.0.3 (2025-10-10)
 
