@@ -1,3 +1,28 @@
+# Version 3.1.0 (2026-01-31)
+
+## Behaviour Changes
+
+1. Automatically enables the CodeReady Builder on CentOS Stream 10 & derivatives
+2. Firewall detection is now based on installed packages instead of checking if commands are available:
+    * This might result in different firewalls being detected.
+    * `package_facts` relies on [`python3-dnf`/`python3-apt`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/package_facts_module.html#parameter-manager) being installed - if not installed no firewall will be detected
+    * Force a specific firewall to be used with `openvpn_firewall`
+3. The log directory (defaulted to `/var/log`) wasn't forced to be a directory and could be created as a file. This release explicitly created the log directory as a directory
+
+* Note: Ansible seems to be silently installing `python3-apt` thanks to the use of [`ansible.builtin.apt`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/apt_module.html#notes), I've filed [a bug against Ansible](https://github.com/ansible/ansible/issues/86471) to ask that it not be silent.
+
+## Improvements
+
+* Fix for IPv6 SNAT broken conditionals failure ([#247](https://github.com/kyl191/ansible-role-openvpn/issues/247))
+* Cleanup/Address INJECT_FACTS_AS_VARS warnings
+* Support CentOS Stream 10 & derivatives (Alma & Rocky)
+
+## Developer Improvements
+
+1. CI now builds against more images running systemd
+2. Image builds happen weekly & are automatically pushed
+3. `uv` used to control ansible version & dependencies instead of whatever I have installed
+
 # Version 3.0.3 (2025-10-10)
 
 * Fix for ipv6 being required ([#245](https://github.com/kyl191/ansible-role-openvpn/pull/245), [#246](https://github.com/kyl191/ansible-role-openvpn/pull/246))
