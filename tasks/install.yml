@@ -41,6 +41,15 @@
 - name: install | Gather the installed packages
   ansible.builtin.package_facts:
     manager: auto
+  ignore_errors: true
+  register: __package_gathering_result
+
+# Handle any package gathering failure by setting an empty packages fact
+# Safe as long as we're making decisions based on package not in facts
+- name: install | Ensure packages fact exists
+  ansible.builtin.set_fact:
+    ansible_facts: "{{ ansible_facts | default({}) | combine({'packages': {}}) }}"
+  when: __package_gathering_result.failed | default(false)
 
 # We must refresh apt cache because attempting to install packages with an empty cache fails
 # If openvpn isn't installed then assume we need to refresh the cache
