@@ -215,13 +215,15 @@ jobs:
       - name: Start container
         run: sudo podman start ${{ matrix.version }}
       # https://www.jeffgeerling.com/blog/2020/resolving-fedora-dnf-error-no-such-file-or-directory-varlibdnfrpmdblockpid
+      # Add '|| true' so the CI doesn't exit if the second command fails
       - name: Wait for container to start
         run: |
           until sudo podman exec ${{ matrix.version }} systemctl is-active --quiet multi-user.target; do
             echo "Waiting for systemd... Current failed units:"
-            sudo podman exec ${{ matrix.version }} systemctl list-units --failed --no-legend --no-pager
+            sudo podman exec ${{ matrix.version }} systemctl list-units --failed --no-legend --no-pager 2>/dev/null || true
             sleep 5
           done
+        timeout-minutes: 5
       - name: Install required dependencies from Ansible Galaxy
         run: sudo podman exec ${{ matrix.version }} ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
       - name: Make sure ansible connection is sane
