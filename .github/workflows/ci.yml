@@ -66,46 +66,6 @@ jobs:
           echo "cat alpha-*.ovpn"
           find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
 
-  build-ubi9:
-    runs-on: ubuntu-latest
-    name: fedora-${{ matrix.version }}
-    needs:
-      - check-syntax
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          # ubi9-init is https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd
-          # plus ansible
-          - "ubi9-init"
-    container:
-      image: ghcr.io/kyl191/ansible-${{ matrix.version }}
-      env:
-        container: docker
-      volumes:
-        - /sys/fs/cgroup:/sys/fs/cgroup
-        - ${{ github.workspace }}:/etc/ansible/roles/kyl191.openvpn
-      options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install required dependencies from Ansible Galaxy
-        run: ansible-galaxy install -r /etc/ansible/roles/kyl191.openvpn/requirements.yml
-      - name: Make sure ansible connection is sane
-        run: ansible -m setup -c local -i 127.0.0.1, all
-      - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
-      - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
-      - name: Container state debug output
-        continue-on-error: true
-        run: |
-          ls -lR /etc/openvpn
-          echo "cat openvpn_udp_1194.conf"
-          find /etc/openvpn/ -maxdepth 3 -name openvpn_udp_1194.conf -type f -exec cat {} \;
-          echo "cat alpha-*.ovpn"
-          find /etc/openvpn/ -maxdepth 3 -name "alpha-*.ovpn" -type f -exec cat {} \;
-
   build-debian-like:
     runs-on: ubuntu-latest
     name: debian-like-${{ matrix.version }}
@@ -168,6 +128,8 @@ jobs:
           - "debian-13"
           - "ubuntu-24.04"
           - "ubuntu-25.10"
+          - "ubi9-init"
+          - "ubi10-init"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
