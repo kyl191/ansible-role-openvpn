@@ -25,7 +25,9 @@
       when:
         - ansible_facts['os_family'] == "RedHat"
         - ansible_facts['distribution_major_version']|int >= 10
-        - ansible_facts['distribution'] != "Fedora"
+        - ansible_facts['distribution'] != "Fedora"s
+        # This RPM doesn't appear to exist on RHEL
+        - ansible_facts['distribution'] != "RedHat"
     - name: selinux | Build and install selinux policy
       ansible.builtin.command: "{{ item }}"
       args:

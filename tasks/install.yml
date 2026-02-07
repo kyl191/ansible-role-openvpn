@@ -1,18 +1,38 @@
 ---
 # Install the EPEL repo RPM on RedHat-like machines
 # https://docs.fedoraproject.org/en-US/epel/getting-started/
-# Thankfully openvpn is available in the base EPEL repo and
-# I don't appear to have to worry about CRB/powertools/other repos
-# for versions < 10
-# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
-# https://wiki.rockylinux.org/rocky/repo/#base-repositories
-# Also ignoring the request to install epel-next on CentOS Stream
-# because that's only requested for CentOS Stream 9
-- name: install | Install EPEL for CentOS & other RHEL clones
+- name: install | Install EPEL for CentOS-like distros
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] != "Fedora" and ansible_facts['distribution'] !="RedHat"
+  when: 
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution'] != "Fedora"
+    - ansible_facts['distribution'] != "RedHat"
+
+# We need to enable the CRB repo for CentOS 10-based distros
+# There's a new selinux-policy-extra package in CRB
+# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
+# https://wiki.rockylinux.org/rocky/repo/#base-repositories
+# AlmaLinux has the repository enabled by default from 10.1
+# https://almalinux.org/blog/2025-09-08-enabling-crb-by-default-for-almalinux10/
+- name: install | Manage CRB repository for SELinux enabled CentOS 10-like distros
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version']|int >= 10
+    - ansible_facts['distribution'] != "Fedora"
+    - ansible_facts['distribution'] != "RedHat"
+    - ansible_facts['selinux']['status'] == 'enabled'
+  block:
+    - name: install | Check if CRB repository is enabled
+      ansible.builtin.command: dnf repolist --enabled crb
+      register: __crb_repolist
+      changed_when: false
+    - name: install | Enable CRB repository for CentOS 10-like distros
+      ansible.builtin.command: dnf config-manager --set-enabled crb
+      when: (__crb_repolist.stdout is not search('crb'))
+      register: __crb_enabled
+      changed_when: __crb_enabled.rc == 0
 
 # EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
 - name: install | Install EPEL for RHEL
@@ -22,21 +42,9 @@
     disable_gpg_check: true
   when: ansible_facts['distribution'] == "RedHat"
 
-- name: install | Manage CRB repository
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version']|int >= 10
-    - ansible_facts['distribution'] != "Fedora"
-  block:
-    - name: install | Check if CRB repository is enabled
-      ansible.builtin.command: dnf repolist --enabled {{ 'codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb' }}
-      register: __crb_repolist
-      changed_when: false
-    - name: install | Enable CRB repository for RHEL-like 10
-      ansible.builtin.command: dnf config-manager --set-enabled {{ 'codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb' }}
-      when: (__crb_repolist.stdout is not search('codeready-builder' if ansible_facts['distribution'] == 'RedHat' else 'crb'))
-      register: __crb_enabled
-      changed_when: __crb_enabled.rc == 0
+- name: install | Manage RHEL codeready-builder repository
+  ansible.builtin.command: /usr/bin/crb --enable
+  when: ansible_facts['distribution'] == "RedHat"
 
 - name: install | Gather the installed packages
   ansible.builtin.package_facts:
