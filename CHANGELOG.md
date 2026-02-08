@@ -1,3 +1,11 @@
+# v Next
+
+* Added support for `semanage` to manage SELinux ports instead of compiling a custom SELinux module. This is now the default behavior.
+  * The variable `openvpn_selinux_use_semanage` controls this (defaults to `true`).
+  * To revert to the legacy behavior: `openvpn_selinux_use_semanage: false`.
+  * The legacy module compilation method is deprecated and will be removed in a future release.
+  * When `openvpn_selinux_use_semanage` is enabled, any existing legacy SELinux module will be unloaded and removed.
+
 # Version 3.0.3 (2025-10-10)
 
 * Fix for ipv6 being required ([#245](https://github.com/kyl191/ansible-role-openvpn/pull/245), [#246](https://github.com/kyl191/ansible-role-openvpn/pull/246))

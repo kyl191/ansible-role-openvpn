@@ -10,40 +10,12 @@
     - ansible_facts['distribution'] != "Fedora"
     - ansible_facts['distribution'] != "RedHat"
 
-# We need to enable the CRB repo for CentOS 10-based distros
-# There's a new selinux-policy-extra package in CRB
-# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
-# https://wiki.rockylinux.org/rocky/repo/#base-repositories
-# AlmaLinux has the repository enabled by default from 10.1
-# https://almalinux.org/blog/2025-09-08-enabling-crb-by-default-for-almalinux10/
-- name: install | Manage CRB repository for SELinux enabled CentOS 10-like distros
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version']|int >= 10
-    - ansible_facts['distribution'] != "Fedora"
-    - ansible_facts['distribution'] != "RedHat"
-    - ansible_facts['selinux']['status'] == 'enabled'
-  block:
-    - name: install | Check if CRB repository is enabled
-      ansible.builtin.command: dnf repolist --enabled crb
-      register: __crb_repolist
-      changed_when: false
-    - name: install | Enable CRB repository for CentOS 10-like distros
-      ansible.builtin.command: dnf config-manager --set-enabled crb
-      when: (__crb_repolist.stdout is not search('crb'))
-      register: __crb_enabled
-      changed_when: __crb_enabled.rc == 0
-
 # EPEL install is different for RHEL specifically: https://www.redhat.com/en/blog/install-epel-linux
 - name: install | Install EPEL for RHEL
   ansible.builtin.dnf:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
     state: present
     disable_gpg_check: true
-  when: ansible_facts['distribution'] == "RedHat"
-
-- name: install | Manage RHEL codeready-builder repository
-  ansible.builtin.command: /usr/bin/crb --enable
   when: ansible_facts['distribution'] == "RedHat"
 
 - name: install | Gather the installed packages
@@ -87,6 +59,49 @@
   when:
     - openvpn_use_ldap is truthy
     - openvpn_use_prebuilt_ldap_plugin is truthy
+
+- name: install | Install selinux dependencies (RedHat)
+  ansible.builtin.package:
+    name: policycoreutils-python-utils
+    state: present
+  when: 
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['selinux']['status'] == 'enabled'
+    - openvpn_selinux_use_semanage | bool
+
+- name: install | Install selinux dependencies (Debian/Ubuntu)
+  ansible.builtin.package:
+    name: policycoreutils
+    state: present
+  when: 
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['selinux']['status'] == 'enabled'
+    - openvpn_selinux_use_semanage | bool
+
+# We need to enable the CRB repo for CentOS 10-based distros
+# There's a new selinux-policy-extra package in CRB
+# https://wiki.almalinux.org/repos/AlmaLinux.html#almalinux-repositories
+# https://wiki.rockylinux.org/rocky/repo/#base-repositories
+# AlmaLinux has the repository enabled by default from 10.1
+# https://almalinux.org/blog/2025-09-08-enabling-crb-by-default-for-almalinux10/
+- name: install | Manage CRB repository for SELinux enabled CentOS 10-like distros
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version']|int >= 10
+    - ansible_facts['distribution'] != "Fedora"
+    - ansible_facts['distribution'] != "RedHat"
+    - ansible_facts['selinux']['status'] == 'enabled'
+    - not openvpn_selinux_use_semanage | bool
+  block:
+    - name: install | Check if CRB repository is enabled
+      ansible.builtin.command: dnf repolist --enabled crb
+      register: __crb_repolist
+      changed_when: false
+    - name: install | Enable CRB repository for CentOS 10-like distros
+      ansible.builtin.command: dnf config-manager --set-enabled crb
+      when: (__crb_repolist.stdout is not search('crb'))
+      register: __crb_enabled
+      changed_when: __crb_enabled.rc == 0
 
 # RHEL has the group 'nobody', 'Debian/Ubuntu' have 'nogroup'
 # standardize on 'nogroup'
