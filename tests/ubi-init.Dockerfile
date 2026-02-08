@@ -16,7 +16,7 @@ RUN dnf -y install \
 # Install packages for ansible-role-openvpn
 # python3-dnf required for ansible.builtin.package_facts
 RUN dnf -y install \
-    firewalld python3-firewall procps-ng \
+    python3-firewall procps-ng \
     iproute \
     python3-dnf \
     && dnf clean all
