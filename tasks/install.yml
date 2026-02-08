@@ -5,7 +5,7 @@
   ansible.builtin.package:
     name: "{{ epel_package_name }}"
     state: present
-  when: 
+  when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution'] != "Fedora"
     - ansible_facts['distribution'] != "RedHat"
@@ -64,7 +64,7 @@
   ansible.builtin.package:
     name: policycoreutils-python-utils
     state: present
-  when: 
+  when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['selinux']['status'] == 'enabled'
     - openvpn_selinux_use_semanage | bool
@@ -73,7 +73,7 @@
   ansible.builtin.package:
     name: policycoreutils
     state: present
-  when: 
+  when:
     - ansible_facts['os_family'] == "Debian"
     - ansible_facts['selinux']['status'] == 'enabled'
     - openvpn_selinux_use_semanage | bool

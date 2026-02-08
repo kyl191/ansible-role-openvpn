@@ -5,12 +5,12 @@
     proto: "{{ openvpn_proto }}"
     setype: openvpn_port_t
     state: present
-  when: 
+  when:
     - ansible_facts['selinux']['status'] == 'enabled'
     - openvpn_selinux_use_semanage | bool
 
 - name: selinux | Remove legacy module artifacts
-  when: 
+  when:
     - ansible_facts['selinux']['status'] == 'enabled'
     - openvpn_selinux_use_semanage | bool
   block:
@@ -22,6 +22,7 @@
     - name: selinux | Remove legacy module
       ansible.builtin.command: semodule -r {{ openvpn_selinux_module }}
       when: __semodule_loaded.stdout.find(openvpn_selinux_module) != -1
+      changed_when: true
 
     - name: selinux | Remove legacy module files
       ansible.builtin.file:
@@ -33,13 +34,14 @@
         - "{{ openvpn_selinux_module }}.pp"
 
 - name: selinux | Legacy module method
-  when: 
+  when:
     - ansible_facts['selinux']['status'] == 'enabled'
     - not openvpn_selinux_use_semanage | bool
   block:
     - name: selinux | Warn about deprecated module method
       ansible.builtin.debug:
-        msg: "Using the custom SELinux module compilation method is deprecated and will be removed in a future version. Please switch to 'openvpn_selinux_use_semanage: true'."
+        msg: "Using the custom SELinux module compilation method is deprecated and will be removed in a future version.
+           Please switch to 'openvpn_selinux_use_semanage: true'."
 
     - name: selinux | Check if module was loaded
       ansible.builtin.command: semodule --list-modules
