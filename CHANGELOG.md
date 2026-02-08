@@ -27,8 +27,7 @@
 
 This version introduces support for CentOS 10 and derivatives (AlmaLinux/Rocky Linux/similar). RHEL 10 is officially unsupported - The RHEL UBI images don't have firewalld or iptables available and fail CI tests.
 
-1. Automatically enables the CodeReady Builder DNF repo on CentOS Stream 10 & derivatives when `openvpn_selinux_use_semanage` is set to `false`
-2.
+To support the new `selinux-policy-extra` RPM, the role automatically enables the CodeReady Builder DNF repo on CentOS Stream 10 & derivatives when `openvpn_selinux_use_semanage` is set to `false`. This matches the [AlmaLinux default for 10.1+](https://almalinux.org/blog/2025-09-08-enabling-crb-by-default-for-almalinux10/).
 
 ## Improvements
 
