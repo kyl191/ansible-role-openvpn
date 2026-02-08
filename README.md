@@ -54,6 +54,7 @@ These options change how the role works. This is a catch-all group, specific gro
 | openvpn_ovpn_dir             | string  |             | /etc/openvpn      | Path where your client configurations will be stored                          |
 | openvpn_revoke_these_certs   | list    |             | []                | List of client certificates to revoke (requires `openvpn_use_crl` to be true). |
 | openvpn_selinux_module       | string  |             | my-openvpn-server | Set the SELinux module name                                                   |
+| openvpn_selinux_use_semanage | boolean | true, false | true              | Use `semanage` to configure SELinux ports instead of compiling a custom module. |
 | openvpn_service_name         | string  |             | openvpn-server@{{ openvpn_config_file }}.service           | Name of the service. Used by systemctl to start the service                   |
 | openvpn_sync_certs           | boolean | true, false | false             | Revoke certificates not explicitly defined in 'openvpn_clients'                       |
 | openvpn_uninstall            | boolean | true, false | false             | Set to true to uninstall the OpenVPN service                                  |
