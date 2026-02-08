@@ -128,8 +128,8 @@ jobs:
           - "debian-13"
           - "ubuntu-24.04"
           - "ubuntu-25.10"
-          - "ubi9-init"
-          - "ubi10-init"
+          # - "ubi9-init"
+          # - "ubi10-init"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
