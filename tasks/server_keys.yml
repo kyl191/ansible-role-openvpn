@@ -3,7 +3,7 @@
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
 - name: server_keys | Copy openssl server/ca extensions
   ansible.builtin.copy:
