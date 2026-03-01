@@ -12,16 +12,18 @@ galaxy_info:
     - name: EL
       versions:
         - "9"
+        - "10"
     - name: Fedora
       versions:
-        - "38"
-        - "39"
-        - "40"
+        - "43"
+        - "44"
     - name: Debian
       versions:
-        - bookworm
+        - trixie
     - name: Ubuntu
       versions:
         - jammy
+        - noble
+        - resolute
   galaxy_tags:
     - networking

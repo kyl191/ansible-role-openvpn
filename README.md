@@ -2,7 +2,7 @@
 
 Github Actions (CI Status): [![Github CI](https://github.com/kyl191/ansible-role-openvpn/workflows/CI/badge.svg)](https://github.com/kyl191/ansible-role-openvpn/actions/workflows/ci.yml?query=branch%3Amaster)
 
-Ansible Galaxy page: https://galaxy.ansible.com/ui/standalone/roles/kyl191/openvpn/
+Ansible Galaxy page: <https://galaxy.ansible.com/ui/standalone/roles/kyl191/openvpn/>
 
 This role installs OpenVPN, configures it as a server, sets up networking and firewalls (primarily firewalld, ufw and iptables are best effort), and can optionally create client certificates.
 
@@ -161,7 +161,7 @@ X.509 limits the CN field to **64 characters**. The role enforces this limit in 
 |------------------------------------|---------|-------------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openvpn_addl_client_options        | list    |             | empty                                            | List of user-defined client options that are not already present in the client template. (e.g. `- mssfix 1400`)                                                               |
 | openvpn_addl_server_options        | list    |             | empty                                            | List of user-defined server options that are not already present in the server template. (e.g. `- ping-timer-rem`)                                                            |
-| openvpn_compression                | string  |             | `unset`                                              | Set `compress` compression option. Empty for no compression.                                                                                                                  |
+| openvpn_compression                | string  |             | `unset`                                          | Set `compress` compression option. Leave empty for no compression. This will be removed in a subsequent release: The [VORACLE attack (2018) exploits VPN compression to recover plaintext from HTTPS connections](https://community.openvpn.net/Security%20Announcements/VORACLE). |
 | openvpn_config_file                | string  |             | openvpn_{{ openvpn\_proto }}\_{{ openvpn_port }} | The config file name you want to use (set in vars/main.yml)                                                                                                                   |
 | openvpn_enable_management          | boolean | true, false | false                                            |                                                                                                                                                                               |
 | openvpn_ifconfig_pool_persist_file | string  |             | ipp.txt                                          |                                                                                                                                                                               |
