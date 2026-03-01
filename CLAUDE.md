@@ -58,7 +58,7 @@ templates/
   crl-cron.sh.j2        # Checks CRL expiry, calls revoke.sh
   openvpn_logrotate.conf.j2
   openvpn-crl-refresh.service.j2
-  selinux_module.te.j2  # Legacy SELinux TE module (being removed)
+  selinux_module.te.j2  # REMOVED in 3.2.0 — legacy SELinux TE module compilation dropped
 
 files/
   openssl-ca.ext        # X509 CA extensions
@@ -260,7 +260,7 @@ is still destroyed and the run continues to the rest rather than stopping.
 - **`files/dh.pem`** is a pre-generated 2048-bit DH parameter file. DH params are not secret; this is safe and speeds up initial deployment. Set `openvpn_use_pregenerated_dh_params: true` to use it; default generates fresh params.
 - **Service name** follows systemd convention: `openvpn-server@openvpn_{{ proto }}_{{ port }}.service`.
 - **`tls-server`** in `server.conf.j2` is redundant when `tls-crypt` is active (OpenVPN 2.5+ implies it), but harmless.
-- **SELinux:** `openvpn_selinux_use_semanage: true` is the default (uses `semanage port`). The legacy compiled SELinux module path (`openvpn_selinux_use_semanage: false`) is being deprecated.
+- **SELinux:** Always uses `semanage port` (via `community.general.seport`). The legacy compiled SELinux module path was removed in 3.2.0. On upgrade, legacy modules are automatically unloaded (controlled by `openvpn_selinux_module`).
 - **Firewall detection** is based on installed packages (via `package_facts`), not command availability. Requires `python3-dnf` or `python3-apt`. Set `openvpn_firewall` explicitly if detection fails.
 
 ## Required Ansible Collections
