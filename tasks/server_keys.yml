@@ -167,7 +167,7 @@
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
     mode: "0400"
-  when: openvpn_use_pregenerated_dh_params is truthy
+  when: openvpn_dh != "none" and openvpn_use_pregenerated_dh_params is truthy
 
 # Alternatively, if you're concerned about logjam attacks
 - name: server_keys | Generate dh params
@@ -175,7 +175,7 @@
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: dh.pem
-  when: openvpn_use_pregenerated_dh_params is falsy
+  when: openvpn_dh != "none" and openvpn_use_pregenerated_dh_params is falsy
 
 - name: server_keys | Install ca.conf config file
   ansible.builtin.template:

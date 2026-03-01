@@ -5,7 +5,6 @@
   become: true
   vars:
     openvpn_client_register_dns: false
-    openvpn_use_pregenerated_dh_params: true
   roles:
     - role: kyl191.openvpn
       openvpn_clients:

@@ -69,6 +69,37 @@
   * New Fedora & Ubuntu versions; removed EOL Debian, Fedora & Ubuntu versions
   * actions/checkout@v4 -> v7.0.1; ansible/ansible-lint now pinned at v26.6.0
 
+# Version 3.2.0
+
+## OpenVPN 2.7 alignment
+
+OpenVPN 2.7 makes `dh none` the default, deprecating finite-field Diffie-Hellman for the TLS
+control channel. Modern OpenVPN uses ECDHE for key exchange when GCM ciphers are in use, making
+DH params unnecessary. This is safe on all supported platforms (OpenVPN 2.5+).
+
+A new `openvpn_dh` variable controls this behaviour, defaulting to `"none"`:
+
+* To use DH params (old default), set `openvpn_dh: dh.pem` and configure
+  `openvpn_use_pregenerated_dh_params` as before.
+* The `openvpn_use_pregenerated_dh_params` variable has no effect when `openvpn_dh: "none"`.
+
+This removes the DH param generation/copy step from default deployments, which previously
+could take 30+ seconds when generating fresh 2048-bit params.
+
+## Security improvements
+
+* Remove `AES-256-CBC` from the default `openvpn_cipher` list. All supported platforms ship
+  OpenVPN 2.5+ with GCM support. Restore with `openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC`.
+* Client `.ovpn` files (which contain embedded private keys) are now fetched to
+  `~/ovpn-client-configs` by default instead of `/tmp/ansible`. Restore the old path with
+  `openvpn_fetch_client_configs_dir: /tmp/ansible`.
+
+## New variables
+
+* `openvpn_dh` (default: `"none"`) — controls the `dh` directive in `server.conf`
+* `openvpn_cert_validity_days` (default: `3650`) — validity period for server and client certs
+* `openvpn_ca_cert_validity_days` (default: `3650`) — validity period for the CA cert
+
 # Version 3.1.0 (2026-02-08)
 
 ## Behaviour Changes

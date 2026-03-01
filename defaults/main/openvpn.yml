@@ -43,6 +43,9 @@ openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_ca_cert_validity_days: 3650
 openvpn_cert_validity_days: 3650
+# Set to "none" to disable finite-field DH (recommended for OpenVPN 2.5+ with GCM ciphers,
+# and the default in OpenVPN 2.7). Set to a filename (e.g., "dh.pem") to use a DH params file.
+openvpn_dh: "none"
 openvpn_use_crl: false
 openvpn_manage_crl_without_systemd: false
 openvpn_tls_version_min: 1.2 or-highest
