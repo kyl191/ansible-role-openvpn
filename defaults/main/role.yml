@@ -9,11 +9,14 @@ openvpn_clients: []
 openvpn_base_dir: "/etc/openvpn/server"
 openvpn_key_dir: "{{ openvpn_base_dir }}/keys"
 openvpn_ovpn_dir: "{{ openvpn_base_dir }}"
+# Server name to use in client configuration file name
+openvpn_ovpn_server_name: "{{ inventory_hostname }}"
 
 # Config fetch settings
 openvpn_fetch_client_configs: true
 openvpn_fetch_client_configs_dir: /tmp/ansible
 openvpn_fetch_client_configs_suffix: ""
+openvpn_fetch_client_configs_per_user_dir: true
 
 # Firewall
 openvpn_iptables_service: iptables

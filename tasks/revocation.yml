@@ -1,7 +1,7 @@
 ---
 - name: revocation | Remove client config
   ansible.builtin.file:
-    path: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
+    path: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ openvpn_ovpn_server_name }}.ovpn"
     state: absent
     force: true
   with_items:
