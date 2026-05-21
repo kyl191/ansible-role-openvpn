@@ -57,6 +57,7 @@ These options change how the role works. This is a catch-all group, specific gro
 | openvpn_client_config_no_log | boolean | true, false | true              | Prevent client configuration files to be logged to stdout by Ansible          |
 | openvpn_key_dir              | string  |             | /etc/openvpn/keys | Path where your server private keys and CA will be stored                     |
 | openvpn_ovpn_dir             | string  |             | /etc/openvpn      | Path where your client configurations will be stored                          |
+| openvpn_ovpn_server_name     | string  |             | `{{ inventory_hostname }}` | Server name used in generated client `.ovpn` file names (`clientname-<openvpn_ovpn_server_name>.ovpn`) |
 | openvpn_revoke_these_certs   | list    |             | []                | List of client certificates to revoke (requires `openvpn_use_crl` to be true). |
 | openvpn_selinux_module       | string  |             | my-openvpn-server | Set the SELinux module name                                                   |
 | openvpn_selinux_use_semanage | boolean | true, false | true              | Use `semanage` to configure SELinux ports instead of compiling a custom module. |
@@ -70,11 +71,12 @@ These options change how the role works. This is a catch-all group, specific gro
 
 Change these options if you need to adjust how the configs are download to your local system
 
-| Variable                            | Type    | Choices     | Default      | Comment                                                                                                                                   |
-|-------------------------------------|---------|-------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| openvpn_fetch_client_configs        | boolean | true, false | true         | Download generated client configurations to the local system                                                                              |
-| openvpn_fetch_client_configs_dir    | string  |             | /tmp/ansible | If openvpn_fetch_client_configs is true, the local directory to download the client config files into                                     |
-| openvpn_fetch_client_configs_suffix | string  |             | ""           | If openvpn_fetch_client_configs is true, the suffix to append to the downloaded client config files before the trailing `.ovpn` extension |
+| Variable                                  | Type    | Choices     | Default      | Comment                                                                                                                                   |
+|-------------------------------------------|---------|-------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| openvpn_fetch_client_configs              | boolean | true, false | true         | Download generated client configurations to the local system                                                                              |
+| openvpn_fetch_client_configs_dir          | string  |             | /tmp/ansible | If openvpn_fetch_client_configs is true, the local directory to download the client config files into                                     |
+| openvpn_fetch_client_configs_suffix       | string  |             | ""           | If openvpn_fetch_client_configs is true, the suffix to append to the downloaded client config files before the trailing `.ovpn` extension |
+| openvpn_fetch_client_configs_per_user_dir | boolean | true, false | true         | If true, each client config is downloaded into a per-user subdirectory: `<openvpn_fetch_client_configs_dir>/<user>/<openvpn_ovpn_server_name>.ovpn`. If false, all configs go into a single flat directory: `<openvpn_fetch_client_configs_dir>/<user>-<openvpn_ovpn_server_name>.ovpn` |
 
 ### Firewall
 

@@ -82,7 +82,7 @@
   no_log: "{{ openvpn_client_config_no_log }}"
   ansible.builtin.template:
     src: client.ovpn.j2
-    dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}-{{ inventory_hostname }}.ovpn"
+    dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}-{{ openvpn_ovpn_server_name }}.ovpn"
     owner: "{{ openvpn_conf_user }}"
     group: "{{ openvpn_conf_group }}"
     mode: "0400"
@@ -92,9 +92,11 @@
 
 - name: client_keys | Fetch client config
   ansible.builtin.fetch:
-    src: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ inventory_hostname }}.ovpn"
-    dest: "{{ openvpn_fetch_client_configs_dir }}/{{ item }}/{{ inventory_hostname }}{{ openvpn_fetch_client_configs_suffix }}.ovpn"
+    src: "{{ openvpn_ovpn_dir }}/{{ item }}-{{ openvpn_ovpn_server_name }}.ovpn"
+    dest: "{{ openvpn_fetch_client_configs_dir }}/{{ item }}{{ __path_separator }}{{ openvpn_ovpn_server_name }}{{ openvpn_fetch_client_configs_suffix }}.ovpn"
     flat: true
+  vars:
+    __path_separator: "{{ '/' if openvpn_fetch_client_configs_per_user_dir else '-' }}"
   when: openvpn_fetch_client_configs is truthy
   with_items:
     - "{{ openvpn_clients }}"
