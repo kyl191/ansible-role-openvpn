@@ -96,7 +96,9 @@ syslog openvpn
 verb 3
 
 {% if openvpn_verify_cn is truthy %}
-verify-x509-name OpenVPN-Client-{{ inventory_hostname[:24] }} name-prefix
+{% if openvpn_client_cn_prefix %}
+verify-x509-name {{ openvpn_client_cn_prefix }} name-prefix
+{% endif %}
 remote-cert-tls client
 {% endif %}
 
