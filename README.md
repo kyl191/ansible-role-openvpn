@@ -137,6 +137,16 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_use_pregenerated_dh_params | boolean | true, false | false       | DH params are generted with the install by default |
 | openvpn_verify_cn                  | boolean | true, false | false       | Check that the CN of the certificate match the FQDN                                                                                                             |
 
+#### Certificate Common Names (CN)
+
+X.509 limits the CN field to **64 characters**. The default values for the variables below truncate `inventory_hostname` so that the built-in prefix and the hostname together stay within this limit. If you supply a custom value, ensure the total length does not exceed 64 characters — OpenSSL will error during certificate generation if it does.
+
+| Variable                 | Type   | Choices | Default                                         | Comment                                                                                                                                                                                                     |
+|--------------------------|--------|---------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| openvpn_ca_cn            | string |         | `OpenVPN-CA-{{ inventory_hostname[:53] }}`      | CN for the CA certificate.                                                                                                                                                                                  |
+| openvpn_server_cn        | string |         | `OpenVPN-Server-{{ inventory_hostname[:49] }}`  | CN for the server certificate. A FQDN (e.g. `vpn.example.com`) is also valid. Used in `verify-x509-name` on the client when `openvpn_verify_cn` is enabled.                                                 |
+| openvpn_client_cn_prefix | string |         | `OpenVPN-Client-{{ inventory_hostname[:24] }}-` | Prefix for the client certificate CN (`prefix + client_name`). Set to `""` to use the plain client name as CN. Also used as `name-prefix` in server `verify-x509-name` when `openvpn_verify_cn` is enabled. |
+
 ### Operations
 
 | Variable                           | Type    | Choices     | Default                                          | Comment                                                                                                                                                                       |
