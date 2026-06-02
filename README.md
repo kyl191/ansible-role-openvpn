@@ -1,6 +1,7 @@
 # OpenVPN
 
 Github Actions (CI Status): [![Github CI](https://github.com/kyl191/ansible-role-openvpn/workflows/CI/badge.svg)](https://github.com/kyl191/ansible-role-openvpn/actions/workflows/ci.yml?query=branch%3Amaster)
+
 Ansible Galaxy page: https://galaxy.ansible.com/ui/standalone/roles/kyl191/openvpn/
 
 This role installs OpenVPN, configures it as a server, sets up networking and firewalls (primarily firewalld, ufw and iptables are best effort), and can optionally create client certificates.
