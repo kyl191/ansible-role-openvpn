@@ -26,7 +26,7 @@
       - -out
       - "{{ item }}.csr"
       - -subj
-      - /CN={{ openvpn_client_cn_prefix }}{{ item }}/
+      - /CN={{ (openvpn_client_cn_prefix ~ item)[:64] }}/
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ item }}.key"
   with_items:

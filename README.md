@@ -139,13 +139,21 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 
 #### Certificate Common Names (CN)
 
-X.509 limits the CN field to **64 characters**. The default values for the variables below truncate `inventory_hostname` so that the built-in prefix and the hostname together stay within this limit. If you supply a custom value, ensure the total length does not exceed 64 characters — OpenSSL will error during certificate generation if it does.
+X.509 limits the CN field to **64 characters**. The role enforces this limit in two ways depending on `openvpn_cn_strict_mode`:
 
-| Variable                 | Type   | Choices | Default                                         | Comment                                                                                                                                                                                                     |
-|--------------------------|--------|---------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| openvpn_ca_cn            | string |         | `OpenVPN-CA-{{ inventory_hostname[:53] }}`      | CN for the CA certificate.                                                                                                                                                                                  |
-| openvpn_server_cn        | string |         | `OpenVPN-Server-{{ inventory_hostname[:49] }}`  | CN for the server certificate. A FQDN (e.g. `vpn.example.com`) is also valid. Used in `verify-x509-name` on the client when `openvpn_verify_cn` is enabled.                                                 |
-| openvpn_client_cn_prefix | string |         | `OpenVPN-Client-{{ inventory_hostname[:24] }}-` | Prefix for the client certificate CN (`prefix + client_name`). Set to `""` to use the plain client name as CN. Also used as `name-prefix` in server `verify-x509-name` when `openvpn_verify_cn` is enabled. |
+- **Compatible mode** (default, `false`): CNs that exceed 64 characters are automatically truncated during certificate generation. A warning is printed for each affected CN so the administrator is aware.
+- **Strict mode** (`true`): The role fails immediately at the start of the run if any CN exceeds 64 characters, listing all violations. Use this for new installations where you want explicit control over CN values.
+
+**New installations:** consider setting `openvpn_client_cn_prefix: ""` so the full 64 characters are available for the client name.
+
+**Existing installations:** changing `openvpn_client_cn_prefix` from its default will alter all client CNs, which requires revoking and reissuing every client certificate.
+
+| Variable                 | Type    | Choices     | Default                                         | Comment                                                                                                                                                                                                     |
+|--------------------------|---------|-------------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| openvpn_ca_cn            | string  |             | `OpenVPN-CA-{{ inventory_hostname[:53] }}`      | CN for the CA certificate.                                                                                                                                                                                  |
+| openvpn_server_cn        | string  |             | `OpenVPN-Server-{{ inventory_hostname[:49] }}`  | CN for the server certificate. A FQDN (e.g. `vpn.example.com`) is also valid. Used in `verify-x509-name` on the client when `openvpn_verify_cn` is enabled.                                                 |
+| openvpn_client_cn_prefix | string  |             | `OpenVPN-Client-{{ inventory_hostname[:24] }}-` | Prefix for the client certificate CN (`prefix + client_name`). Set to `""` to use the plain client name as CN. Also used as `name-prefix` in server `verify-x509-name` when `openvpn_verify_cn` is enabled. |
+| openvpn_cn_strict_mode   | boolean | true, false | false                                           | When `true`, the role fails immediately if any CN exceeds 64 characters. When `false` (default), oversized CNs are truncated with a warning, preserving backward compatibility.                             |
 
 ### Operations
 

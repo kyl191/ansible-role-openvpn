@@ -43,7 +43,7 @@
       - -out
       - ca-csr.pem
       - -subj
-      - /CN={{ openvpn_ca_cn }}/
+      - /CN={{ openvpn_ca_cn[:64] }}/
     chdir: "{{ openvpn_key_dir }}"
     creates: ca-key.pem
   when: openvpn_ca_key is not defined
@@ -74,7 +74,7 @@
       - -out
       - server.csr
       - -subj
-      - /CN={{ openvpn_server_cn }}/
+      - /CN={{ openvpn_server_cn[:64] }}/
   args:
     chdir: "{{ openvpn_key_dir }}"
     creates: server.key
