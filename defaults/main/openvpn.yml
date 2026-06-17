@@ -37,6 +37,7 @@ openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC
 openvpn_ca_cn: "OpenVPN-CA-{{ inventory_hostname[:53] }}"
 openvpn_server_cn: "OpenVPN-Server-{{ inventory_hostname[:49] }}"
 openvpn_client_cn_prefix: "OpenVPN-Client-{{ inventory_hostname[:24] }}-"
+openvpn_cn_strict_mode: false
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
 openvpn_use_crl: false

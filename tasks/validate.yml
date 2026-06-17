@@ -1,0 +1,66 @@
+---
+- name: validate | Initialize long client CNs list
+  ansible.builtin.set_fact:
+    __long_client_cns: []
+  tags:
+    - validate
+
+- name: validate | Collect clients with CN exceeding 64 characters
+  ansible.builtin.set_fact:
+    __long_client_cns: "{{ __long_client_cns + [{'name': item, 'cn': __full_client_cn, 'length': __full_client_cn | length}] }}"
+  vars:
+    __full_client_cn: "{{ (openvpn_client_cn_prefix | default('')) ~ item }}"
+  when: __full_client_cn | length > 64
+  loop: "{{ openvpn_clients | default([]) }}"
+  loop_control:
+    label: "{{ item }}"
+  tags:
+    - validate
+
+- name: validate | Strict mode - fail if any CN exceeds 64 characters
+  when: openvpn_cn_strict_mode | bool
+  tags:
+    - validate
+    - strict_mode
+  block:
+    - name: validate | Assert CA CN length (strict mode)
+      ansible.builtin.assert:
+        that: openvpn_ca_cn | length <= 64
+        fail_msg: "FAIL: openvpn_ca_cn exceeds 64 characters ({{ openvpn_ca_cn | length }})"
+
+    - name: validate | Assert server CN length (strict mode)
+      ansible.builtin.assert:
+        that: openvpn_server_cn | length <= 64
+        fail_msg: "FAIL: openvpn_server_cn exceeds 64 characters ({{ openvpn_server_cn | length }})"
+
+    - name: validate | Fail if any client CN too long (strict mode)
+      ansible.builtin.fail:
+        msg: |
+          FAIL: The following client CN(s) exceed 64 characters and are not allowed in strict mode:
+          {% for entry in __long_client_cns -%}
+            - {{ entry.name }} ({{ entry.length }} chars)
+          {% endfor -%}
+      when: __long_client_cns | length > 0
+
+- name: validate | Compatible mode - warn if any CN exceeds 64 characters
+  when: not (openvpn_cn_strict_mode | bool)
+  tags:
+    - validate
+    - compatible_mode
+  block:
+    - name: validate | Warn if CA CN exceeds 64 chars (warning mode)
+      ansible.builtin.debug:
+        msg: "[WARNING] openvpn_ca_cn exceeds 64 characters ({{ openvpn_ca_cn | length }})"
+      when: openvpn_ca_cn | length > 64
+
+    - name: validate | Warn if server CN exceeds 64 chars (warning mode)
+      ansible.builtin.debug:
+        msg: "[WARNING] openvpn_server_cn exceeds 64 characters ({{ openvpn_server_cn | length }})"
+      when: openvpn_server_cn | length > 64
+
+    - name: validate | Warn about long client CNs (warning mode)
+      ansible.builtin.debug:
+        msg: "[WARNING] Client CN too long ({{ item.length }}/64 chars), will be truncated to: {{ item.cn[:64] }}"
+      loop: "{{ __long_client_cns }}"
+      loop_control:
+        label: "{{ item.name }}"

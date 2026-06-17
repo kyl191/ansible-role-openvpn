@@ -1,4 +1,10 @@
 ---
+- name: Validate variables
+  ansible.builtin.import_tasks: validate.yml
+  tags:
+    - always
+    - validate
+
 - name: Include vars for OpenVPN installation
   ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
