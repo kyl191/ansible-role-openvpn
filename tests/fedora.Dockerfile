@@ -40,6 +40,12 @@ RUN dnf -y install \
     python3-dnf \
     && dnf clean all
 
+# The systemd cleanup above deletes the dbus.socket enablement symlink from
+# /etc/systemd/system/sockets.target.wants. EL10's firewalld.service no longer
+# has Requires=dbus.service to pull dbus up anyway, so without this the
+# ansible.posix.firewalld module can't reach firewalld over D-Bus.
+RUN systemctl enable dbus.socket
+
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
 RUN echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts
