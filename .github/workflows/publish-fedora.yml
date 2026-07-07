@@ -19,11 +19,11 @@ jobs:
 
     strategy:
       matrix:
-        fedora_version: ["42", "43"]
+        fedora_version: ["43", "44"]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Log in to the Container registry
         uses: redhat-actions/podman-login@v1

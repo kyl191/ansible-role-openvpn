@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     rsync \
     sudo \
-    fuse snapd snap-confine squashfuse \
+    fuse snapd squashfuse \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \

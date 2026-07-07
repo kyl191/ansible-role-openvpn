@@ -19,11 +19,11 @@ jobs:
 
     strategy:
       matrix:
-        debian_version: ["12", "13"]
+        debian_version: ["13"]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Log in to the Container registry
         uses: redhat-actions/podman-login@v1
