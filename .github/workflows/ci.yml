@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     name: check-syntax
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@main
+        uses: ansible/ansible-lint@v26.6.0
         with:
           requirements_file: requirements.yml
 
@@ -42,7 +42,7 @@ jobs:
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: Update ansible
         run: dnf install -y python39 && pip3.9 install -U ansible
       - name: Install required dependencies from Ansible Galaxy
@@ -76,7 +76,6 @@ jobs:
       matrix:
         version:
           - "ubuntu:22.04"
-          - "debian:12"
 
     container:
       image: diodonfrost/ansible-${{ matrix.version }}
@@ -88,7 +87,7 @@ jobs:
       options: "--cap-add NET_ADMIN --cap-add SYS_ADMIN --device /dev/net/tun"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: Upgrade ansible
         run: apt update && apt-get install --only-upgrade ansible -y
       - name: Install required dependencies from Ansible Galaxy
@@ -117,8 +116,8 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "fedora-42"
           - "fedora-43"
+          - "fedora-44"
           - "almalinux-9"
           - "almalinux-10"
           - "rockylinux-9"
@@ -127,12 +126,12 @@ jobs:
           - "centos-stream10"
           - "debian-13"
           - "ubuntu-24.04"
-          - "ubuntu-25.10"
+          - "ubuntu-26.04"
           # - "ubi9-init"
           # - "ubi10-init"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Create container

@@ -8,11 +8,11 @@ This role installs OpenVPN, configures it as a server, sets up networking and fi
 
 OSes in CI build:
 
-- Fedora 42+
+- Fedora 43+
 - CentOS Stream 9 & 10
 - AlmaLinux/Rocky 9 & 10
-- Debian 12 & 13
-- Ubuntu 22.04/24.04/25.10
+- Debian 13
+- Ubuntu 22.04/24.04/26.04
 
 Note: I am providing code in the repository to you under an open source license. Because this is my personal repository, the license you receive to my code is from me and not my employer.
 
