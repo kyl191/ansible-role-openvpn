@@ -129,12 +129,12 @@ jobs:
           - name: ipv6-guard-fires
             remove_ipv4_route: false
             run_mode: full
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables"}'
+            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_manage_sysctl": false}'
             expect_success: false
           - name: ipv6-disabled-works
             remove_ipv4_route: false
             run_mode: full
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_server_ipv6_network": ""}'
+            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_server_ipv6_network": "", "openvpn_manage_sysctl": false}'
             expect_success: true
 
     container:
@@ -161,6 +161,9 @@ jobs:
       # Prime the container (packages incl. iptables-persistent, keys, config) while it still
       # has real network access. openvpn_no_nat skips any address-needing NAT setup here - that
       # isn't what's under test in this step, just getting everything else installed first.
+      # openvpn_manage_sysctl: false because this job's container can't actually write
+      # net.ipv4.ip_forward (permission denied even with --privileged on GH-hosted runners),
+      # and the sysctl itself isn't part of what test-no-default-route is exercising.
       # --skip-tags firewall_persist: this job's container (GH Actions' native `container:`
       # runner, not podman --systemd=always) never boots systemd, so ansible.builtin.service
       # can't enable the iptables unit here - and enabling it at boot isn't part of what this
@@ -170,7 +173,7 @@ jobs:
         if: matrix.scenario.remove_ipv4_route
         run: >
           ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv --skip-tags firewall_persist
-          -e '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_no_nat": true}'
+          -e '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_no_nat": true, "openvpn_manage_sysctl": false}'
 
       # Real route removal (not mocked facts) - only affects this job's own isolated container
       # network, so the next run's gathered facts genuinely reflect a host with no default IPv4

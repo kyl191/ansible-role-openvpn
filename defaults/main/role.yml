@@ -24,6 +24,9 @@ openvpn_manage_firewall_rules: true
 openvpn_firewall: auto
 openvpn_masquerade_not_snat: false
 openvpn_no_nat: false
+# Set false to skip the ip_forward/forwarding sysctl tasks even when openvpn_ci_build is false,
+# e.g. on hosts/containers where those sysctls are already set or can't be written by Ansible.
+openvpn_manage_sysctl: true
 # Zone to add firewalld rules to. Defaults to autodetecting firewalld's configured default zone;
 # set explicitly (e.g. "public") to skip autodetection.
 openvpn_firewalld_zone: auto
