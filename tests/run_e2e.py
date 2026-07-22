@@ -30,6 +30,7 @@ class Status(Enum):
     FAIL = auto()
     UNREACHABLE = auto()
     CONFIG_MISSING = auto()
+    TUNNEL_FAILED = auto()
     TEST_ERROR = auto()
 
     def __str__(self):
@@ -42,6 +43,7 @@ class InstanceInfo:
     public_ip: ipaddress.IPv4Address | None = None
     public_ipv6: ipaddress.IPv6Address | None = None
     public_dns: str = ""
+    dual_stack_dns: str = ""
     name: str = "Unknown"
     os_name: str = "Unknown"
     ssh_user: str = "ec2-user"
@@ -50,13 +52,24 @@ class InstanceInfo:
     status: Status = Status.PENDING
     ipv4_status: Status = Status.PENDING
     ipv6_status: Status = Status.PENDING
+    failure_detail: str = ""
 
     @property
     def is_reachable(self) -> bool:
         return self.status != Status.UNREACHABLE
 
+    # TODO: openvpn_server_network: "" (IPv4 tunnel disabled) is only verified today via CI
+    # container tests with a route deleted post-install - not a genuinely IPv4-less host. Add an
+    # IPv6-only subnet EC2 scenario here (Terraform config in ~/Sync/code/terraform-aws-ipv6/)
+    # to prove it end-to-end on a host with no IPv4 connectivity at all.
+
     @property
     def hostname(self) -> str:
+        """Prefer the AWS dual-stack DNS name (resolves both A and AAAA) so SSH,
+        the Ansible inventory, and the generated OpenVPN client config all exercise
+        the instance's IPv6 path too, not just IPv4."""
+        if self.dual_stack_dns:
+            return self.dual_stack_dns
         return self.public_dns if self.public_dns else str(self.public_ip)
 
 
@@ -85,33 +98,46 @@ def get_instances(
     if tag_key and tag_value:
         filters.append({"Name": f"tag:{tag_key}", "Values": [tag_value]})
 
+    raw_instances = [
+        instance
+        for instance in ec2.instances.filter(Filters=filters)
+        if instance.public_ip_address
+    ]
+
+    # Look up each instance's public dual-stack DNS name (resolves to both the
+    # public IPv4 and public IPv6 address) in one batched call.
+    eni_ids = [ni.id for instance in raw_instances for ni in instance.network_interfaces]
+    dual_stack_dns_by_eni: dict[str, str] = {
+        ni.id: ni.public_ip_dns_name_options.get("PublicDualStackDnsName", "")
+        for ni in ec2.network_interfaces.filter(NetworkInterfaceIds=eni_ids)
+    } if eni_ids else {}
+
     instances: list[InstanceInfo] = []
-    for instance in ec2.instances.filter(Filters=filters):
-        if instance.public_ip_address:
-            name = "Unknown"
-            if instance.tags:
-                for tag in instance.tags:
-                    if tag["Key"] == "Name":
-                        name = tag["Value"]
+    for instance in raw_instances:
+        name = "Unknown"
+        if instance.tags:
+            for tag in instance.tags:
+                if tag["Key"] == "Name":
+                    name = tag["Value"]
 
-            public_ipv6 = None
-            if instance.network_interfaces:
-                for ni in instance.network_interfaces:
-                    if ni.ipv6_addresses:
-                        public_ipv6 = ipaddress.IPv6Address(
-                            ni.ipv6_addresses[0]["Ipv6Address"]
-                        )
-                        break
+        public_ipv6 = None
+        dual_stack_dns = ""
+        for ni in instance.network_interfaces:
+            if ni.ipv6_addresses:
+                public_ipv6 = ipaddress.IPv6Address(ni.ipv6_addresses[0]["Ipv6Address"])
+                dual_stack_dns = dual_stack_dns_by_eni.get(ni.id, "")
+                break
 
-            instances.append(
-                InstanceInfo(
-                    id=instance.id,
-                    public_ip=ipaddress.IPv4Address(instance.public_ip_address),
-                    public_ipv6=public_ipv6,
-                    public_dns=instance.public_dns_name,
-                    name=name,
-                )
+        instances.append(
+            InstanceInfo(
+                id=instance.id,
+                public_ip=ipaddress.IPv4Address(instance.public_ip_address),
+                public_ipv6=public_ipv6,
+                public_dns=instance.public_dns_name,
+                dual_stack_dns=dual_stack_dns,
+                name=name,
             )
+        )
 
     logger.info(f"Found {len(instances)} running instances with public IPs.")
     return instances
@@ -130,6 +156,13 @@ def determine_ssh_user(instance_name: str, default_user: str) -> str:
             return "rocky"
         case _:
             return default_user
+
+
+def needs_platform_python(instance_name: str) -> bool:
+    """RHEL-family v8 hosts (RHEL/CentOS/Alma/Rocky/Oracle) only ship python at
+    /usr/libexec/platform-python. ansible-core 2.20 dropped that path from its
+    default INTERPRETER_PYTHON_FALLBACK, so auto-discovery no longer finds it."""
+    return bool(re.match(r"(almalinux|centos|rhel|rocky|oraclelinux)-8", instance_name.lower()))
 
 
 def check_ssh_and_detect_os(
@@ -177,9 +210,12 @@ def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -
             line = f"{inst.hostname} ansible_user={inst.ssh_user} "
             if key_path:
                 line += f"ansible_ssh_private_key_file={key_path} "
-            line += "ansible_python_interpreter=auto_silent "
+            if needs_platform_python(inst.name):
+                line += "ansible_python_interpreter=/usr/libexec/platform-python "
+            else:
+                line += "ansible_python_interpreter=auto_silent "
             line += "ansible_ssh_common_args='-o StrictHostKeyChecking=no' "
-            line += f"openvpn_server_hostname={inst.public_ip}\n"
+            line += f"openvpn_server_hostname={inst.hostname}\n"
             inventory.write(line)
 
         inventory_path = Path(inventory.name)
@@ -202,6 +238,34 @@ def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -
             inventory_path.unlink()
 
 
+TUNNEL_UP_TIMEOUT = 30
+TUNNEL_POLL_INTERVAL = 1
+
+
+def wait_for_tunnel_up(log_path: Path, timeout: int = TUNNEL_UP_TIMEOUT) -> bool:
+    """Polls the OpenVPN client log for the tunnel-established marker, instead of
+    guessing with a fixed sleep."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        res = subprocess.run(
+            ["sudo", "grep", "-q", "Initialization Sequence Completed", str(log_path)],
+            capture_output=True,
+        )
+        if res.returncode == 0:
+            return True
+        time.sleep(TUNNEL_POLL_INTERVAL)
+    return False
+
+
+def tail_log(log_path: Path, lines: int = 15) -> str:
+    res = subprocess.run(
+        ["sudo", "tail", "-n", str(lines), str(log_path)],
+        capture_output=True,
+        text=True,
+    )
+    return " ".join(res.stdout.split())
+
+
 def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
     """Verifies the VPN connection for a single instance (IPv4 and IPv6) in one session."""
     if not instance.is_reachable:
@@ -218,18 +282,27 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
     logger.info(f"Testing VPN connectivity for {instance.hostname}...")
 
     pid_file = Path(f"/tmp/openvpn_{instance.id}.pid")
+    log_path = Path(f"/tmp/openvpn_{instance.id}.log")
 
     try:
         # 1. Start OpenVPN
         subprocess.run(
-            f"sudo /usr/bin/openvpn --config {config_path} --daemon --writepid {pid_file}",
+            f"sudo /usr/bin/openvpn --config {config_path} --daemon "
+            f"--writepid {pid_file} --log {log_path}",
             shell=True,
             check=True,
             capture_output=True,
         )
-        time.sleep(10)
 
-        # 2. Test IPv4
+        # 2. Wait for the tunnel to actually come up instead of guessing with a fixed sleep
+        if not wait_for_tunnel_up(log_path):
+            detail = tail_log(log_path)
+            logger.error(f"Tunnel never came up for {instance.hostname}: {detail}")
+            instance.status = Status.TUNNEL_FAILED
+            instance.failure_detail = detail
+            return
+
+        # 3. Test IPv4
         res4 = subprocess.run(
             "curl -s --connect-timeout 10 https://ipv4.icanhazip.com",
             shell=True,
@@ -245,16 +318,20 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
                     logger.info(f"IPv4 SUCCESS: {instance.public_ip} routed correctly.")
                     instance.ipv4_status = Status.PASS
                 else:
-                    logger.error(f"IPv4 FAILURE: {instance.public_ip} returned {ip}")
+                    msg = f"IPv4 routed via {ip}, expected {instance.public_ip}"
+                    logger.error(f"IPv4 FAILURE: {msg}")
                     instance.ipv4_status = Status.FAIL
+                    instance.failure_detail += f"{msg}. "
             except ValueError:
                 logger.error(f"Invalid IPv4 received: {val}")
                 instance.ipv4_status = Status.TEST_ERROR
+                instance.failure_detail += f"Invalid IPv4 received: {val}. "
         else:
             logger.error(f"IPv4 curl failed: {res4.stderr}")
             instance.ipv4_status = Status.TEST_ERROR
+            instance.failure_detail += f"IPv4 curl failed: {res4.stderr.strip()}. "
 
-        # 3. Test IPv6 (only if instance has public IPv6)
+        # 4. Test IPv6 (only if instance has public IPv6)
         if instance.public_ipv6:
             res6 = subprocess.run(
                 "curl -s --connect-timeout 10 https://ipv6.icanhazip.com",
@@ -273,30 +350,34 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
                         )
                         instance.ipv6_status = Status.PASS
                     else:
-                        logger.error(
-                            f"IPv6 FAILURE: {instance.public_ipv6} returned {ip}"
-                        )
+                        msg = f"IPv6 routed via {ip}, expected {instance.public_ipv6}"
+                        logger.error(f"IPv6 FAILURE: {msg}")
                         instance.ipv6_status = Status.FAIL
+                        instance.failure_detail += f"{msg}. "
                 except ValueError:
                     logger.error(f"Invalid IPv6 received: {val}")
                     instance.ipv6_status = Status.TEST_ERROR
+                    instance.failure_detail += f"Invalid IPv6 received: {val}. "
             else:
                 logger.error(f"IPv6 curl failed: {res6.stderr}")
                 instance.ipv6_status = Status.TEST_ERROR
+                instance.failure_detail += f"IPv6 curl failed: {res6.stderr.strip()}. "
         else:
             instance.ipv6_status = Status.PENDING
 
     except Exception as e:
         logger.error(f"OpenVPN session failed for {instance.hostname}: {e}")
         instance.status = Status.TEST_ERROR
+        instance.failure_detail += f"Exception: {e}. "
     finally:
-        # 4. Stop OpenVPN
+        # 5. Stop OpenVPN
         if pid_file.exists():
             subprocess.run(
                 f"sudo kill -9 $(cat {pid_file}) && sudo rm {pid_file}",
                 shell=True,
                 capture_output=True,
             )
+        subprocess.run(["sudo", "rm", "-f", str(log_path)], capture_output=True)
 
     # Overall Status update
     if instance.ipv4_status == Status.PASS and (
@@ -316,13 +397,14 @@ def generate_md_report(
         f.write("# End-to-End Test Report\n\n")
         f.write(f"Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(
-            "| Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall |\n"
+            "| Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall | Detail |\n"
         )
-        f.write("|---|---|---|---|---|---|---|---|---|---|\n")
+        f.write("|---|---|---|---|---|---|---|---|---|---|---|\n")
         for res in results:
+            detail = res.failure_detail.replace("|", "\\|")
             f.write(
                 f"| {res.id} | {res.name} | {res.os_name} | {res.public_ip} | {res.public_ipv6 or 'N/A'} | "
-                f"{res.vpn_ipv4 or 'N/A'} | {res.vpn_ipv6 or 'N/A'} | {res.ipv4_status} | {res.ipv6_status} | {res.status} |\n"
+                f"{res.vpn_ipv4 or 'N/A'} | {res.vpn_ipv6 or 'N/A'} | {res.ipv4_status} | {res.ipv6_status} | {res.status} | {detail} |\n"
             )
     logger.info(f"Report generated at {report_path.absolute()}")
 
