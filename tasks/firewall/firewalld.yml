@@ -6,20 +6,27 @@
     masked: false
     state: started
 
-# Default interface is the one that routes the traffic
-# Assume that's what we want for a server
-# https://medium.com/opsops/ansible-default-ipv4-is-not-what-you-think-edb8ab154b10
-- name: firewall | firewalld | Get zone of default interface
-  ansible.builtin.command: firewall-cmd --get-zone-of-interface={{ ansible_facts['default_ipv4']['interface'] }}
-  register: __firewalld_default_zone
+# Ask firewalld for its configured default zone rather than looking up the zone of
+# ansible_facts['default_ipv4']['interface'], so this doesn't depend on the host having an
+# IPv4 (or IPv6) default route at all. Set openvpn_firewalld_zone explicitly to skip
+# autodetection altogether.
+- name: firewall | firewalld | Get default zone
+  ansible.builtin.command: firewall-cmd --get-default-zone
+  register: __firewalld_autodetected_zone
   check_mode: false
   changed_when: false # Read only, never report as changed
   failed_when: false
+  when: openvpn_firewalld_zone == 'auto'
+
+- name: firewall | firewalld | Set firewalld zone fact
+  ansible.builtin.set_fact:
+    __firewalld_default_zone: >-
+      {{ openvpn_firewalld_zone if openvpn_firewalld_zone != 'auto' else __firewalld_autodetected_zone.stdout }}
 
 - name: firewall | firewalld | Enable OpenVPN Port (firewalld)
   ansible.posix.firewalld:
     port: "{{ openvpn_port }}/{{ openvpn_proto }}"
-    zone: "{{ __firewalld_default_zone.stdout }}"
+    zone: "{{ __firewalld_default_zone }}"
     permanent: true
     immediate: true
     state: enabled
@@ -37,7 +44,7 @@
 - name: firewall | firewalld | Enable masquerading on default interface's zone
   ansible.posix.firewalld:
     masquerade: true
-    zone: "{{ __firewalld_default_zone.stdout }}"
+    zone: "{{ __firewalld_default_zone }}"
     permanent: true
     state: enabled
     immediate: true
@@ -47,7 +54,7 @@
 - name: firewall | firewalld | Enable masquerading on ipv6
   ansible.posix.firewalld:
     rich_rule: rule family=ipv6 masquerade
-    zone: "{{ __firewalld_default_zone.stdout }}"
+    zone: "{{ __firewalld_default_zone }}"
     permanent: true
     state: enabled
     immediate: true

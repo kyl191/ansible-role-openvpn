@@ -24,6 +24,9 @@ openvpn_manage_firewall_rules: true
 openvpn_firewall: auto
 openvpn_masquerade_not_snat: false
 openvpn_no_nat: false
+# Zone to add firewalld rules to. Defaults to autodetecting firewalld's configured default zone;
+# set explicitly (e.g. "public") to skip autodetection.
+openvpn_firewalld_zone: auto
 
 # Misc
 openvpn_ci_build: false
