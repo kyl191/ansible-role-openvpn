@@ -40,8 +40,24 @@
     - "{{ openvpn_clients }}"
 
 - name: client_keys | Sign client key
-  ansible.builtin.command: openssl x509 -req -in {{ item }}.csr -out {{ item }}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days {{ openvpn_cert_validity_days }} -extfile openssl-client.ext
-  args:
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - "{{ item }}.csr"
+      - -out
+      - "{{ item }}.crt"
+      - -CA
+      - ca.crt
+      - -CAkey
+      - ca-key.pem
+      - -sha256
+      - -days
+      - "{{ openvpn_cert_validity_days }}"
+      - -extfile
+      - openssl-client.ext
     chdir: "{{ openvpn_key_dir }}"
     creates: "{{ item }}.crt"
   with_items:
