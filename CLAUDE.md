@@ -84,7 +84,7 @@ tests/
 3. Uninstall if `openvpn_uninstall` is truthy (exits early)
 4. Install packages (`install.yml`)
 5. Generate or import server keys (`server_keys.yml`)
-6. Enable sysctl IP forwarding (skipped when `openvpn_ci_build`)
+6. Enable sysctl IP forwarding (skipped when `openvpn_ci_build` or `openvpn_manage_sysctl: false`)
 7. Configure firewall — dispatcher resolves the backend once, guards against a missing
    default route, then includes the matching backend file (see "Firewall Architecture" below)
 8. Configure SELinux if enabled (`semanage` by default)
