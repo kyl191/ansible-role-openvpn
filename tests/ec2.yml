@@ -7,6 +7,7 @@
       openvpn_port: 4300
       openvpn_sync_certs: true
       openvpn_client_register_dns: false
+      openvpn_fetch_client_configs_per_user_dir: false
       openvpn_clients:
         - client1
         - client2
