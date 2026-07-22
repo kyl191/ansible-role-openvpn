@@ -14,7 +14,7 @@ openvpn_ovpn_server_name: "{{ inventory_hostname }}"
 
 # Config fetch settings
 openvpn_fetch_client_configs: true
-openvpn_fetch_client_configs_dir: /tmp/ansible
+openvpn_fetch_client_configs_dir: /tmp/ansible-openvpn-certs
 openvpn_fetch_client_configs_suffix: ""
 openvpn_fetch_client_configs_per_user_dir: true
 
