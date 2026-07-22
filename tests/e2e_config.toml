@@ -10,3 +10,10 @@ profile = "acg"
 default_user = "ec2-user"
 # Path to SSH key can be overridden here or via CLI (CLI preferred for secrets)
 # key_path = "~/.ssh/id_rsa"
+
+[terraform]
+# Directory containing the terraform-aws-ipv6 config. Each var_file is applied in turn (single
+# workspace, sequential - the AWS account has a 10-instance limit so scenarios can't overlap),
+# tested, then destroyed before moving to the next, regardless of whether that scenario passed.
+dir = "~/Sync/code/terraform-aws-ipv6"
+var_files = ["terraform.tfvars", "terraform-arm.tfvars", "terraform-ipv6-only.tfvars", "terraform-ipv4-only.tfvars"]

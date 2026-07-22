@@ -72,7 +72,8 @@ tests/
   test.yml              # Main test playbook (localhost, openvpn_ci_build: true)
   revocation-test.yml   # CRL revocation test
   ec2.yml               # E2E test against real AWS EC2 instances
-  e2e_config.toml       # AWS region/profile for E2E
+  e2e_config.toml       # AWS region/profile + [terraform] scenario var_files for run_e2e.py
+  run_e2e.py            # Drives Terraform + ansible-playbook + VPN verification per scenario
   *.Dockerfile          # Per-distro systemd container images
 ```
 
@@ -211,7 +212,13 @@ CI runs via GitHub Actions (`.github/workflows/ci.yml`):
 
 **Container images** rebuilt weekly via `publish-*.yml` workflows, pushed to `ghcr.io/kyl191/ansible-images`.
 
-**E2E test** (manual, AWS): configure `tests/e2e_config.toml`, then run `tests/ec2.yml`.
+**E2E test** (manual, AWS): `uv run tests/run_e2e.py --config tests/e2e_config.toml --ssh-key <path>`.
+The script itself drives Terraform (`~/Sync/code/terraform-aws-ipv6/`) through each scenario
+listed in `e2e_config.toml`'s `[terraform]` `var_files` (dual-stack, then IPv6-only, then
+IPv4-only) —
+apply, provision via `tests/ec2.yml`, verify, destroy, then the next scenario. Sequential only:
+the AWS account has a 10-instance limit, so scenarios can't run concurrently. A failed scenario
+is still destroyed and the run continues to the rest rather than stopping.
 
 ### Gotchas when writing firewall/fact-related tests
 

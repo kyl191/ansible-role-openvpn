@@ -40,6 +40,7 @@ class Status(Enum):
 @dataclass
 class InstanceInfo:
     id: str
+    scenario: str = ""
     public_ip: ipaddress.IPv4Address | None = None
     public_ipv6: ipaddress.IPv6Address | None = None
     public_dns: str = ""
@@ -58,19 +59,21 @@ class InstanceInfo:
     def is_reachable(self) -> bool:
         return self.status != Status.UNREACHABLE
 
-    # TODO: openvpn_server_network: "" (IPv4 tunnel disabled) is only verified today via CI
-    # container tests with a route deleted post-install - not a genuinely IPv4-less host. Add an
-    # IPv6-only subnet EC2 scenario here (Terraform config in ~/Sync/code/terraform-aws-ipv6/)
-    # to prove it end-to-end on a host with no IPv4 connectivity at all.
-
     @property
     def hostname(self) -> str:
         """Prefer the AWS dual-stack DNS name (resolves both A and AAAA) so SSH,
         the Ansible inventory, and the generated OpenVPN client config all exercise
-        the instance's IPv6 path too, not just IPv4."""
+        the instance's IPv6 path too, not just IPv4. Falls through to a public IPv6
+        literal for IPv6-only instances, which have no public IPv4/DNS name at all."""
         if self.dual_stack_dns:
             return self.dual_stack_dns
-        return self.public_dns if self.public_dns else str(self.public_ip)
+        if self.public_dns:
+            return self.public_dns
+        if self.public_ip:
+            return str(self.public_ip)
+        if self.public_ipv6:
+            return str(self.public_ipv6)
+        return ""
 
 
 def load_config(config_path: Path) -> dict[str, Any]:
@@ -98,11 +101,7 @@ def get_instances(
     if tag_key and tag_value:
         filters.append({"Name": f"tag:{tag_key}", "Values": [tag_value]})
 
-    raw_instances = [
-        instance
-        for instance in ec2.instances.filter(Filters=filters)
-        if instance.public_ip_address
-    ]
+    raw_instances = list(ec2.instances.filter(Filters=filters))
 
     # Look up each instance's public dual-stack DNS name (resolves to both the
     # public IPv4 and public IPv6 address) in one batched call.
@@ -131,7 +130,9 @@ def get_instances(
         instances.append(
             InstanceInfo(
                 id=instance.id,
-                public_ip=ipaddress.IPv4Address(instance.public_ip_address),
+                public_ip=ipaddress.IPv4Address(instance.public_ip_address)
+                if instance.public_ip_address
+                else None,
                 public_ipv6=public_ipv6,
                 public_dns=instance.public_dns_name,
                 dual_stack_dns=dual_stack_dns,
@@ -139,7 +140,11 @@ def get_instances(
             )
         )
 
-    logger.info(f"Found {len(instances)} running instances with public IPs.")
+    # Keep only instances with some reachable address - either a public IPv4 (dual-stack) or a
+    # public IPv6 (dual-stack or IPv6-only).
+    instances = [inst for inst in instances if inst.public_ip or inst.public_ipv6]
+
+    logger.info(f"Found {len(instances)} running instances with a reachable address.")
     return instances
 
 
@@ -168,12 +173,12 @@ def needs_platform_python(instance_name: str) -> bool:
 def check_ssh_and_detect_os(
     instance: InstanceInfo, key_path: Path | None, default_user: str
 ) -> bool:
-    """Checks SSH connectivity and updates instance info with User and OS."""
+    """Attempts SSH once and, on success, records the actual user/OS. Does not mark the
+    instance UNREACHABLE on failure - a single failed attempt during boot is normal and
+    expected, not a verdict. wait_for_ssh_ready() below is what decides that."""
 
     user = determine_ssh_user(instance.name, default_user)
     host = instance.hostname
-
-    logger.info(f"Checking SSH for {instance.id} ({host}) as {user}...")
 
     cmd: list[str] = ["ssh", "-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=5"]
     if key_path:
@@ -190,9 +195,37 @@ def check_ssh_and_detect_os(
             instance.os_name = "Linux (Unknown)"
         return True
     except subprocess.CalledProcessError:
-        logger.error(f"Failed to SSH into {host} as {user}")
-        instance.status = Status.UNREACHABLE
         return False
+
+
+SSH_READY_TIMEOUT = 420
+SSH_READY_POLL_INTERVAL = 10
+
+
+def wait_for_ssh_ready(
+    instance: InstanceInfo,
+    key_path: Path | None,
+    default_user: str,
+    timeout: int = SSH_READY_TIMEOUT,
+) -> bool:
+    """Retries the actual SSH connection until it succeeds or timeout elapses, rather than a
+    single shot-in-the-dark attempt or a proxy signal like EC2 status checks (those only verify
+    ARP-level reachability to the kernel and can report healthy well before sshd exists - e.g.
+    an IPv6-only instance's cloud-init-local stage can burn several minutes retrying IMDS before
+    the network, and therefore sshd, ever comes up)."""
+    user = determine_ssh_user(instance.name, default_user)
+    logger.info(f"Waiting for SSH on {instance.id} ({instance.hostname}) as {user}...")
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if check_ssh_and_detect_os(instance, key_path, default_user):
+            logger.info(f"SSH ready for {instance.id} ({instance.hostname}).")
+            return True
+        time.sleep(SSH_READY_POLL_INTERVAL)
+    logger.error(
+        f"SSH never became reachable for {instance.id} ({instance.hostname}) within {timeout}s."
+    )
+    instance.status = Status.UNREACHABLE
+    return False
 
 
 def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -> bool:
@@ -215,8 +248,16 @@ def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -
             else:
                 line += "ansible_python_interpreter=auto_silent "
             line += "ansible_ssh_common_args='-o StrictHostKeyChecking=no' "
-            line += f"openvpn_server_hostname={inst.hostname}\n"
-            inventory.write(line)
+            line += f"openvpn_server_hostname={inst.hostname} "
+            if not inst.public_ip:
+                # Genuinely IPv4-less host (see terraform-ipv6-only.tfvars) - exercise the
+                # role's IPv4-tunnel-disabled path instead of assuming dual-stack.
+                line += 'openvpn_server_network="" '
+            if not inst.public_ipv6:
+                # Genuinely IPv6-less host (see terraform-ipv4-only.tfvars) - exercise the
+                # role's IPv6-tunnel-disabled path instead of assuming dual-stack.
+                line += 'openvpn_server_ipv6_network="" '
+            inventory.write(line.rstrip() + "\n")
 
         inventory_path = Path(inventory.name)
 
@@ -266,13 +307,41 @@ def tail_log(log_path: Path, lines: int = 15) -> str:
     return " ".join(res.stdout.split())
 
 
+CURL_RETRIES = 3
+CURL_RETRY_DELAY = 3
+
+
+def curl_with_retry(url: str) -> subprocess.CompletedProcess[str]:
+    """Retries a failed curl a few times before giving up. DNS resolution through a freshly
+    (re)established tunnel can race the resolver's per-link scope registration for a few
+    seconds right after "Initialization Sequence Completed" - confirmed by hand: the identical
+    curl failed with "Resolving timed out", then succeeded immediately on retry a few seconds
+    later with no other change. Returns the last attempt either way, so its stdout/stderr are
+    still available for a genuine (non-transient) failure."""
+    result = subprocess.run(
+        f"curl -sS --connect-timeout 10 {url}", shell=True, capture_output=True, text=True
+    )
+    for _ in range(CURL_RETRIES - 1):
+        if result.returncode == 0:
+            return result
+        time.sleep(CURL_RETRY_DELAY)
+        result = subprocess.run(
+            f"curl -sS --connect-timeout 10 {url}", shell=True, capture_output=True, text=True
+        )
+    return result
+
+
+VERIFY_CLIENT_NAME = "client1"
+
+
 def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
     """Verifies the VPN connection for a single instance (IPv4 and IPv6) in one session."""
     if not instance.is_reachable:
         return
 
-    # Structure: fetch_base_dir / client1 / hostname / client.ovpn (user's fetch_dir points to client1)
-    config_path = fetch_base_dir / f"{instance.hostname}.ovpn"
+    # Matches tests/ec2.yml's openvpn_fetch_client_configs_per_user_dir: false (flat layout):
+    # <openvpn_fetch_client_configs_dir>/<client>-<openvpn_ovpn_server_name>.ovpn
+    config_path = fetch_base_dir / f"{VERIFY_CLIENT_NAME}-{instance.hostname}.ovpn"
 
     if not config_path.exists():
         logger.error(f"Config file not found for {instance.hostname} at {config_path}")
@@ -302,43 +371,37 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
             instance.failure_detail = detail
             return
 
-        # 3. Test IPv4
-        res4 = subprocess.run(
-            "curl -s --connect-timeout 10 https://ipv4.icanhazip.com",
-            shell=True,
-            capture_output=True,
-            text=True,
-        )
-        if res4.returncode == 0:
-            val = res4.stdout.strip()
-            try:
-                ip = ipaddress.IPv4Address(val)
-                instance.vpn_ipv4 = ip
-                if ip == instance.public_ip:
-                    logger.info(f"IPv4 SUCCESS: {instance.public_ip} routed correctly.")
-                    instance.ipv4_status = Status.PASS
-                else:
-                    msg = f"IPv4 routed via {ip}, expected {instance.public_ip}"
-                    logger.error(f"IPv4 FAILURE: {msg}")
-                    instance.ipv4_status = Status.FAIL
-                    instance.failure_detail += f"{msg}. "
-            except ValueError:
-                logger.error(f"Invalid IPv4 received: {val}")
+        # 3. Test IPv4 (only if instance has a public IPv4 - IPv6-only instances disable the
+        # IPv4 tunnel entirely via openvpn_server_network: "", so there's nothing to test)
+        if instance.public_ip:
+            res4 = curl_with_retry("https://ipv4.icanhazip.com")
+            if res4.returncode == 0:
+                val = res4.stdout.strip()
+                try:
+                    ip = ipaddress.IPv4Address(val)
+                    instance.vpn_ipv4 = ip
+                    if ip == instance.public_ip:
+                        logger.info(f"IPv4 SUCCESS: {instance.public_ip} routed correctly.")
+                        instance.ipv4_status = Status.PASS
+                    else:
+                        msg = f"IPv4 routed via {ip}, expected {instance.public_ip}"
+                        logger.error(f"IPv4 FAILURE: {msg}")
+                        instance.ipv4_status = Status.FAIL
+                        instance.failure_detail += f"{msg}. "
+                except ValueError:
+                    logger.error(f"Invalid IPv4 received: {val}")
+                    instance.ipv4_status = Status.TEST_ERROR
+                    instance.failure_detail += f"Invalid IPv4 received: {val}. "
+            else:
+                logger.error(f"IPv4 curl failed: {res4.stderr}")
                 instance.ipv4_status = Status.TEST_ERROR
-                instance.failure_detail += f"Invalid IPv4 received: {val}. "
+                instance.failure_detail += f"IPv4 curl failed: {res4.stderr.strip()}. "
         else:
-            logger.error(f"IPv4 curl failed: {res4.stderr}")
-            instance.ipv4_status = Status.TEST_ERROR
-            instance.failure_detail += f"IPv4 curl failed: {res4.stderr.strip()}. "
+            instance.ipv4_status = Status.PENDING
 
         # 4. Test IPv6 (only if instance has public IPv6)
         if instance.public_ipv6:
-            res6 = subprocess.run(
-                "curl -s --connect-timeout 10 https://ipv6.icanhazip.com",
-                shell=True,
-                capture_output=True,
-                text=True,
-            )
+            res6 = curl_with_retry("https://ipv6.icanhazip.com")
             if res6.returncode == 0:
                 val = res6.stdout.strip()
                 try:
@@ -370,19 +433,33 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
         instance.status = Status.TEST_ERROR
         instance.failure_detail += f"Exception: {e}. "
     finally:
-        # 5. Stop OpenVPN
+        # 5. Stop OpenVPN gracefully (SIGTERM, not -9). OpenVPN's DCO backend owns a real
+        # kernel tun interface + routes; SIGKILL skips its cleanup and leaves that interface
+        # orphaned (NO-CARRIER but still routed), and the next run's tunnel gets duplicate
+        # equal-metric routes where the kernel can silently pick the dead one over the live
+        # one. Only fall back to -9 if it won't die on its own.
         if pid_file.exists():
-            subprocess.run(
-                f"sudo kill -9 $(cat {pid_file}) && sudo rm {pid_file}",
-                shell=True,
-                capture_output=True,
-            )
+            pid = pid_file.read_text().strip()
+            subprocess.run(["sudo", "kill", pid], capture_output=True)
+            for _ in range(10):
+                still_alive = subprocess.run(
+                    ["sudo", "kill", "-0", pid], capture_output=True
+                )
+                if still_alive.returncode != 0:
+                    break
+                time.sleep(0.5)
+            else:
+                logger.warning(f"OpenVPN pid {pid} didn't exit after SIGTERM; forcing.")
+                subprocess.run(["sudo", "kill", "-9", pid], capture_output=True)
+            subprocess.run(["sudo", "rm", "-f", str(pid_file)], capture_output=True)
         subprocess.run(["sudo", "rm", "-f", str(log_path)], capture_output=True)
 
-    # Overall Status update
-    if instance.ipv4_status == Status.PASS and (
-        not instance.public_ipv6 or instance.ipv6_status == Status.PASS
-    ):
+    # Overall Status update - PASS requires each address family that's actually present
+    # (public_ip / public_ipv6) to have tested PASS; families the instance doesn't have are
+    # skipped above (left PENDING) and don't block an overall PASS.
+    ipv4_ok = not instance.public_ip or instance.ipv4_status == Status.PASS
+    ipv6_ok = not instance.public_ipv6 or instance.ipv6_status == Status.PASS
+    if ipv4_ok and ipv6_ok:
         instance.status = Status.PASS
     else:
         if instance.status != Status.TEST_ERROR:
@@ -397,16 +474,76 @@ def generate_md_report(
         f.write("# End-to-End Test Report\n\n")
         f.write(f"Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(
-            "| Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall | Detail |\n"
+            "| Scenario | Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall | Detail |\n"
         )
-        f.write("|---|---|---|---|---|---|---|---|---|---|---|\n")
+        f.write("|---|---|---|---|---|---|---|---|---|---|---|---|\n")
         for res in results:
             detail = res.failure_detail.replace("|", "\\|")
             f.write(
-                f"| {res.id} | {res.name} | {res.os_name} | {res.public_ip} | {res.public_ipv6 or 'N/A'} | "
+                f"| {res.scenario} | {res.id} | {res.name} | {res.os_name} | {res.public_ip or 'N/A'} | {res.public_ipv6 or 'N/A'} | "
                 f"{res.vpn_ipv4 or 'N/A'} | {res.vpn_ipv6 or 'N/A'} | {res.ipv4_status} | {res.ipv6_status} | {res.status} | {detail} |\n"
             )
     logger.info(f"Report generated at {report_path.absolute()}")
+
+
+def terraform_apply(tf_dir: Path, var_file: str) -> bool:
+    """Applies one scenario's var-file in tf_dir's current workspace. Returns False (rather than
+    raising) on failure so the caller can still attempt a cleanup destroy afterwards."""
+    logger.info(f"Terraform apply ({var_file})...")
+    result = subprocess.run(
+        ["terraform", f"-chdir={tf_dir}", "apply", f"-var-file={var_file}", "-auto-approve"],
+    )
+    if result.returncode != 0:
+        logger.error(f"Terraform apply failed for {var_file}.")
+        return False
+    return True
+
+
+def terraform_destroy(tf_dir: Path, var_file: str) -> None:
+    """Always called after a scenario, even if apply or testing failed, so a bad scenario
+    doesn't sit there burning the account's instance limit for the next one."""
+    logger.info(f"Terraform destroy ({var_file})...")
+    result = subprocess.run(
+        ["terraform", f"-chdir={tf_dir}", "destroy", f"-var-file={var_file}", "-auto-approve"],
+    )
+    if result.returncode != 0:
+        logger.error(
+            f"Terraform destroy failed for {var_file} - check {tf_dir} state manually."
+        )
+
+
+def run_scenario(
+    scenario: str,
+    region: str,
+    profile: str | None,
+    tag_key: str | None,
+    tag_value: str | None,
+    ssh_key_path: Path | None,
+    default_user: str,
+) -> list[InstanceInfo]:
+    """Discovers, provisions, and verifies whatever's currently running for one scenario."""
+    instances = get_instances(region, profile, tag_key, tag_value)
+    if not instances:
+        logger.error(f"No instances found for scenario {scenario}.")
+        return []
+    for inst in instances:
+        inst.scenario = scenario
+
+    with ThreadPoolExecutor() as executor:
+        list(
+            executor.map(
+                lambda inst: wait_for_ssh_ready(inst, ssh_key_path, default_user),
+                instances,
+            )
+        )
+
+    run_ansible_parallel(instances, ssh_key_path)
+
+    fetch_dir = Path("/tmp/ansible-openvpn-certs")
+    for inst in instances:
+        verify_instance(inst, fetch_dir)
+
+    return instances
 
 
 def main() -> None:
@@ -419,6 +556,12 @@ def main() -> None:
     parser.add_argument("--ssh-key", help="Path to SSH private key (overrides config)")
     parser.add_argument("--region", help="AWS Region (overrides config)")
     parser.add_argument("--profile", help="AWS CLI Profile (overrides config)")
+    parser.add_argument(
+        "--skip-terraform",
+        action="store_true",
+        help="Skip terraform apply/destroy entirely and test whatever's currently running "
+        "(e.g. a scenario you applied by hand for debugging)",
+    )
 
     args = parser.parse_args()
 
@@ -438,29 +581,47 @@ def main() -> None:
         if not ssh_key_path.exists():
             logger.warning(f"SSH Key file {ssh_key_path} does not exist.")
 
-    instances = get_instances(region, profile, tag_key, tag_value)
-    if not instances:
-        logger.error("No instances found.")
-        sys.exit(0)
+    tf_config = config.get("terraform", {})
+    tf_dir_str = tf_config.get("dir")
+    var_files = tf_config.get("var_files", [])
 
-    # Parallel OS Detection
-    with ThreadPoolExecutor() as executor:
-        list(
-            executor.map(
-                lambda inst: check_ssh_and_detect_os(inst, ssh_key_path, default_user),
-                instances,
-            )
+    all_instances: list[InstanceInfo] = []
+
+    if args.skip_terraform:
+        logger.info("--skip-terraform set: testing whatever's currently running, no terraform.")
+        all_instances = run_scenario(
+            "manual", region, profile, tag_key, tag_value, ssh_key_path, default_user
+        )
+    elif tf_dir_str and var_files:
+        tf_dir = Path(tf_dir_str).expanduser()
+        for var_file in var_files:
+            logger.info(f"=== Scenario: {var_file} ===")
+            applied = terraform_apply(tf_dir, var_file)
+            try:
+                if applied:
+                    scenario_instances = run_scenario(
+                        var_file, region, profile, tag_key, tag_value, ssh_key_path, default_user
+                    )
+                    all_instances.extend(scenario_instances)
+                else:
+                    logger.error(f"Skipping tests for {var_file} since terraform apply failed.")
+            except Exception:
+                logger.exception(
+                    f"Scenario {var_file} raised an unexpected error; continuing to the next scenario."
+                )
+            finally:
+                terraform_destroy(tf_dir, var_file)
+    else:
+        # No terraform lifecycle configured - test whatever's already running.
+        all_instances = run_scenario(
+            "manual", region, profile, tag_key, tag_value, ssh_key_path, default_user
         )
 
-    # Provisioning (Parallel via Ansible itself)
-    run_ansible_parallel(instances, ssh_key_path)
+    if not all_instances:
+        logger.error("No instances found across any scenario.")
+        sys.exit(0)
 
-    # Parallel Verification
-    fetch_dir = Path("/tmp/ansible/client1")
-    for inst in instances:
-        verify_instance(inst, fetch_dir)
-
-    generate_md_report(instances)
+    generate_md_report(all_instances)
 
 
 if __name__ == "__main__":
