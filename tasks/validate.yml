@@ -1,4 +1,15 @@
 ---
+- name: validate | Warn about deprecated openvpn_ci_build usage
+  ansible.builtin.debug:
+    msg: >-
+      [WARNING] openvpn_ci_build is deprecated and will be removed in a future version.
+      It only ever gated the sysctl and firewall tasks - use
+      'openvpn_manage_sysctl: false' and/or 'openvpn_manage_firewall_rules: false' instead.
+  when: openvpn_ci_build is truthy
+  tags:
+    - always
+    - validate
+
 - name: validate | Fail if both IPv4 and IPv6 tunnel networks are disabled
   ansible.builtin.fail:
     msg: >-

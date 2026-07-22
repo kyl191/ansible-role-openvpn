@@ -24,6 +24,9 @@
 2. Delete the openvpn_compression option from config & options - VORACLE attack means it should stay unset
 3. Drop OpenVPN 2.5 - the upgrade train comes
 4. Drop RHEL 8 from CI - [it's too old](https://www.jeffgeerling.com/blog/2024/newer-versions-ansible-dont-work-rhel-8/)
+5. Remove `openvpn_ci_build` - it only ever gated the sysctl and firewall tasks; use the new
+   `openvpn_manage_sysctl` and/or `openvpn_manage_firewall_rules` instead. Using
+   `openvpn_ci_build` now prints a deprecation warning.
 
 # Version 3.2.0 (2026-07-22)
 

@@ -241,6 +241,10 @@ CI runs via GitHub Actions (`.github/workflows/ci.yml`):
 ## Known Quirks and Constraints
 
 - **`openvpn_ci_build: true`** skips `sysctl` and firewall tasks — no kernel access in CI containers.
+  **Deprecated** (prints a runtime warning; planned removal in vNext, see `CHANGELOG.md`) — use
+  `openvpn_manage_sysctl: false` and/or `openvpn_manage_firewall_rules: false` instead, which
+  gate the same two things individually without touching anything else `openvpn_ci_build` doesn't
+  already cover.
 - **AlmaLinux/Rocky 8** requires explicit `ansible_python_interpreter: /usr/bin/python3.9` and older ansible-core (<2.17).
 - **EPEL on RHEL** installs via direct RPM URL with `disable_gpg_check: true` — this is the standard RHEL bootstrapping pattern, not a security shortcut.
 - **`openvpn_compression`** is intentionally empty (disabled). Do not enable — the VORACLE attack (2018) exploits VPN compression to recover HTTPS content. See `defaults/main/openvpn.yml`.
