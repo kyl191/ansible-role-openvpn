@@ -48,6 +48,7 @@
     permanent: true
     state: enabled
     immediate: true
+  when: openvpn_server_network is defined and openvpn_server_network | length > 0
   notify:
     - Restart firewalld
 

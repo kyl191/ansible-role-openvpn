@@ -65,6 +65,7 @@
         jump: SNAT
         action: insert
         comment: "Perform NAT readdressing"
+      when: openvpn_server_network is defined and openvpn_server_network | length > 0
     - name: firewall | iptables | Perform NAT IPv6 readdressing
       ansible.builtin.iptables:
         table: nat
@@ -91,6 +92,7 @@
         jump: MASQUERADE
         action: insert
         comment: "Perform NAT readdressing"
+      when: openvpn_server_network is defined and openvpn_server_network | length > 0
     - name: firewall | iptables | Perform NAT IPv6 readdressing with MASQUERADE
       ansible.builtin.iptables:
         table: nat

@@ -42,7 +42,9 @@ duplicate-cn
 client-to-client
 {% endif %}
 
+{% if openvpn_server_network is defined and openvpn_server_network %}
 server {{ openvpn_server_network }} {{ openvpn_server_netmask }}
+{% endif %}
 {% if openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network %}
 server-ipv6 {{ openvpn_server_ipv6_network }}
 {% endif %}
