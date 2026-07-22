@@ -38,7 +38,7 @@
     update_cache: true
   when:
     - ansible_facts["pkg_mgr"] == "apt"
-    - openvpn_package_name not in ansible_facts.packages
+    - openvpn_package_name not in ansible_facts['packages']
 
 - name: install | Install openvpn
   ansible.builtin.package:
