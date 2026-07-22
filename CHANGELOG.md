@@ -1,5 +1,12 @@
 # vNext
 
+## Bug Fixes
+
+* `openvpn_server_netmask_cidr` no longer depends on the `ansible.utils` collection and its
+  `netaddr` Python library - neither was ever declared in `requirements.yml`, so any control node
+  without them already installed would fail on this. Replaced with a small bundled
+  `netmask_to_cidr` filter (stdlib `ipaddress` only, no new dependencies).
+
 ## Planned Additions
 
 1. OpenVPN 2.7 testing
