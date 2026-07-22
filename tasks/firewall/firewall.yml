@@ -16,33 +16,21 @@
     - "'ufw' not in ansible_facts['packages']"
     - "'iptables' not in ansible_facts['packages']"
 
+- name: firewall | firewall | Determine firewall backend
+  ansible.builtin.set_fact:
+    __openvpn_firewall_backend: >-
+      {{ openvpn_firewall if openvpn_firewall != 'auto' else
+         ('firewalld' if 'firewalld' in ansible_facts['packages'] else
+          ('ufw' if 'ufw' in ansible_facts['packages'] else 'iptables')) }}
+
 - name: firewall | firewall | Add port rules (iptables)
   ansible.builtin.include_tasks: iptables.yml
-  when: >-
-    (openvpn_firewall == 'iptables')
-    or
-    (openvpn_firewall == 'auto'
-      and 'firewalld' not in ansible_facts.packages
-      and 'ufw' not in ansible_facts.packages
-      and 'iptables' in ansible_facts.packages
-    )
+  when: __openvpn_firewall_backend == 'iptables'
 
 - name: firewall | firewall | Add port rules (firewalld)
   ansible.builtin.include_tasks: firewalld.yml
-  when: >-
-    (openvpn_firewall == 'firewalld')
-    or
-    (openvpn_firewall == 'auto'
-      and 'firewalld' in ansible_facts.packages
-      and 'ufw' not in ansible_facts.packages
-    )
+  when: __openvpn_firewall_backend == 'firewalld'
 
 - name: firewall | firewall | Add port rules (ufw)
   ansible.builtin.include_tasks: ufw.yml
-  when: >-
-    (openvpn_firewall == 'ufw')
-    or
-    (openvpn_firewall == 'auto'
-      and 'firewalld' not in ansible_facts.packages
-      and 'ufw' in ansible_facts.packages
-    )
+  when: __openvpn_firewall_backend == 'ufw'
