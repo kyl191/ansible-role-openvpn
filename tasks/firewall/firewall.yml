@@ -23,6 +23,40 @@
          ('firewalld' if 'firewalld' in ansible_facts['packages'] else
           ('ufw' if 'ufw' in ansible_facts['packages'] else 'iptables')) }}
 
+# Only iptables/ufw embed a source address directly into their SNAT rules - firewalld's
+# masquerade doesn't need one, and MASQUERADE mode picks the address at packet-send time.
+- name: firewall | firewall | Fail if IPv4 SNAT is needed but no default IPv4 route exists
+  ansible.builtin.fail:
+    msg: >-
+      openvpn_no_nat and openvpn_masquerade_not_snat are both false (SNAT mode) but this host
+      has no default IPv4 route (ansible_facts['default_ipv4'] is empty), so
+      openvpn_snat_source_ipv4 can't be resolved. Either set openvpn_snat_source_ipv4 explicitly,
+      set openvpn_masquerade_not_snat: true to use MASQUERADE instead, set openvpn_no_nat: true if
+      this host doesn't need NAT at all, or set openvpn_server_network: "" to disable the IPv4
+      tunnel entirely.
+  when:
+    - __openvpn_firewall_backend in ['iptables', 'ufw']
+    - openvpn_no_nat is falsy
+    - openvpn_masquerade_not_snat is falsy
+    - openvpn_server_network is defined and openvpn_server_network | length > 0
+    - openvpn_snat_source_ipv4 is not defined
+
+- name: firewall | firewall | Fail if IPv6 SNAT is needed but no default IPv6 route exists
+  ansible.builtin.fail:
+    msg: >-
+      openvpn_server_ipv6_network is set to "{{ openvpn_server_ipv6_network }}" but this host
+      has no default IPv6 route (ansible_facts['default_ipv6'] is empty), so
+      openvpn_snat_source_ipv6 can't be resolved. Either set openvpn_snat_source_ipv6 explicitly,
+      set openvpn_server_ipv6_network: "" to disable IPv6 support, or set
+      openvpn_masquerade_not_snat: true to use MASQUERADE instead, which doesn't require a known
+      source address.
+  when:
+    - __openvpn_firewall_backend in ['iptables', 'ufw']
+    - openvpn_no_nat is falsy
+    - openvpn_masquerade_not_snat is falsy
+    - openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
+    - openvpn_snat_source_ipv6 is not defined
+
 - name: firewall | firewall | Add port rules (iptables)
   ansible.builtin.include_tasks: iptables.yml
   when: __openvpn_firewall_backend == 'iptables'

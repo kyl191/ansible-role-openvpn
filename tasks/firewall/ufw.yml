@@ -44,7 +44,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_lan_source_ip }}
+          -A POSTROUTING -s {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} ! -d {{ openvpn_server_network }}/{{ openvpn_server_netmask_cidr }} -j SNAT --to-source {{ openvpn_snat_source_ipv4 }}
           COMMIT
 
     - name: firewall | ufw | Setup IPv6 SNAT rules
@@ -56,7 +56,7 @@
           # OpenVPN config
           *nat
           :POSTROUTING ACCEPT [0:0]
-          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }} -j SNAT --to-source {{ ansible_facts['default_ipv6']['address'] }}
+          -A POSTROUTING -s {{ openvpn_server_ipv6_network }} ! -d {{ openvpn_server_ipv6_network }} -j SNAT --to-source {{ openvpn_snat_source_ipv6 }}
           COMMIT
       when: openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
 

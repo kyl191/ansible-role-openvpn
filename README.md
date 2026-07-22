@@ -116,6 +116,8 @@ These options change how OpenVPN itself works. Refer to the respective OpenVPN R
 | openvpn_server_netmask      | string       |                   | 255.255.255.0              | Netmask of the private network     |
 | openvpn_server_netmask_cidr      | string       |                   | Determined at runtime from `openvpn_server_network` and `openvpn_server_netmask` | CIDR suffix to use in firewall rules |
 | openvpn_server_network      | string       |                   | 10.9.0.0                   | Private network used by OpenVPN service                                                                                                              |
+| openvpn_snat_source_ipv4    | string       |                   | `ansible_facts['default_ipv4']['address']` | Source address used for IPv4 SNAT rules (iptables/ufw, SNAT mode only). Override this if the host's default IPv4 route doesn't reflect the address you want to NAT to, or set explicitly to avoid depending on `ansible_facts['default_ipv4']` at all. |
+| openvpn_snat_source_ipv6    | string       |                   | `ansible_facts['default_ipv6']['address']` | Source address used for IPv6 SNAT rules (iptables/ufw, SNAT mode only). Same override use case as `openvpn_snat_source_ipv4`, for IPv6. |
 | openvpn_tun_mtu             | int          |                   | `unset`                    | Set `tun-mtu` value. Empty for default.                                                                                                              |
 
 ### Security
