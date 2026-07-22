@@ -1,4 +1,15 @@
 ---
+- name: validate | Fail if both IPv4 and IPv6 tunnel networks are disabled
+  ansible.builtin.fail:
+    msg: >-
+      Both openvpn_server_network and openvpn_server_ipv6_network are empty - at least one
+      address family must be enabled for OpenVPN to have addresses to hand out to clients.
+  when:
+    - openvpn_server_network is not defined or openvpn_server_network | length == 0
+    - openvpn_server_ipv6_network is not defined or openvpn_server_ipv6_network | length == 0
+  tags:
+    - validate
+
 - name: validate | Initialize long client CNs list
   ansible.builtin.set_fact:
     __long_client_cns: []
