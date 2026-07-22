@@ -115,3 +115,5 @@
     name: "{{ openvpn_iptables_service }}"
     enabled: true
     state: started
+  tags:
+    - firewall_persist

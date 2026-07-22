@@ -161,10 +161,15 @@ jobs:
       # Prime the container (packages incl. iptables-persistent, keys, config) while it still
       # has real network access. openvpn_no_nat skips any address-needing NAT setup here - that
       # isn't what's under test in this step, just getting everything else installed first.
+      # --skip-tags firewall_persist: this job's container (GH Actions' native `container:`
+      # runner, not podman --systemd=always) never boots systemd, so ansible.builtin.service
+      # can't enable the iptables unit here - and enabling it at boot isn't part of what this
+      # job tests either, just rule insertion and the route guards. Only tags the "Enable
+      # iptables" task - saving the ruleset to disk is a plain shell command, no systemd needed.
       - name: Prime install before removing the default IPv4 route
         if: matrix.scenario.remove_ipv4_route
         run: >
-          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv --skip-tags firewall_persist
           -e '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_no_nat": true}'
 
       # Real route removal (not mocked facts) - only affects this job's own isolated container
@@ -178,7 +183,7 @@ jobs:
         if: matrix.scenario.run_mode == 'firewall_only'
         run: |
           set +e
-          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml --tags firewall,validate -vv -e '${{ matrix.scenario.extra_vars }}'
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml --tags firewall,validate --skip-tags firewall_persist -vv -e '${{ matrix.scenario.extra_vars }}'
           rc=$?
           set -e
           if [ "${{ matrix.scenario.expect_success }}" = "true" ]; then [ $rc -eq 0 ]; else [ $rc -ne 0 ]; fi
@@ -187,7 +192,7 @@ jobs:
         if: matrix.scenario.run_mode == 'full'
         run: |
           set +e
-          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e '${{ matrix.scenario.extra_vars }}'
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv --skip-tags firewall_persist -e '${{ matrix.scenario.extra_vars }}'
           rc=$?
           set -e
           if [ "${{ matrix.scenario.expect_success }}" = "true" ]; then [ $rc -eq 0 ]; else [ $rc -ne 0 ]; fi
