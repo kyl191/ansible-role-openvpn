@@ -52,11 +52,11 @@ jobs:
       - name: Run ansible playbook
         run: >
           ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
-          -e '{"openvpn_use_tls_crypt": false}'
+          -e '{"openvpn_use_tls_crypt": false, "openvpn_manage_sysctl": false, "openvpn_manage_firewall_rules": false}'
       - name: Check idempotency
         run: >
           ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
-          -e '{"openvpn_use_tls_crypt": false}'
+          -e '{"openvpn_use_tls_crypt": false, "openvpn_manage_sysctl": false, "openvpn_manage_firewall_rules": false}'
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -95,9 +95,9 @@ jobs:
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables -e openvpn_manage_sysctl=false -e openvpn_manage_firewall_rules=false
       - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables
+        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables -e openvpn_manage_sysctl=false -e openvpn_manage_firewall_rules=false
       - name: Container state debug output
         continue-on-error: true
         run: |
@@ -119,22 +119,22 @@ jobs:
           - name: ipv4-guard-fires
             remove_ipv4_route: true
             run_mode: firewall_only
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables"}'
+            extra_vars: '{"openvpn_firewall": "iptables"}'
             expect_success: false
           - name: ipv4-disabled-works
             remove_ipv4_route: true
             run_mode: firewall_only
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_server_network": "", "openvpn_masquerade_not_snat": true}'
+            extra_vars: '{"openvpn_firewall": "iptables", "openvpn_server_network": "", "openvpn_masquerade_not_snat": true}'
             expect_success: true
           - name: ipv6-guard-fires
             remove_ipv4_route: false
             run_mode: full
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_manage_sysctl": false}'
+            extra_vars: '{"openvpn_firewall": "iptables", "openvpn_manage_sysctl": false}'
             expect_success: false
           - name: ipv6-disabled-works
             remove_ipv4_route: false
             run_mode: full
-            extra_vars: '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_server_ipv6_network": "", "openvpn_manage_sysctl": false}'
+            extra_vars: '{"openvpn_firewall": "iptables", "openvpn_server_ipv6_network": "", "openvpn_manage_sysctl": false}'
             expect_success: true
 
     container:
@@ -173,7 +173,7 @@ jobs:
         if: matrix.scenario.remove_ipv4_route
         run: >
           ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv --skip-tags firewall_persist
-          -e '{"openvpn_ci_build": false, "openvpn_firewall": "iptables", "openvpn_no_nat": true, "openvpn_manage_sysctl": false}'
+          -e '{"openvpn_firewall": "iptables", "openvpn_no_nat": true, "openvpn_manage_sysctl": false}'
 
       # Real route removal (not mocked facts) - only affects this job's own isolated container
       # network, so the next run's gathered facts genuinely reflect a host with no default IPv4
@@ -247,10 +247,10 @@ jobs:
         run: sudo podman exec ${{ matrix.version }} ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Check idempotency
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
       - name: Move generated client config file
         run: sudo podman exec ${{ matrix.version }} cp /etc/openvpn/server/alpha-localhost.ovpn /etc/openvpn/client/alpha-localhost.conf
       - name: Attempt openvpn connection
@@ -261,7 +261,7 @@ jobs:
         run: sudo podman exec ${{ matrix.version }} systemctl stop openvpn-client@alpha-localhost.service
       - name: Check revocation
         run: >
-          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/revocation-test.yml -vv -e '{"openvpn_ci_build": false}'
+          sudo podman exec ${{ matrix.version }} ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/revocation-test.yml -vv
       - name: Container state debug output
         continue-on-error: true
         run: |

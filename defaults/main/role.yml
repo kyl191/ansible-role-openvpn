@@ -32,6 +32,9 @@ openvpn_manage_sysctl: true
 openvpn_firewalld_zone: auto
 
 # Misc
+# Deprecated - only ever gated the sysctl and firewall tasks below; use
+# openvpn_manage_sysctl / openvpn_manage_firewall_rules instead. Will be removed in a future
+# major version.
 openvpn_ci_build: false
 openvpn_conf_user: root
 openvpn_conf_group: root
