@@ -55,8 +55,23 @@
   when: openvpn_ca_key is not defined
 
 - name: server_keys | Sign CA key
-  ansible.builtin.command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days {{ openvpn_ca_cert_validity_days }} -extfile openssl-ca.ext
-  args:
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - ca-csr.pem
+      - -out
+      - ca.crt
+      - -CAcreateserial
+      - -signkey
+      - ca-key.pem
+      - -sha256
+      - -days
+      - "{{ openvpn_ca_cert_validity_days }}"
+      - -extfile
+      - openssl-ca.ext
     chdir: "{{ openvpn_key_dir }}"
     creates: ca.crt
   when: openvpn_ca_key is not defined
