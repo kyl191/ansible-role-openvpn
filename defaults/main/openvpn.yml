@@ -31,7 +31,7 @@ openvpn_snat_source_ipv6: "{{ ansible_facts['default_ipv6']['address'] }}"
 
 # Security
 openvpn_auth_alg: SHA256
-openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC
+openvpn_cipher: AES-256-GCM:AES-128-GCM
 # X.509 CN is limited to 64 characters. The default values truncate inventory_hostname
 # so that prefix + hostname stays within the limit (e.g. "OpenVPN-CA-" is 11 chars,
 # leaving 53 for the hostname). Adjust truncation when using a custom value.
