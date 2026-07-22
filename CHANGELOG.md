@@ -6,6 +6,12 @@
   `netaddr` Python library - neither was ever declared in `requirements.yml`, so any control node
   without them already installed would fail on this. Replaced with a small bundled
   `netmask_to_cidr` filter (stdlib `ipaddress` only, no new dependencies).
+* `tasks/main.yml`'s OS-vars loading step (`Include vars for OpenVPN installation`) is now tagged
+  `always`, matching how `validate.yml` was already treated. Previously, running the role with any
+  `--tags` restriction that excluded this untagged step (e.g. `--tags firewall`) left
+  `__iptables_save_command` undefined on RedHat-family hosts, breaking the `Save iptables rules`
+  handler - Debian/Ubuntu happened to avoid this via an unrelated fallback `set_fact` inside
+  `iptables.yml` itself, which masked the bug there.
 
 ## Planned Additions
 

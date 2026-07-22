@@ -12,6 +12,8 @@
     - "../vars/os/{{ ansible_facts['distribution'] }}.yml"
     - "../vars/os/{{ ansible_facts['os_family'] }}.yml"
     - "../vars/empty.yml"
+  tags:
+    - always
 
 - name: Uninstall OpenVPN
   ansible.builtin.import_tasks: uninstall.yml
