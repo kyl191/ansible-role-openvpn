@@ -41,6 +41,8 @@ openvpn_client_cn_prefix: "OpenVPN-Client-{{ inventory_hostname[:24] }}-"
 openvpn_cn_strict_mode: false
 openvpn_duplicate_cn: false
 openvpn_rsa_bits: 2048
+openvpn_ca_cert_validity_days: 3650
+openvpn_cert_validity_days: 3650
 openvpn_use_crl: false
 openvpn_manage_crl_without_systemd: false
 openvpn_tls_version_min: 1.2 or-highest
