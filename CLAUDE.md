@@ -36,6 +36,10 @@ defaults/main/          # Role defaults (split by concern)
   ldap.yml              # LDAP auth defaults
   logrotate.yml         # Log rotation defaults
 
+filter_plugins/
+  netmask_to_cidr.py    # Dotted-decimal netmask -> CIDR prefix length (stdlib ipaddress only,
+                         # no netaddr/ansible.utils dependency)
+
 vars/                   # OS-specific overrides (loaded via with_first_found)
   os/                   # Checked first: distribution+version, then distribution, then family
   empty.yml             # Fallback (intentionally empty)
