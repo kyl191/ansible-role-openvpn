@@ -17,7 +17,7 @@
 ## Behaviour Changes
 
 * Remove AES-256-CBC from default ciphers - was blocking Data Channel Offload
-* New validation to make sure generated certificate names are acceptable under TLS rules
+* New validation to make sure generated certificate names are acceptable under TLS rules limiting names to <=64 characters
 * Not having a IPv4/v6 default route set will now crash the playbook with a descriptive error message if SNAT is required with ufw/iptables
   * Previously this would crash the playbook with an attribute error when using SNAT on ufw/iptables (Report: [#273](https://github.com/kyl191/ansible-role-openvpn/issues/273))
   * Use the new `openvpn_snat_source_ipv4` and `openvpn_snat_source_ipv6` options to set a specific IP to use
@@ -28,7 +28,7 @@
 ## Improvements
 
 * IPv6-only support preview
-  * Disable IPv4 with `openvpn_server_network: ""` - the role now requires at least one of `openvpn_server_network`/`openvpn_server_ipv6_network` to be set.
+  * Disable IPv4 with `openvpn_server_network: ""` - the role now requires at least one of `openvpn_server_network`/`openvpn_server_ipv6_network` to be set
 * More customization of CN names possible, read [the Certificate Common Names](https://github.com/kyl191/ansible-role-openvpn#certificate-common-names-cn) for more information
   * Note: Changing fields on an already established set of clients & servers will require reissuing all certs
 * New `openvpn_fetch_client_configs_per_user_dir` parameter to have client configs downloaded in a single directory as opposed to a per-user directory
