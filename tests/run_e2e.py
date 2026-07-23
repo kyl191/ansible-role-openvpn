@@ -54,6 +54,7 @@ class InstanceInfo:
     ipv4_status: Status = Status.PENDING
     ipv6_status: Status = Status.PENDING
     failure_detail: str = ""
+    playbook_seconds: float | None = None
 
     @property
     def is_reachable(self) -> bool:
@@ -228,8 +229,69 @@ def wait_for_ssh_ready(
     return False
 
 
+def _inventory_line(inst: InstanceInfo, key_path: Path | None) -> str:
+    line = f"{inst.hostname} ansible_user={inst.ssh_user} "
+    if key_path:
+        line += f"ansible_ssh_private_key_file={key_path} "
+    if needs_platform_python(inst.name):
+        line += "ansible_python_interpreter=/usr/libexec/platform-python "
+    else:
+        line += "ansible_python_interpreter=auto_silent "
+    line += "ansible_ssh_common_args='-o StrictHostKeyChecking=no' "
+    line += f"openvpn_server_hostname={inst.hostname} "
+    if not inst.public_ip:
+        # Genuinely IPv4-less host (see terraform-ipv6-only.tfvars) - exercise the
+        # role's IPv4-tunnel-disabled path instead of assuming dual-stack.
+        line += 'openvpn_server_network="" '
+    if not inst.public_ipv6:
+        # Genuinely IPv6-less host (see terraform-ipv4-only.tfvars) - exercise the
+        # role's IPv6-tunnel-disabled path instead of assuming dual-stack.
+        line += 'openvpn_server_ipv6_network="" '
+    return line.rstrip() + "\n"
+
+
+def provision_instance(inst: InstanceInfo, key_path: Path | None) -> bool:
+    """Runs the playbook against a single instance in its own ansible-playbook subprocess, with
+    its own single-host inventory, so its measured wall-clock time is independent of how slow or
+    fast any other instance in the same scenario is. A single combined inventory + one playbook
+    run would only ever measure the slowest host, since Ansible's default linear strategy
+    locksteps every host at each task boundary - useless for comparing instance types/sizes
+    against each other, which is the point of timing this at all."""
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as inventory:
+        inventory.write(_inventory_line(inst, key_path))
+        inventory_path = Path(inventory.name)
+
+    cmd: list[str] = ["ansible-playbook", "-i", str(inventory_path), "tests/ec2.yml"]
+    start = time.monotonic()
+    success = False
+    try:
+        # Stream output line-by-line with a hostname prefix instead of buffering it all via
+        # capture_output and only printing at the end - several of these run concurrently in
+        # separate threads, so each line needs its own prefix to stay attributable, but a
+        # multi-minute silent wait per instance is worse than that. Merging stderr into stdout
+        # keeps ordering sane without needing two reader threads per instance.
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
+        )
+        assert process.stdout is not None
+        for line in process.stdout:
+            logger.info(f"[{inst.hostname}] {line.rstrip()}")
+        process.wait()
+        success = process.returncode == 0
+        return success
+    finally:
+        duration = time.monotonic() - start
+        inst.playbook_seconds = duration
+        logger.info(
+            f"{inst.hostname}: playbook {'complete' if success else 'failed'} in {duration:.1f}s."
+        )
+        if inventory_path.exists():
+            inventory_path.unlink()
+
+
 def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -> bool:
-    """Generates a combined inventory and runs the playbook once."""
+    """Provisions every reachable instance concurrently, each via its own ansible-playbook
+    subprocess (see provision_instance) so per-instance timing is genuinely independent."""
     reachable_instances = [i for i in instances if i.is_reachable]
 
     if not reachable_instances:
@@ -238,45 +300,12 @@ def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None) -
 
     logger.info(f"Provisioning {len(reachable_instances)} instances in parallel...")
 
-    with tempfile.NamedTemporaryFile(mode="w", delete=False) as inventory:
-        for inst in reachable_instances:
-            line = f"{inst.hostname} ansible_user={inst.ssh_user} "
-            if key_path:
-                line += f"ansible_ssh_private_key_file={key_path} "
-            if needs_platform_python(inst.name):
-                line += "ansible_python_interpreter=/usr/libexec/platform-python "
-            else:
-                line += "ansible_python_interpreter=auto_silent "
-            line += "ansible_ssh_common_args='-o StrictHostKeyChecking=no' "
-            line += f"openvpn_server_hostname={inst.hostname} "
-            if not inst.public_ip:
-                # Genuinely IPv4-less host (see terraform-ipv6-only.tfvars) - exercise the
-                # role's IPv4-tunnel-disabled path instead of assuming dual-stack.
-                line += 'openvpn_server_network="" '
-            if not inst.public_ipv6:
-                # Genuinely IPv6-less host (see terraform-ipv4-only.tfvars) - exercise the
-                # role's IPv6-tunnel-disabled path instead of assuming dual-stack.
-                line += 'openvpn_server_ipv6_network="" '
-            inventory.write(line.rstrip() + "\n")
+    with ThreadPoolExecutor() as executor:
+        results = list(
+            executor.map(lambda inst: provision_instance(inst, key_path), reachable_instances)
+        )
 
-        inventory_path = Path(inventory.name)
-
-    try:
-        cmd: list[str] = [
-            "ansible-playbook",
-            "-i",
-            str(inventory_path),
-            "tests/ec2.yml",
-        ]
-        subprocess.run(cmd, check=True)
-        logger.info("Ansible provisioning complete.")
-        return True
-    except subprocess.CalledProcessError:
-        logger.error("Ansible provisioning failed (some hosts may have failed).")
-        return False
-    finally:
-        if inventory_path.exists():
-            inventory_path.unlink()
+    return all(results)
 
 
 TUNNEL_UP_TIMEOUT = 30
@@ -474,14 +503,17 @@ def generate_md_report(
         f.write("# End-to-End Test Report\n\n")
         f.write(f"Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(
-            "| Scenario | Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall | Detail |\n"
+            "| Scenario | Instance ID | Name | OS | Public IPv4 | Public IPv6 | VPN IPv4 | VPN IPv6 | IPv4 Status | IPv6 Status | Overall | Playbook Time (s) | Detail |\n"
         )
-        f.write("|---|---|---|---|---|---|---|---|---|---|---|---|\n")
+        f.write("|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
         for res in results:
             detail = res.failure_detail.replace("|", "\\|")
+            playbook_time = (
+                f"{res.playbook_seconds:.1f}" if res.playbook_seconds is not None else "N/A"
+            )
             f.write(
                 f"| {res.scenario} | {res.id} | {res.name} | {res.os_name} | {res.public_ip or 'N/A'} | {res.public_ipv6 or 'N/A'} | "
-                f"{res.vpn_ipv4 or 'N/A'} | {res.vpn_ipv6 or 'N/A'} | {res.ipv4_status} | {res.ipv6_status} | {res.status} | {detail} |\n"
+                f"{res.vpn_ipv4 or 'N/A'} | {res.vpn_ipv6 or 'N/A'} | {res.ipv4_status} | {res.ipv6_status} | {res.status} | {playbook_time} | {detail} |\n"
             )
     logger.info(f"Report generated at {report_path.absolute()}")
 
