@@ -1,8 +1,8 @@
 # End-to-End Test Configuration
 
 [aws]
-region = "us-west-2"
-profile = "acg"
+region = "us-east-2"
+profile = "sdk"
 # tag_key = "Environment"
 # Optional: tag_value = "Test"
 

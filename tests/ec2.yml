@@ -8,6 +8,7 @@
       openvpn_sync_certs: true
       openvpn_client_register_dns: false
       openvpn_fetch_client_configs_per_user_dir: false
+      openvpn_use_pregenerated_dh_params: true
       openvpn_clients:
         - client1
         - client2
