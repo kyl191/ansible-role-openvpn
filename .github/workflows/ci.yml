@@ -95,9 +95,13 @@ jobs:
       - name: Make sure ansible connection is sane
         run: ansible -m setup -c local -i 127.0.0.1, all
       - name: Run ansible playbook
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables -e openvpn_manage_sysctl=false -e openvpn_manage_firewall_rules=false
+        run: >
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
+          -e '{"openvpn_firewall": "iptables", "openvpn_manage_sysctl": false, "openvpn_manage_firewall_rules": false}'
       - name: Check idempotency
-        run: ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv -e openvpn_firewall=iptables -e openvpn_manage_sysctl=false -e openvpn_manage_firewall_rules=false
+        run: >
+          ansible-playbook /etc/ansible/roles/kyl191.openvpn/tests/test.yml -vv
+          -e '{"openvpn_firewall": "iptables", "openvpn_manage_sysctl": false, "openvpn_manage_firewall_rules": false}'
       - name: Container state debug output
         continue-on-error: true
         run: |
