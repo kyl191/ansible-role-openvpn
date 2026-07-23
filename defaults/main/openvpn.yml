@@ -26,8 +26,8 @@ openvpn_server_netmask_cidr: "{{ openvpn_server_netmask | netmask_to_cidr }}"
 openvpn_server_ipv6_network: "fdbf:dd0d:1a49:2091::/64"
 openvpn_set_dns: true
 openvpn_tun_mtu:
-openvpn_snat_source_ipv4: "{{ ansible_facts['default_ipv4']['address'] }}"
-openvpn_snat_source_ipv6: "{{ ansible_facts['default_ipv6']['address'] }}"
+openvpn_snat_source_ipv4: "{{ ansible_facts['default_ipv4']['address'] | default('') }}"
+openvpn_snat_source_ipv6: "{{ ansible_facts['default_ipv6']['address'] | default('') }}"
 
 # Security
 openvpn_auth_alg: SHA256

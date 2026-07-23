@@ -4,7 +4,7 @@
 local {{ openvpn_local }}
 {% endif %}
 port {{ openvpn_port }}
-{% if openvpn_dualstack %}
+{% if openvpn_dualstack is truthy %}
 proto {{ openvpn_proto }}6
 {% else %}
 proto {{ openvpn_proto }}
@@ -18,21 +18,21 @@ dh {{ openvpn_key_dir }}/dh.pem
 {% if openvpn_use_crl is truthy %}
 crl-verify {{ openvpn_key_dir }}/ca-crl.pem
 {% endif %}
-{% if openvpn_tls_auth_required %}
+{% if openvpn_tls_auth_required is truthy %}
 tls-auth {{ openvpn_key_dir }}/ta.key 0
 {% endif %}
-{% if openvpn_use_tls_crypt %}
+{% if openvpn_use_tls_crypt is truthy %}
 tls-crypt {{ openvpn_key_dir }}/tls-crypt.key
 {% endif %}
 tls-server
 auth {{ openvpn_auth_alg }}
-{% if openvpn_cipher %}
+{% if openvpn_cipher | length > 0 %}
 data-ciphers {{ openvpn_cipher }}
 {% endif %}
-{% if openvpn_tun_mtu %}
+{% if openvpn_tun_mtu is not none %}
 tun-mtu {{ openvpn_tun_mtu }}
 {% endif %}
-{% if openvpn_tls_version_min %}
+{% if openvpn_tls_version_min | length > 0 %}
 tls-version-min {{ openvpn_tls_version_min }}
 {% endif %}
 {% if openvpn_duplicate_cn is truthy %}
@@ -42,29 +42,29 @@ duplicate-cn
 client-to-client
 {% endif %}
 
-{% if openvpn_server_network is defined and openvpn_server_network %}
+{% if openvpn_server_network is defined and openvpn_server_network | length > 0 %}
 server {{ openvpn_server_network }} {{ openvpn_server_netmask }}
 {% endif %}
-{% if openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network %}
+{% if openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0 %}
 server-ipv6 {{ openvpn_server_ipv6_network }}
 {% endif %}
 {% if openvpn_topology is defined %}
 topology {{ openvpn_topology }}
 {% endif %}
 ifconfig-pool-persist {{ openvpn_ifconfig_pool_persist_file }}
-{% if openvpn_client_config %}
+{% if openvpn_client_config is truthy %}
 client-config-dir {{ openvpn_client_config_dir }}
 {% endif %}
 
 {% if openvpn_redirect_gateway is defined and openvpn_redirect_gateway != '' %}
 push "redirect-gateway {{ openvpn_redirect_gateway }}"
 {% endif %}
-{% if openvpn_set_dns and openvpn_custom_dns|length > 0%}
+{% if openvpn_set_dns is truthy and openvpn_custom_dns|length > 0 and openvpn_server_network is defined and openvpn_server_network | length > 0%}
 {% for srv in openvpn_custom_dns %}
 push "dhcp-option DNS {{ srv }}"
 {% endfor %}
 {% endif %}
-{% if openvpn_set_dns and openvpn_custom_ipv6_dns|length > 0%}
+{% if openvpn_set_dns is truthy and openvpn_custom_ipv6_dns|length > 0 and openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0 %}
 {% for srv in openvpn_custom_ipv6_dns %}
 push "dhcp-option DNS6 {{ srv }}"
 {% endfor %}

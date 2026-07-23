@@ -39,7 +39,7 @@
     - openvpn_no_nat is falsy
     - openvpn_masquerade_not_snat is falsy
     - openvpn_server_network is defined and openvpn_server_network | length > 0
-    - openvpn_snat_source_ipv4 is not defined
+    - openvpn_snat_source_ipv4 | length == 0
 
 - name: firewall | firewall | Fail if IPv6 SNAT is needed but no default IPv6 route exists
   ansible.builtin.fail:
@@ -55,7 +55,7 @@
     - openvpn_no_nat is falsy
     - openvpn_masquerade_not_snat is falsy
     - openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
-    - openvpn_snat_source_ipv6 is not defined
+    - openvpn_snat_source_ipv6 | length == 0
 
 - name: firewall | firewall | Add port rules (iptables)
   ansible.builtin.include_tasks: iptables.yml

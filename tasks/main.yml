@@ -34,7 +34,7 @@
   when: >-
     openvpn_server_network is defined and openvpn_server_network | length > 0
     and openvpn_ci_build is falsy
-    and openvpn_manage_sysctl
+    and openvpn_manage_sysctl is truthy
 
 - name: Enable ipv6 forwarding
   ansible.posix.sysctl:
@@ -43,13 +43,13 @@
   when: >-
     openvpn_server_ipv6_network is defined and openvpn_server_ipv6_network | length > 0
     and openvpn_ci_build is falsy
-    and openvpn_manage_sysctl
+    and openvpn_manage_sysctl is truthy
 
 - name: Detect firewall type
   ansible.builtin.import_tasks: firewall/firewall.yml
   when:
     - openvpn_ci_build is falsy
-    - openvpn_manage_firewall_rules
+    - openvpn_manage_firewall_rules is truthy
   tags:
     - firewall
 
