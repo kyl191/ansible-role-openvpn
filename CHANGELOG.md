@@ -2,60 +2,69 @@
 
 ## Bug Fixes
 
-* `openvpn_server_netmask_cidr` no longer depends on the `ansible.utils` collection and its
-  `netaddr` Python library - neither was ever declared in `requirements.yml`, so any control node
-  without them already installed would fail on this. Replaced with a small bundled
-  `netmask_to_cidr` filter (stdlib `ipaddress` only, no new dependencies).
-* `tasks/main.yml`'s OS-vars loading step (`Include vars for OpenVPN installation`) is now tagged
-  `always`, matching how `validate.yml` was already treated. Previously, running the role with any
-  `--tags` restriction that excluded this untagged step (e.g. `--tags firewall`) left
-  `__iptables_save_command` undefined on RedHat-family hosts, breaking the `Save iptables rules`
-  handler - Debian/Ubuntu happened to avoid this via an unrelated fallback `set_fact` inside
-  `iptables.yml` itself, which masked the bug there.
-
 ## Planned Additions
 
 1. OpenVPN 2.7 testing
 2. DH Param cleanup
+3. Better `uv`  management of dependencies
 
 ## Planned Deprecations
 
 1. Delete support for compiling and installing the custom OpenVPN SELinux module
-2. Delete the openvpn_compression option from config & options - VORACLE attack means it should stay unset
+2. Delete parameters
+  a. `openvpn_compression` - [VORACLE attack](https://community.openvpn.net/Security%20Announcements/VORACLE) means it should stay unset
+  b. `openvpn_ci_build` - overloaded to gate sysctl & firewall settings; use the new `openvpn_manage_sysctl` and/or `openvpn_manage_firewall_rules` instead.
 3. Drop OpenVPN 2.5 - the upgrade train comes
 4. Drop RHEL 8 from CI - [it's too old](https://www.jeffgeerling.com/blog/2024/newer-versions-ansible-dont-work-rhel-8/)
-5. Remove `openvpn_ci_build` - it only ever gated the sysctl and firewall tasks; use the new
-   `openvpn_manage_sysctl` and/or `openvpn_manage_firewall_rules` instead. Using
-   `openvpn_ci_build` now prints a deprecation warning.
+5. Drop `ansible.utils` Ansible Galaxy dependency
 
-# Version 3.2.0 (2026-07-22)
+# Version 3.2.0 (2026-07-23)
 
 ## Behaviour Changes
 
-* Remove AES-256-CBC from default ciphers - was blocking Data Channel Offload
-* New validation to make sure generated certificate names are acceptable under TLS rules limiting names to <=64 characters
+* Remove `AES-256-CBC` from default ciphers
+  * This was blocking Data Channel Offload; expected to be a no-op since OpenVPN 2.5+ support the remaining `AES-256-GCM:AES-128-GCM` cipher list
+  * Restore old behaviour with `openvpn_cipher: AES-256-GCM:AES-128-GCM:AES-256-CBC`
+* New validation/correctness checks
+  * (Hard failure) At least one of `openvpn_server_network`/`openvpn_server_ipv6_network` must be set
+  * Check generated certificate names are acceptable under TLS rules limiting names to <=64 characters
+  * Warn about deprecated openvpn_ci_build use
+  * Stricter parameter parsing: more boolean coercion & non-empty string checks
 * Not having a IPv4/v6 default route set will now crash the playbook with a descriptive error message if SNAT is required with ufw/iptables
   * Previously this would crash the playbook with an attribute error when using SNAT on ufw/iptables (Report: [#273](https://github.com/kyl191/ansible-role-openvpn/issues/273))
   * Use the new `openvpn_snat_source_ipv4` and `openvpn_snat_source_ipv6` options to set a specific IP to use
   * Previously undocumented `openvpn_lan_source_ip` parameter has been replaced by `openvpn_snat_source_ipv4`
 * `openvpn_fetch_client_configs_dir` is now set to `/tmp/ansible-openvpn-certs`
-  * Set it to `/tmp/ansible` to restore the previous behaviour
+  * Restore the old behaviour with `openvpn_fetch_client_configs_dir: /tmp/ansible`
+* When limiting plays with `--tags=`, OS specific variable resolution is now performed
 
 ## Improvements
 
 * IPv6-only support preview
-  * Disable IPv4 with `openvpn_server_network: ""` - the role now requires at least one of `openvpn_server_network`/`openvpn_server_ipv6_network` to be set
-* More customization of CN names possible, read [the Certificate Common Names](https://github.com/kyl191/ansible-role-openvpn#certificate-common-names-cn) for more information
-  * Note: Changing fields on an already established set of clients & servers will require reissuing all certs
-* New `openvpn_fetch_client_configs_per_user_dir` parameter to have client configs downloaded in a single directory as opposed to a per-user directory
+  * Generated `server.ovpn` no longer hardcodes server IPv4 address
+  * Disable IPv4 with `openvpn_server_network: ""`
+  * Requires `openvpn_server_ipv6_network` to be set
 * Firewalld zone usage now uses the default zone for the system instead of the zone associated with the interface that has the default route on it ([there is some magic behind this](https://medium.com/opsops/ansible-default-ipv4-is-not-what-you-think-edb8ab154b10))
   * Override the default zone by setting `openvpn_firewalld_zone`
-* Server name used in the cert files can customized by setting `openvpn_ovpn_server_name`
+* New `netmask_to_cidr` filter replacing the undeclared `netaddr` Python library dependency through `ansible.utils`
+  * `openvpn_server_netmask_cidr` automatic calculation should no longer fail if the control node doesn't have it installed
+* New parameters
+  * `openvpn_ca_cert_validity_days`/`openvpn_cert_validity_days`: Customize the length of time certs should be valid for
+  * `openvpn_fetch_client_configs_per_user_dir`: download client configs to a flat (single) directory as opposed to a directory for each client
+  * `openvpn_ovpn_server_name`: Customize server name used in the downloaded certificate file names
+  * `openvpn_manage_sysctl`: Allow OpenVPN to manage sysctls; functional replacement for `openvpn_ci_build`
+  * Already mentioned: `openvpn_snat_source_ipv4/v6`, `openvpn_firewalld_zone`
+  * More customization of CN names allowed, read [the Certificate Common Names](https://github.com/kyl191/ansible-role-openvpn#certificate-common-names-cn) for more information
+    * Note: Changing fields on an already established set of clients & servers will require reissuing all certs
+  * Documented some undocumented existing parameters
 
 ## Developer Improvements
 
 * CLAUDE.md file for agents to reference
 * Cleaner firewall detection
+* Fix for Fedora/derivatives failing to start dbus and subsequently failing firewalld communication
+* New CI tests for IPv4/v6 routing weirdness
+* End to end test script now tests x86_64, ARM, ipv4-only and ipv6-only machines
 * CI version bumps
   * New Fedora & Ubuntu versions; removed EOL Debian, Fedora & Ubuntu versions
   * actions/checkout@v4 -> v7.0.1; ansible/ansible-lint now pinned at v26.6.0
