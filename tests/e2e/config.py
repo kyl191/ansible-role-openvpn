@@ -44,6 +44,7 @@ class RunSettings:
     ssh: SSHSettings
     terraform: TerraformSettings
     skip_terraform: bool
+    pause_before_destroy: bool
 
 
 def _load_toml(config_path: Path) -> dict[str, Any]:
@@ -68,6 +69,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Skip terraform apply/destroy entirely and test whatever's currently running "
         "(e.g. a scenario you applied by hand for debugging)",
+    )
+    parser.add_argument(
+        "--pause-before-destroy",
+        action="store_true",
+        help="After the last scenario finishes, print each instance's SSH command and wait "
+        "for Enter before running terraform destroy - gives you time to SSH in and look "
+        "around while the instances still exist.",
     )
     return parser.parse_args(argv)
 
@@ -100,4 +108,5 @@ def load_settings(argv: list[str] | None = None) -> RunSettings:
             var_files=tf_config.get("var_files", []),
         ),
         skip_terraform=args.skip_terraform,
+        pause_before_destroy=args.pause_before_destroy,
     )

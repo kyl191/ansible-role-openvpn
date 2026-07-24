@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from rich.console import Console
+from rich.text import Text
 
 from .aws import get_instances
 from .config import RunSettings, load_settings
@@ -103,6 +104,27 @@ def run_scenario(
     return instances
 
 
+def _pause_for_inspection(instances: list[InstanceInfo], settings: RunSettings, console: Console) -> None:
+    """Blocks on Enter, after printing a ready-to-paste SSH command per instance - a fixed
+    sleep can't substitute for this since there's no way to guess how long "SSH in and look
+    around" takes. A Ctrl+C here is treated as "stop waiting", not "abandon the instances":
+    still falls through to terraform_destroy in the caller's `finally` rather than propagating
+    and leaving billable instances orphaned."""
+    console.print("\n[bold yellow]--pause-before-destroy set - instances are still up.[/bold yellow]")
+    key_flag = f"-i {settings.ssh.key_path} " if settings.ssh.key_path else ""
+    for inst in sorted(instances, key=lambda i: i.display_name):
+        if not inst.hostname:
+            continue
+        # display_name is detected text (e.g. an OS PRETTY_NAME) - Text() renders it plain
+        # rather than parsing it as markup. See display.py's StatusBoard for the same fix
+        # after a real task name containing "[...]" got silently mangled by console.print.
+        console.print(Text(f"  {inst.display_name:<40} ssh {key_flag}{inst.ssh_user}@{inst.hostname}"))
+    try:
+        input("\nPress Enter to continue with terraform destroy... ")
+    except KeyboardInterrupt:
+        console.print("\nInterrupted - proceeding with teardown.")
+
+
 def _run_scenarios_with_terraform(
     settings: RunSettings, console: Console, log_dir: Path
 ) -> list[InstanceInfo]:
@@ -132,6 +154,8 @@ def _run_scenarios_with_terraform(
                     "next scenario."
                 )
     finally:
+        if settings.pause_before_destroy and all_instances:
+            _pause_for_inspection(all_instances, settings, console)
         destroy_var_file = last_applied_var_file or settings.terraform.var_files[0]
         destroy_log = log_dir / f"terraform-destroy-{destroy_var_file}.log"
         terraform_destroy(tf_dir, destroy_var_file, destroy_log)
@@ -147,6 +171,11 @@ def main(argv: list[str] | None = None) -> None:
 
     if settings.ssh.key_path and not settings.ssh.key_path.exists():
         logger.warning(f"SSH Key file {settings.ssh.key_path} does not exist.")
+
+    will_run_terraform_destroy = settings.terraform.configured and not settings.skip_terraform
+    if settings.pause_before_destroy and not will_run_terraform_destroy:
+        logger.warning("--pause-before-destroy has no effect here: nothing in this run will "
+                        "call terraform destroy.")
 
     if settings.skip_terraform:
         logger.info("--skip-terraform set: testing whatever's currently running, no terraform.")
