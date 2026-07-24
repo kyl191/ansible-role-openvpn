@@ -12,8 +12,14 @@ default_user = "ec2-user"
 # key_path = "~/.ssh/id_rsa"
 
 [terraform]
-# Directory containing the terraform-aws-ipv6 config. Each var_file is applied in turn (single
-# workspace, sequential - the AWS account has a 10-instance limit so scenarios can't overlap),
-# tested, then destroyed before moving to the next, regardless of whether that scenario passed.
-dir = "~/Sync/code/terraform-aws-ipv6"
-var_files = ["terraform.tfvars", "terraform-arm.tfvars", "terraform-ipv6-only.tfvars", "terraform-ipv4-only.tfvars"]
+# Directory containing the terraform-aws-ipv6-v2 config. terraform.tfvars there is the full
+# merged instance matrix (dual-stack + IPv4-only + IPv6-only, x86_64 + arm64, ~26 instances) -
+# address family and spot are per-instance_config-entry fields now, not per-scenario var-files,
+# so a single terraform apply provisions everything at once (the AWS account's vCPU quota
+# comfortably covers it - the old "10-instance limit, sequential scenarios" constraint that used
+# to force 4 separate apply/destroy cycles no longer applies). var_files is still a list for
+# flexibility (this loop handles N var-files, including N=1, without special-casing it), but in
+# practice there's just the one file. Everything is destroyed once, after every var-file has run
+# - not per var-file, and not skipped just because one failed.
+dir = "~/Sync/code/terraform-aws-ipv6-v2"
+var_files = ["terraform.tfvars"]

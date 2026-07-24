@@ -73,7 +73,19 @@ tests/
   revocation-test.yml   # CRL revocation test
   ec2.yml               # E2E test against real AWS EC2 instances
   e2e_config.toml       # AWS region/profile + [terraform] scenario var_files for run_e2e.py
-  run_e2e.py            # Drives Terraform + ansible-playbook + VPN verification per scenario
+  run_e2e.py            # Thin CLI entry point - delegates to e2e/orchestrator.py:main
+  e2e/                  # E2E test implementation, split by concern
+    models.py            # Status/Phase enums, InstanceInfo dataclass
+    config.py            # TOML + CLI settings (RunSettings)
+    aws.py                # EC2 instance discovery
+    ssh.py                # SSH readiness polling + OS/user detection
+    provisioning.py       # ansible-playbook per instance, output to a durable log file
+    verification.py       # OpenVPN client connect + IPv4/IPv6 routing check
+    terraform.py          # apply/destroy for the shared EC2 test infrastructure
+    report.py             # Markdown report generation
+    display.py            # Logging setup + Live per-instance status board (Rich)
+    orchestrator.py        # Top-level flow: main() and run_scenario()
+    ADR.md                 # Architecture decision records for this package's design
   *.Dockerfile          # Per-distro systemd container images
 ```
 
@@ -213,12 +225,33 @@ CI runs via GitHub Actions (`.github/workflows/ci.yml`):
 **Container images** rebuilt weekly via `publish-*.yml` workflows, pushed to `ghcr.io/kyl191/ansible-images`.
 
 **E2E test** (manual, AWS): `uv run tests/run_e2e.py --config tests/e2e_config.toml --ssh-key <path>`.
-The script itself drives Terraform (`~/Sync/code/terraform-aws-ipv6/`) through each scenario
-listed in `e2e_config.toml`'s `[terraform]` `var_files` (dual-stack, then IPv6-only, then
-IPv4-only) —
-apply, provision via `tests/ec2.yml`, verify, destroy, then the next scenario. Sequential only:
-the AWS account has a 10-instance limit, so scenarios can't run concurrently. A failed scenario
-is still destroyed and the run continues to the rest rather than stopping.
+The script drives Terraform (`~/Sync/code/terraform-aws-ipv6-v2/` — a v2 rewrite of the config,
+not the same repo as `terraform-aws-ipv6`, which stays untouched as a reference) through the
+var-files listed in `e2e_config.toml`'s `[terraform]` `var_files` — in practice just one,
+`terraform.tfvars`, which defines the *entire* merged instance matrix (dual-stack + IPv4-only +
+IPv6-only, x86_64 + arm64, ~26 instances) in a single `instance_config` map. A single `terraform
+apply` provisions everything at once: address family and spot-vs-on-demand are
+`instance_config`-entry fields now (`address_family`, `spot`), not global variables selecting one
+mode for a whole apply, so there's no need to apply-destroy-apply through separate scenarios
+anymore — the old "10-instance limit, sequential scenarios" constraint that forced that doesn't
+apply to this account. The `var_files` loop still handles more than one file if ever needed (apply
+*in place*, not destroy-then-apply, same as before), it just usually only has the one. Everything
+is destroyed exactly once, after every var-file has run, in a `finally` so it still happens even
+if one raises.
+
+Implementation lives in `tests/e2e/` (see the directory tree above), not one flat script.
+Durable output goes to `/tmp/ansible-openvpn-e2e/<run-timestamp>/` (outside the repo tree, and
+never cleaned up automatically - unlike the per-verification OpenVPN client log, this output is
+the whole point of the run): `run.log`, each instance's full `ansible-playbook` output, each
+instance's per-task timing breakdown, terraform's own apply/destroy output, and the final report.
+On the terminal, a persistent, Rich `Live`-updating status table shows every instance (display
+name plus, once the `AddressFamily`/`Architecture` EC2 tags are read back, architecture and
+address family — e.g. "Fedora Linux 44 (x86_64, ipv6)" — since a single apply's instances are no
+longer implicitly grouped by which scenario produced them; phase, current Ansible task, elapsed
+time, result) instead of raw interleaved Ansible output, so it's always clear what the run is
+actually waiting on. The same `AddressFamily`/`Architecture` tags are what `InstanceInfo.scenario`
+(and therefore the report's Scenario column) is derived from now too - not the var-file that
+produced a batch, since one apply's instances are heterogeneous.
 
 ### Gotchas when writing firewall/fact-related tests
 
