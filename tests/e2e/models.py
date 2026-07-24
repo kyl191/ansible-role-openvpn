@@ -19,8 +19,14 @@ class Status(Enum):
     CONFIG_MISSING = auto()
     TUNNEL_FAILED = auto()
     TEST_ERROR = auto()
+    NOT_APPLICABLE = auto()
 
     def __str__(self) -> str:
+        # "N/A" isn't a valid identifier, and matches the report table's existing convention for
+        # missing values (public_ip/vpn_ipv4/etc. already render as "N/A") rather than
+        # introducing a second, differently-worded way to say the same thing in the same row.
+        if self is Status.NOT_APPLICABLE:
+            return "N/A"
         return self.name
 
 

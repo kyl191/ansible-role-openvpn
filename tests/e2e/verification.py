@@ -130,7 +130,7 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
                 instance.ipv4_status = Status.TEST_ERROR
                 instance.failure_detail += f"IPv4 curl failed: {res4.stderr.strip()}. "
         else:
-            instance.ipv4_status = Status.PENDING
+            instance.ipv4_status = Status.NOT_APPLICABLE
 
         # 4. Test IPv6 (only if instance has public IPv6)
         if instance.public_ipv6:
@@ -158,7 +158,7 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
                 instance.ipv6_status = Status.TEST_ERROR
                 instance.failure_detail += f"IPv6 curl failed: {res6.stderr.strip()}. "
         else:
-            instance.ipv6_status = Status.PENDING
+            instance.ipv6_status = Status.NOT_APPLICABLE
 
     except Exception as e:
         logger.error(f"OpenVPN session failed for {instance.display_name}: {e}")
@@ -186,7 +186,7 @@ def verify_instance(instance: InstanceInfo, fetch_base_dir: Path) -> None:
 
     # Overall Status update - PASS requires each address family that's actually present
     # (public_ip / public_ipv6) to have tested PASS; families the instance doesn't have are
-    # skipped above (left PENDING) and don't block an overall PASS.
+    # skipped above (left NOT_APPLICABLE) and don't block an overall PASS.
     ipv4_ok = not instance.public_ip or instance.ipv4_status == Status.PASS
     ipv6_ok = not instance.public_ipv6 or instance.ipv6_status == Status.PASS
     if ipv4_ok and ipv6_ok:
