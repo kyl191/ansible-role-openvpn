@@ -3,7 +3,13 @@
   gather_facts: true
   become: true
   roles:
-    - role: ../kyl191.openvpn
+    # An absolute path, passed in via -e by run_e2e.py (tests/e2e/provisioning.py), rather than
+    # "../kyl191.openvpn": that name-based form only resolves because ansible's role search
+    # re-appends the checkout directory's own name, which breaks the moment the checkout isn't
+    # literally named "kyl191.openvpn" (e.g. a git worktree). A bare ".." isn't a fix either -
+    # confirmed empirically (--list-tasks) that ansible silently resolves it to a role with zero
+    # tasks instead of erroring; only a fully-resolved absolute path loads the role correctly.
+    - role: "{{ openvpn_role_path }}"
       openvpn_port: 4300
       openvpn_sync_certs: true
       openvpn_client_register_dns: false

@@ -234,9 +234,10 @@ stop the run; testing continues to the rest. Everything is destroyed exactly onc
 scenario has run, in a `finally` so it still happens even if a scenario raises.
 
 Implementation lives in `tests/e2e/` (see the directory tree above), not one flat script.
-Durable output goes to `tests/logs/<run-timestamp>/`: `run.log` plus each instance's full
-`ansible-playbook` output, so a lost terminal or an unattended run doesn't lose the history. On
-the terminal, each scenario shows a persistent, Rich `Live`-updating status table (instance
+Durable output goes to `/tmp/ansible-openvpn-e2e/<run-timestamp>/` (outside the repo tree, and
+never cleaned up automatically - unlike the per-verification OpenVPN client log, this output is
+the whole point of the run): `run.log`, each instance's full `ansible-playbook` output, and the
+final report. On the terminal, each scenario shows a persistent, Rich `Live`-updating status table (instance
 display name — the detected OS or the EC2 Name tag, not the AWS-generated DNS name — phase,
 current Ansible task, elapsed time, result) instead of raw interleaved Ansible output, so it's
 always clear what the run is actually waiting on.

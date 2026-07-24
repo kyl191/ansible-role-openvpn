@@ -15,6 +15,14 @@ from .ssh import needs_platform_python
 
 logger = logging.getLogger(__name__)
 
+# tests/ec2.yml references the role by this path, passed in via -e, rather than a relative
+# "../kyl191.openvpn": that only resolves because ansible's role search re-appends the checkout
+# directory's own name, which breaks the moment the checkout isn't literally named
+# "kyl191.openvpn" (e.g. a git worktree) - confirmed empirically that even a bare ".." silently
+# resolves to a role with zero tasks instead of erroring. A fully-resolved absolute path, computed
+# here rather than guessed at in YAML, has no such dependency.
+ROLE_PATH = Path(__file__).resolve().parents[2]
+
 # Matches ansible's default callback output, e.g. `TASK [kyl191.openvpn : Install packages] ***`
 _TASK_LINE = re.compile(r"^TASK \[(?P<name>.+?)\]")
 
@@ -67,7 +75,14 @@ def provision_instance(inst: InstanceInfo, key_path: Path | None, log_path: Path
         inventory.write(_inventory_line(inst, key_path))
         inventory_path = Path(inventory.name)
 
-    cmd: list[str] = ["ansible-playbook", "-i", str(inventory_path), "tests/ec2.yml"]
+    cmd: list[str] = [
+        "ansible-playbook",
+        "-i",
+        str(inventory_path),
+        "-e",
+        f"openvpn_role_path={ROLE_PATH}",
+        "tests/ec2.yml",
+    ]
     start = time.monotonic()
     success = False
     try:
@@ -91,7 +106,11 @@ def provision_instance(inst: InstanceInfo, key_path: Path | None, log_path: Path
             for line in process.stdout:
                 log_file.write(line)
                 if match := _TASK_LINE.match(line):
-                    inst.phase_detail = match.group("name")
+                    # The role has no meta name, so ansible prefixes every task with its
+                    # resolved path (ROLE_PATH) instead - e.g. "/abs/path/to/role : config |
+                    # Copy service file". Keep just the task name for the status board.
+                    _, _, task_name = match.group("name").rpartition(" : ")
+                    inst.phase_detail = task_name
         process.wait()
         success = process.returncode == 0
         return success

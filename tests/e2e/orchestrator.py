@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import logging
 import sys
+import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -24,7 +25,11 @@ from .verification import verify_instance
 logger = logging.getLogger(__name__)
 
 FETCH_DIR = Path("/tmp/ansible-openvpn-certs")
-LOG_ROOT = Path("tests/logs")
+# Durable run output (logs, report) lives under here, one timestamped subdirectory per run - not
+# in the repo tree, and never cleaned up automatically: unlike the ephemeral per-verification
+# OpenVPN client log (see verification.py), this is the whole point of the run and needs to
+# outlive it.
+LOG_ROOT = Path(tempfile.gettempdir()) / "ansible-openvpn-e2e"
 
 
 def run_scenario(
@@ -124,4 +129,4 @@ def main(argv: list[str] | None = None) -> None:
         logger.error("No instances found across any scenario.")
         sys.exit(0)
 
-    generate_md_report(all_instances, archive_dir=run_dir)
+    generate_md_report(all_instances, run_dir / "e2e_report.md")
