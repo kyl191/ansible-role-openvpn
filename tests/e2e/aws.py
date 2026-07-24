@@ -75,5 +75,11 @@ def get_instances(
     # public IPv6 (dual-stack or IPv6-only).
     instances = [inst for inst in instances if inst.public_ip or inst.public_ipv6]
 
+    # Sort by the EC2 Name tag rather than display_name: it's stable from discovery onward,
+    # unlike display_name, which starts as this same tag but later switches to the detected OS
+    # once SSH succeeds - sorting by display_name would visually reorder the status board and
+    # report mid-run as each instance's SSH check completes at a different time.
+    instances.sort(key=lambda inst: inst.name)
+
     logger.info(f"Found {len(instances)} running instances with a reachable address.")
     return instances

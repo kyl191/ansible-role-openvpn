@@ -250,3 +250,41 @@ entirely rather than working around its symptoms.
 
 **Consequences:** None - this is strictly safer than the previous
 (unintentional) shared-stdin behavior.
+
+## ADR-011: Terraform output to a file too
+
+**Status:** Accepted
+
+**Context:** `terraform_apply`/`terraform_destroy` ran with no output
+capture at all, so a full instance-matrix apply/destroy streamed directly to
+the console - long enough on its own to bury everything before it, the same
+complaint ADR-002 addressed for Ansible output.
+
+**Decision:** Both functions now take a `log_path`, redirect terraform's
+stdout/stderr there, and log a short summary line (duration, pass/fail,
+where the full log is) - the same shape as `provision_instance`'s summary
+line. Log files live under the run's log directory (ADR-003) as
+`terraform-apply-<var_file>.log` / `terraform-destroy-<var_file>.log`.
+
+**Consequences:** None - purely additive; terraform's own progress output
+was never parsed for anything, just displayed.
+
+## ADR-012: Sort the instance list once, at discovery
+
+**Status:** Accepted
+
+**Context:** Instances were processed and displayed in whatever order the
+AWS API happened to return them - effectively unordered, and increasingly
+hard to scan as the instance count grew (14 for the full dual-stack matrix).
+
+**Decision:** `aws.get_instances` sorts the returned list by `inst.name`
+(the EC2 `Name` tag) before returning it, once, at discovery time - not by
+`display_name`. Every other module (the status board, the report) shares
+this same list object and iterates it in this order. Sorting by `name`
+rather than `display_name` matters: `name` is stable from discovery onward,
+while `display_name` starts as this same tag but switches to the detected OS
+once SSH succeeds (ADR-004) - sorting by it would visually reorder the
+status board mid-run as each instance's SSH check completes at a different
+time.
+
+**Consequences:** None - purely cosmetic, no behavior depends on list order.

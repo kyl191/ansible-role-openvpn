@@ -52,7 +52,8 @@ def run_scenario(
     """Discovers, provisions, and verifies whatever's currently running for one scenario.
     Runs a fresh StatusBoard for the duration - SSH-wait, provisioning, and verification are
     exactly the phases that used to be silent for minutes at a time, so that's what it covers.
-    Terraform apply/destroy happen outside this, printed to the console as normal."""
+    Terraform apply/destroy happen outside this - see e2e.terraform, which logs its own
+    summary line and writes full plan/apply output to a file rather than the console."""
     instances = get_instances(
         settings.aws.region, settings.aws.profile, settings.aws.tag_key, settings.aws.tag_value
     )
@@ -99,7 +100,8 @@ def _run_scenarios_with_terraform(
     try:
         for var_file in settings.terraform.var_files:
             logger.info(f"=== Scenario: {var_file} ===")
-            if not terraform_apply(tf_dir, var_file):
+            apply_log = log_dir / f"terraform-apply-{var_file}.log"
+            if not terraform_apply(tf_dir, var_file, apply_log):
                 logger.error(f"Skipping tests for {var_file} since terraform apply failed.")
                 continue
             last_applied_var_file = var_file
@@ -112,7 +114,8 @@ def _run_scenarios_with_terraform(
                 )
     finally:
         destroy_var_file = last_applied_var_file or settings.terraform.var_files[0]
-        terraform_destroy(tf_dir, destroy_var_file)
+        destroy_log = log_dir / f"terraform-destroy-{destroy_var_file}.log"
+        terraform_destroy(tf_dir, destroy_var_file, destroy_log)
 
     return all_instances
 
