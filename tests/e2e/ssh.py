@@ -9,6 +9,7 @@ import subprocess
 import time
 from pathlib import Path
 
+from .display import instance_label
 from .models import InstanceInfo, Phase, Status
 
 logger = logging.getLogger(__name__)
@@ -87,18 +88,18 @@ def wait_for_ssh_ready(
     the network, and therefore sshd, ever comes up)."""
     user = determine_ssh_user(instance.name, default_user)
     instance.set_phase(Phase.WAITING_SSH, f"attempt 1 as {user}")
-    logger.info(f"Waiting for SSH on {instance.display_name} ({instance.hostname}) as {user}...")
+    logger.info(f"Waiting for SSH on {instance_label(instance)} ({instance.hostname}) as {user}...")
     deadline = time.monotonic() + timeout
     attempt = 1
     while time.monotonic() < deadline:
         if check_ssh_and_detect_os(instance, key_path, default_user):
-            logger.info(f"SSH ready for {instance.display_name} ({instance.hostname}).")
+            logger.info(f"SSH ready for {instance_label(instance)} ({instance.hostname}).")
             return True
         attempt += 1
         instance.phase_detail = f"attempt {attempt} as {user}"
         time.sleep(SSH_READY_POLL_INTERVAL)
     logger.error(
-        f"SSH never became reachable for {instance.display_name} ({instance.hostname}) "
+        f"SSH never became reachable for {instance_label(instance)} ({instance.hostname}) "
         f"within {timeout}s."
     )
     instance.status = Status.UNREACHABLE
@@ -132,7 +133,7 @@ def wait_for_cloud_init(
         return True
     except subprocess.TimeoutExpired:
         logger.error(
-            f"cloud-init on {instance.display_name} ({instance.hostname}) didn't finish "
+            f"cloud-init on {instance_label(instance)} ({instance.hostname}) didn't finish "
             f"within {timeout}s."
         )
         instance.status = Status.UNREACHABLE
