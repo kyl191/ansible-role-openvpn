@@ -15,7 +15,15 @@ logger = logging.getLogger(__name__)
 
 SSH_READY_TIMEOUT = 420
 SSH_READY_POLL_INTERVAL = 10
-CLOUD_INIT_TIMEOUT = 300
+# 300s was too tight in practice: SSH'd into two live instances mid-timeout (2026-07-24) and
+# found cloud-init genuinely still working, not hung - modules-final/config-package_update_
+# upgrade_install (which runs cloud-init-install-firewalld.yaml on RHEL-family images that don't
+# ship firewalld) took 404s on a Rocky 10.1 instance and ~420s on a CentOS Stream 10 instance,
+# both completing successfully. Confirmed not a repeat of the IMDS-over-IPv6 boot delay (see
+# ADR - init-local finished in under 2s on both); this is real dnf install time, plausibly worse
+# now that terraform-aws-ipv6-v2's merged matrix boots ~26 instances at once instead of the old
+# per-scenario batches, all competing for egress bandwidth simultaneously.
+CLOUD_INIT_TIMEOUT = 600
 
 
 def determine_ssh_user(instance_name: str, default_user: str) -> str:

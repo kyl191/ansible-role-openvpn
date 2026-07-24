@@ -344,6 +344,24 @@ playbook stalls seen in ADR-009 - it fixes the specific firewalld-missing
 failure directly observed, and the lock-contention explanation for the
 stalls is plausible but unverified pending a re-run.
 
+**Correction (found investigating real `CLOUD_INIT_TIMEOUT` hits, 2026-07-24):**
+300s was too tight. SSH'd into two instances mid-timeout while `cloud-init
+status --wait` was still running and confirmed it wasn't hung: `modules-
+final/config-package_update_upgrade_install` (the firewalld install this ADR
+describes) took 404s on a Rocky Linux 10.1 instance and ~420s on a CentOS
+Stream 10 instance, both completing successfully. Ruled out a repeat of the
+IMDS-over-IPv6 boot delay first (`init-local` finished in under 2s on both -
+that delay shows up there, not in `modules-final`). `curl -6` to the actual
+package mirror failed instantly with no route (these were IPv4-only
+instances, working as designed), while `curl -4` to the same mirror
+completed in 33ms - so the mirror itself wasn't slow or unreachable; the
+several minutes are genuine `dnf install` wall-clock time (dependency
+resolution + download) on freshly-booted instances. Plausibly worse than
+when this ADR was written, since `terraform-aws-ipv6-v2`'s merged instance
+matrix (ADR-014) now boots ~26 instances at once competing for egress
+bandwidth, instead of the smaller per-scenario batches this was originally
+tuned against. Raised `CLOUD_INIT_TIMEOUT` to 600s.
+
 ## ADR-014: Tag-derived categorization replaces var-file-derived `scenario`
 
 **Status:** Accepted
