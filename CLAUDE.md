@@ -73,7 +73,18 @@ tests/
   revocation-test.yml   # CRL revocation test
   ec2.yml               # E2E test against real AWS EC2 instances
   e2e_config.toml       # AWS region/profile + [terraform] scenario var_files for run_e2e.py
-  run_e2e.py            # Drives Terraform + ansible-playbook + VPN verification per scenario
+  run_e2e.py            # Thin CLI entry point - delegates to e2e/orchestrator.py:main
+  e2e/                  # E2E test implementation, split by concern
+    models.py            # Status/Phase enums, InstanceInfo dataclass
+    config.py            # TOML + CLI settings (RunSettings)
+    aws.py                # EC2 instance discovery
+    ssh.py                # SSH readiness polling + OS/user detection
+    provisioning.py       # ansible-playbook per instance, output to a durable log file
+    verification.py       # OpenVPN client connect + IPv4/IPv6 routing check
+    terraform.py          # apply/destroy for the shared EC2 test infrastructure
+    report.py             # Markdown report generation
+    display.py            # Logging setup + Live per-instance status board (Rich)
+    orchestrator.py        # Top-level flow: main() and run_scenario()
   *.Dockerfile          # Per-distro systemd container images
 ```
 
@@ -215,10 +226,20 @@ CI runs via GitHub Actions (`.github/workflows/ci.yml`):
 **E2E test** (manual, AWS): `uv run tests/run_e2e.py --config tests/e2e_config.toml --ssh-key <path>`.
 The script itself drives Terraform (`~/Sync/code/terraform-aws-ipv6/`) through each scenario
 listed in `e2e_config.toml`'s `[terraform]` `var_files` (dual-stack, then IPv6-only, then
-IPv4-only) —
-apply, provision via `tests/ec2.yml`, verify, destroy, then the next scenario. Sequential only:
-the AWS account has a 10-instance limit, so scenarios can't run concurrently. A failed scenario
-is still destroyed and the run continues to the rest rather than stopping.
+IPv4-only) — apply *in place* (not destroy-then-apply; terraform's own diff replaces just the
+previous scenario's instances, leaving the shared VPC/security-group/key-pair layer alone),
+provision via `tests/ec2.yml`, verify, then the next scenario's apply. Sequential only: the AWS
+account has a 10-instance limit, so scenarios can't run concurrently. A failed scenario doesn't
+stop the run; testing continues to the rest. Everything is destroyed exactly once, after every
+scenario has run, in a `finally` so it still happens even if a scenario raises.
+
+Implementation lives in `tests/e2e/` (see the directory tree above), not one flat script.
+Durable output goes to `tests/logs/<run-timestamp>/`: `run.log` plus each instance's full
+`ansible-playbook` output, so a lost terminal or an unattended run doesn't lose the history. On
+the terminal, each scenario shows a persistent, Rich `Live`-updating status table (instance
+display name — the detected OS or the EC2 Name tag, not the AWS-generated DNS name — phase,
+current Ansible task, elapsed time, result) instead of raw interleaved Ansible output, so it's
+always clear what the run is actually waiting on.
 
 ### Gotchas when writing firewall/fact-related tests
 

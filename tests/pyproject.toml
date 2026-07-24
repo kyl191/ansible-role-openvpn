@@ -5,6 +5,7 @@ description = "Manage Python dependencies for test scripts"
 requires-python = ">=3.13"
 dependencies = [
     "boto3>=1.42.30",
+    "rich>=15.0.0",
 ]
 
 [dependency-groups]

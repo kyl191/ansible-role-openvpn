@@ -1,5 +1,6 @@
 .ansible/
 tests/e2e_report.md
+tests/logs/
 tests/__pycache__
 tests/.ruff_cache
 __pycache__/

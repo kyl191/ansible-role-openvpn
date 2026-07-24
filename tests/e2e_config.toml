@@ -12,8 +12,11 @@ default_user = "ec2-user"
 # key_path = "~/.ssh/id_rsa"
 
 [terraform]
-# Directory containing the terraform-aws-ipv6 config. Each var_file is applied in turn (single
-# workspace, sequential - the AWS account has a 10-instance limit so scenarios can't overlap),
-# tested, then destroyed before moving to the next, regardless of whether that scenario passed.
+# Directory containing the terraform-aws-ipv6 config. Each var_file is applied in turn, in
+# place, in the same workspace (single workspace, sequential - the AWS account has a 10-instance
+# limit so scenarios can't overlap), then tested. Terraform's own diff tears down the previous
+# scenario's instances and creates the new ones; the shared base layer (VPC, security groups,
+# key pair) is never destroyed between scenarios. Everything is destroyed once, after every
+# scenario has run - not per scenario, and not skipped just because one scenario failed.
 dir = "~/Sync/code/terraform-aws-ipv6"
 var_files = ["terraform.tfvars", "terraform-arm.tfvars", "terraform-ipv6-only.tfvars", "terraform-ipv4-only.tfvars"]
