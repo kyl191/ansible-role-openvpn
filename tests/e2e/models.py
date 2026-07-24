@@ -32,7 +32,7 @@ class Phase(Enum):
     QUEUED = "queued"
     WAITING_SSH = "waiting for SSH"
     PROVISIONING = "provisioning"
-    WAITING_OTHERS = "waiting for other instances"
+    WAITING_OTHERS = "waiting on others"
     VERIFYING = "verifying VPN"
     DONE = "done"
 

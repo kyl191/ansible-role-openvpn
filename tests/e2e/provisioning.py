@@ -7,7 +7,6 @@ import re
 import subprocess
 import tempfile
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .models import InstanceInfo, Phase
@@ -34,6 +33,10 @@ _UNSAFE_FILENAME_CHARS = re.compile(r"[^\w.-]+")
 
 def _safe_filename_component(text: str) -> str:
     return _UNSAFE_FILENAME_CHARS.sub("_", text).strip("_") or "unknown"
+
+
+def instance_log_path(log_dir: Path, inst: InstanceInfo) -> Path:
+    return log_dir / f"{_safe_filename_component(inst.display_name)}-{inst.id}.log"
 
 
 def _inventory_line(inst: InstanceInfo, key_path: Path | None) -> str:
@@ -117,36 +120,16 @@ def provision_instance(inst: InstanceInfo, key_path: Path | None, log_path: Path
     finally:
         duration = time.monotonic() - start
         inst.playbook_seconds = duration
-        # Every instance runs in its own thread (see run_ansible_parallel) and they don't all
-        # finish at once - without this, a fast instance would sit here showing its last task
-        # name under "provisioning" until the slowest sibling finishes too, looking stuck.
+        # Every instance runs in its own thread (see orchestrator._wait_and_provision) and they
+        # don't all finish at once - without this, a fast instance would sit here showing its
+        # last task name under "provisioning" until the slowest sibling finishes too, looking
+        # stuck. Phase.WAITING_OTHERS already says "waiting on others" - no need to repeat that
+        # here too, just the outcome.
         outcome = "complete" if success else "FAILED"
-        inst.set_phase(Phase.WAITING_OTHERS, f"playbook {outcome}, waiting for other instances")
+        inst.set_phase(Phase.WAITING_OTHERS, f"playbook {outcome}")
         logger.info(
             f"{inst.display_name}: playbook {'complete' if success else 'failed'} in "
             f"{duration:.1f}s (log: {log_path})."
         )
         if inventory_path.exists():
             inventory_path.unlink()
-
-
-def run_ansible_parallel(instances: list[InstanceInfo], key_path: Path | None, log_dir: Path) -> bool:
-    """Provisions every reachable instance concurrently, each via its own ansible-playbook
-    subprocess (see provision_instance) so per-instance timing is genuinely independent."""
-    reachable_instances = [i for i in instances if i.is_reachable]
-
-    if not reachable_instances:
-        logger.error("No reachable instances to provision.")
-        return False
-
-    logger.info(f"Provisioning {len(reachable_instances)} instances in parallel...")
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    def _run(inst: InstanceInfo) -> bool:
-        log_path = log_dir / f"{_safe_filename_component(inst.display_name)}-{inst.id}.log"
-        return provision_instance(inst, key_path, log_path)
-
-    with ThreadPoolExecutor() as executor:
-        results = list(executor.map(_run, reachable_instances))
-
-    return all(results)

@@ -16,7 +16,7 @@ from .aws import get_instances
 from .config import RunSettings, load_settings
 from .display import StatusBoard, setup_logging
 from .models import InstanceInfo, Phase
-from .provisioning import run_ansible_parallel
+from .provisioning import instance_log_path, provision_instance
 from .report import generate_md_report
 from .ssh import wait_for_ssh_ready
 from .terraform import terraform_apply, terraform_destroy
@@ -30,6 +30,17 @@ FETCH_DIR = Path("/tmp/ansible-openvpn-certs")
 # OpenVPN client log (see verification.py), this is the whole point of the run and needs to
 # outlive it.
 LOG_ROOT = Path(tempfile.gettempdir()) / "ansible-openvpn-e2e"
+
+
+def _wait_and_provision(inst: InstanceInfo, settings: RunSettings, log_dir: Path) -> None:
+    """Waits for this instance's own SSH readiness, then immediately provisions it - instances
+    don't wait on each other. Each instance's ansible-playbook run is already an independent
+    subprocess (see provisioning.py), so there's no reason a slow-booting sibling (e.g. an
+    IPv6-only instance's cloud-init taking minutes longer) should hold up everyone else from
+    starting; the old two-stage "wait for all, then provision all" batching did exactly that."""
+    if not wait_for_ssh_ready(inst, settings.ssh.key_path, settings.ssh.default_user):
+        return
+    provision_instance(inst, settings.ssh.key_path, instance_log_path(log_dir, inst))
 
 
 def run_scenario(
@@ -51,20 +62,19 @@ def run_scenario(
     for inst in instances:
         inst.scenario = scenario
 
+    scenario_log_dir = log_dir / scenario
+    scenario_log_dir.mkdir(parents=True, exist_ok=True)
+
     with StatusBoard(console) as board:
         board.start_scenario(scenario, instances)
 
+        logger.info(f"Waiting for SSH and provisioning {len(instances)} instances independently...")
         with ThreadPoolExecutor() as executor:
             list(
                 executor.map(
-                    lambda inst: wait_for_ssh_ready(
-                        inst, settings.ssh.key_path, settings.ssh.default_user
-                    ),
-                    instances,
+                    lambda inst: _wait_and_provision(inst, settings, scenario_log_dir), instances
                 )
             )
-
-        run_ansible_parallel(instances, settings.ssh.key_path, log_dir / scenario)
 
         for inst in instances:
             verify_instance(inst, FETCH_DIR)
