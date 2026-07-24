@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 SSH_READY_TIMEOUT = 420
 SSH_READY_POLL_INTERVAL = 10
+CLOUD_INIT_TIMEOUT = 300
 
 
 def determine_ssh_user(instance_name: str, default_user: str) -> str:
@@ -94,3 +95,37 @@ def wait_for_ssh_ready(
     )
     instance.status = Status.UNREACHABLE
     return False
+
+
+def wait_for_cloud_init(
+    instance: InstanceInfo, key_path: Path | None, timeout: int = CLOUD_INIT_TIMEOUT
+) -> bool:
+    """SSH accepting connections only means sshd is up - it says nothing about whether
+    cloud-init's own package_update/package installs (see terraform-aws-ipv6's
+    cloud-init-install-firewalld.yaml, which installs firewalld via package_update + packages)
+    have actually finished. Confirmed for real: a run failed with "No firewall detected, install
+    one before proceeding" because our own package_facts snapshot was taken before cloud-init had
+    installed firewalld - and separately, cloud-init's package_update holding the dnf/apt lock
+    while our own package-manager tasks try to run concurrently is a plausible explanation for
+    stalls seen elsewhere with no other cause. `cloud-init status --wait` blocks on the *remote*
+    side until cloud-init has genuinely finished (or returns immediately if it already has)."""
+    instance.set_phase(Phase.WAITING_SSH, "waiting for cloud-init to finish")
+    cmd: list[str] = ["ssh", "-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10"]
+    if key_path:
+        cmd.extend(["-i", str(key_path)])
+    cmd.extend([f"{instance.ssh_user}@{instance.hostname}", "cloud-init status --wait"])
+
+    try:
+        # Exit code isn't checked: cloud-init can finish "degraded" (e.g. a non-fatal warning)
+        # and still be genuinely done - what matters here is that it finished at all, not that
+        # every stage succeeded. A local subprocess timeout, not `cloud-init status --wait`'s own
+        # exit status, is what distinguishes "still running" from "done".
+        subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(
+            f"cloud-init on {instance.display_name} ({instance.hostname}) didn't finish "
+            f"within {timeout}s."
+        )
+        instance.status = Status.UNREACHABLE
+        return False

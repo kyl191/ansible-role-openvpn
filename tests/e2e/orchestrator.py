@@ -18,7 +18,7 @@ from .display import StatusBoard, setup_logging
 from .models import InstanceInfo, Phase
 from .provisioning import instance_log_path, provision_instance
 from .report import generate_md_report
-from .ssh import wait_for_ssh_ready
+from .ssh import wait_for_cloud_init, wait_for_ssh_ready
 from .terraform import terraform_apply, terraform_destroy
 from .verification import verify_instance
 
@@ -33,12 +33,20 @@ LOG_ROOT = Path(tempfile.gettempdir()) / "ansible-openvpn-e2e"
 
 
 def _wait_and_provision(inst: InstanceInfo, settings: RunSettings, log_dir: Path) -> None:
-    """Waits for this instance's own SSH readiness, then immediately provisions it - instances
-    don't wait on each other. Each instance's ansible-playbook run is already an independent
-    subprocess (see provisioning.py), so there's no reason a slow-booting sibling (e.g. an
-    IPv6-only instance's cloud-init taking minutes longer) should hold up everyone else from
-    starting; the old two-stage "wait for all, then provision all" batching did exactly that."""
+    """Waits for this instance's own SSH readiness, then its own cloud-init completion, then
+    immediately provisions it - instances don't wait on each other. Each instance's
+    ansible-playbook run is already an independent subprocess (see provisioning.py), so there's
+    no reason a slow-booting sibling (e.g. an IPv6-only instance's cloud-init taking minutes
+    longer) should hold up everyone else from starting; the old two-stage "wait for all, then
+    provision all" batching did exactly that.
+
+    The cloud-init wait matters on its own, not just for pacing: SSH accepting connections
+    doesn't mean cloud-init's own package installs are done (see wait_for_cloud_init) - skipping
+    this step let a run fail with "No firewall detected" because our package_facts snapshot was
+    taken before cloud-init had actually installed firewalld."""
     if not wait_for_ssh_ready(inst, settings.ssh.key_path, settings.ssh.default_user):
+        return
+    if not wait_for_cloud_init(inst, settings.ssh.key_path):
         return
     provision_instance(inst, settings.ssh.key_path, instance_log_path(log_dir, inst))
 

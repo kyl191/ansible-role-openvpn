@@ -302,3 +302,44 @@ status board mid-run as each instance's SSH check completes at a different
 time.
 
 **Consequences:** None - purely cosmetic, no behavior depends on list order.
+
+## ADR-013: Wait for cloud-init, not just SSH
+
+**Status:** Accepted
+
+**Context:** `wait_for_ssh_ready` only confirms sshd is accepting connections
+- it says nothing about whether cloud-init's own boot-time work has actually
+finished. `terraform-aws-ipv6`'s `cloud-init-install-firewalld.yaml` sets
+`package_update: true` and installs `firewalld` via cloud-init, independent
+of anything this role does. Confirmed for real: a run failed with `"No
+firewall detected, install one before proceeding"` because `package_facts`
+(gathered early in the role) was snapshotted before cloud-init had actually
+installed firewalld yet - SSH was already accepting connections at that
+point, well before cloud-init's package step had run. Separately, this is a
+plausible explanation for several previously-unexplained mid-playbook stalls
+(ADR-009's correction): cloud-init's own `package_update` holds the dnf/apt
+lock while running, and this role's own package-manager tasks
+(`package_facts`, installing openvpn) would silently block waiting for that
+same lock if they happened to run concurrently - which produces exactly the
+"no output" symptom `PROVISION_STALL_TIMEOUT` exists to catch, for a
+different reason than a genuinely hung task.
+
+**Decision:** Added `ssh.wait_for_cloud_init`, run after `wait_for_ssh_ready`
+succeeds and before `provision_instance` starts (`orchestrator._wait_and_
+provision`). Runs `cloud-init status --wait` over SSH - the purpose-built
+tool for exactly this, rather than a homegrown dnf-lock-polling mechanism.
+Doesn't check its exit status: cloud-init finishing "degraded" (e.g. a
+non-fatal warning in some stage) still means it's *done*, which is all that
+matters here - only a local `subprocess.TimeoutExpired` (cloud-init still
+running after `CLOUD_INIT_TIMEOUT`, 300s) is treated as failure, mirroring
+`wait_for_ssh_ready`'s own timeout-as-failure shape (sets `Status.
+UNREACHABLE`, skips provisioning for that instance).
+
+**Consequences:** Adds up to one more SSH round-trip per instance before
+provisioning starts - negligible next to the multi-minute total run time,
+and `cloud-init status --wait` returns immediately if cloud-init already
+finished (the common case, since `wait_for_ssh_ready` already spent time
+polling). Not yet confirmed whether this actually eliminates the mid-
+playbook stalls seen in ADR-009 - it fixes the specific firewalld-missing
+failure directly observed, and the lock-contention explanation for the
+stalls is plausible but unverified pending a re-run.
