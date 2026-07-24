@@ -85,6 +85,7 @@ tests/
     report.py             # Markdown report generation
     display.py            # Logging setup + Live per-instance status board (Rich)
     orchestrator.py        # Top-level flow: main() and run_scenario()
+    ADR.md                 # Architecture decision records for this package's design
   *.Dockerfile          # Per-distro systemd container images
 ```
 
