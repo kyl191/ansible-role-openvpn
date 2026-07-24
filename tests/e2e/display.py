@@ -26,6 +26,16 @@ _STATUS_STYLES: dict[Status, str] = {
 }
 
 
+def _instance_label(inst: InstanceInfo) -> str:
+    """display_name alone (e.g. "Fedora Linux 44") isn't enough to tell rows apart once one
+    apply produces a heterogeneous mix of address families and architectures (see
+    terraform-aws-ipv6-v2) - append them, unless both are still "unknown" (a --skip-terraform
+    run against instances predating the AddressFamily/Architecture tags)."""
+    if inst.architecture == "unknown" and inst.address_family == "unknown":
+        return inst.display_name
+    return f"{inst.display_name} ({inst.architecture}, {inst.address_family})"
+
+
 def setup_logging(run_dir: Path) -> Console:
     """Configures the root logger with a RichHandler for the console (sharing one
     Console with StatusBoard, so log lines scroll cleanly above the persistent
@@ -105,7 +115,7 @@ class StatusBoard:
             # as markup instead of displaying literally. Text() renders plain, no parsing.
             result = Text(str(inst.status), style=style) if style else Text(str(inst.status))
             table.add_row(
-                Text(inst.display_name),
+                Text(_instance_label(inst)),
                 Text(str(inst.phase)),
                 Text(f"{inst.phase_elapsed:.0f}s"),
                 result,

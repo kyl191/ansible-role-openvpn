@@ -45,10 +45,16 @@ def get_instances(
     instances: list[InstanceInfo] = []
     for instance in raw_instances:
         name = "Unknown"
+        address_family = "unknown"
+        architecture = "unknown"
         if instance.tags:
             for tag in instance.tags:
                 if tag["Key"] == "Name":
                     name = tag["Value"]
+                elif tag["Key"] == "AddressFamily":
+                    address_family = tag["Value"]
+                elif tag["Key"] == "Architecture":
+                    architecture = tag["Value"]
 
         public_ipv6 = None
         dual_stack_dns = ""
@@ -68,6 +74,8 @@ def get_instances(
                 public_dns=instance.public_dns_name,
                 dual_stack_dns=dual_stack_dns,
                 name=name,
+                address_family=address_family,
+                architecture=architecture,
             )
         )
 

@@ -50,6 +50,11 @@ class InstanceInfo:
     dual_stack_dns: str = ""
     name: str = "Unknown"
     os_name: str = "Unknown"
+    # From the EC2 AddressFamily/Architecture tags (terraform-aws-ipv6-v2's ec2.tf) - "unknown"
+    # if absent, e.g. a --skip-terraform run against instances from an older terraform state
+    # that predates these tags.
+    address_family: str = "unknown"
+    architecture: str = "unknown"
     ssh_user: str = "ec2-user"
     vpn_ipv4: ipaddress.IPv4Address | None = None
     vpn_ipv6: ipaddress.IPv6Address | None = None
@@ -95,6 +100,17 @@ class InstanceInfo:
         if self.name != "Unknown":
             return self.name
         return self.id
+
+    @property
+    def category(self) -> str:
+        """Short label combining address family and architecture, e.g. "dual-x86_64" -
+        a single terraform apply now produces a heterogeneous mix of these (see
+        terraform-aws-ipv6-v2), so there's no longer a "which scenario's apply loop
+        produced this" signal to group/label instances by. Used both as
+        InstanceInfo.scenario (set by orchestrator.run_scenario, for the report's
+        Scenario column and log-directory naming) and appended to display_name for
+        the status board, so heterogeneous instances stay distinguishable at a glance."""
+        return f"{self.address_family}-{self.architecture}"
 
     def set_phase(self, phase: Phase, detail: str = "") -> None:
         """Advances the lifecycle phase and resets the elapsed-time clock used by

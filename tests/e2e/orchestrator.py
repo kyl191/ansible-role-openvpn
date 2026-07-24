@@ -30,6 +30,12 @@ FETCH_DIR = Path("/tmp/ansible-openvpn-certs")
 # OpenVPN client log (see verification.py), this is the whole point of the run and needs to
 # outlive it.
 LOG_ROOT = Path(tempfile.gettempdir()) / "ansible-openvpn-e2e"
+# Explicit rather than ThreadPoolExecutor's default (min(32, cpu_count+4) - 20 on a 16-core
+# machine): these are I/O-bound (SSH/network), not CPU-bound, so sizing off cpu_count
+# undersells the actual safe concurrency. terraform-aws-ipv6-v2's merged matrix runs up to 26
+# instances in one scenario (was capped at 13 per scenario pre-merge) - comfortable headroom
+# above that so a bigger matrix later doesn't silently start queueing instances again.
+INSTANCE_THREAD_POOL_SIZE = 40
 
 
 def _wait_and_provision(inst: InstanceInfo, settings: RunSettings, log_dir: Path) -> None:
@@ -68,8 +74,13 @@ def run_scenario(
     if not instances:
         logger.error(f"No instances found for scenario {scenario}.")
         return []
+    # inst.scenario is the per-instance category (e.g. "dual-x86_64"), not the `scenario`
+    # parameter (which var-file/apply batch this came from) - a single apply now produces a
+    # heterogeneous mix of address families/architectures (see terraform-aws-ipv6-v2), so
+    # there's no longer a "which apply loop produced this" signal worth showing per instance.
+    # `scenario` itself is still used below for the status board title and log-directory name.
     for inst in instances:
-        inst.scenario = scenario
+        inst.scenario = inst.category
 
     scenario_log_dir = log_dir / scenario
     scenario_log_dir.mkdir(parents=True, exist_ok=True)
@@ -78,7 +89,7 @@ def run_scenario(
         board.start_scenario(scenario, instances)
 
         logger.info(f"Waiting for SSH and provisioning {len(instances)} instances independently...")
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=INSTANCE_THREAD_POOL_SIZE) as executor:
             list(
                 executor.map(
                     lambda inst: _wait_and_provision(inst, settings, scenario_log_dir), instances

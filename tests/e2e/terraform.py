@@ -1,12 +1,14 @@
 """Terraform lifecycle for the shared EC2 test infrastructure.
 
-Every scenario's var-file is applied in place, in the same workspace, one after
-another - not destroyed and recreated per scenario. Terraform's own diff already
-tears down the previous scenario's now-absent `instance_config` entries and
-creates the new ones; the shared base layer (VPC, security groups, key pair -
-see ~/Sync/code/terraform-aws-ipv6/vpc.tf and ec2.tf) never needs to be rebuilt
-between scenarios. A single terraform_destroy after every scenario has run tears
-the whole thing down (see e2e.orchestrator.main)."""
+Every var-file is applied in place, in the same workspace, one after another - not destroyed
+and recreated per var-file. Terraform's own diff already tears down any now-absent
+`instance_config` entries and creates the new ones; the shared base layer (VPC, security
+groups, key pair - see ~/Sync/code/terraform-aws-ipv6-v2/vpc.tf and ec2.tf) never needs to be
+rebuilt. In practice there's usually just one var-file - terraform-aws-ipv6-v2's
+`instance_config` supports per-entry `address_family`/`spot`, so what used to be four separate
+scenario var-files (each needing its own apply/destroy cycle) is now one merged file - but this
+still handles more than one if that's ever needed again. A single terraform_destroy after every
+var-file has run tears the whole thing down (see e2e.orchestrator.main)."""
 
 from __future__ import annotations
 

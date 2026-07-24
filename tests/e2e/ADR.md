@@ -343,3 +343,55 @@ polling). Not yet confirmed whether this actually eliminates the mid-
 playbook stalls seen in ADR-009 - it fixes the specific firewalld-missing
 failure directly observed, and the lock-contention explanation for the
 stalls is plausible but unverified pending a re-run.
+
+## ADR-014: Tag-derived categorization replaces var-file-derived `scenario`
+
+**Status:** Accepted
+
+**Context:** `terraform-aws-ipv6-v2` (a new sibling repo to `terraform-aws-
+ipv6`, which stays untouched) merges what used to be four separate scenario
+var-files (dual-stack x86, dual-stack arm64, IPv4-only, IPv6-only - each
+needing its own `terraform apply`/`destroy` cycle) into one `instance_config`
+map, with `address_family` and `spot` as per-entry fields instead of global
+variables selecting one mode for a whole apply. A single `terraform apply`
+now provisions the entire ~26-instance matrix at once. Before this, `run_
+scenario()` set every instance's `InstanceInfo.scenario` from the var-file
+that produced it (`inst.scenario = scenario`) - a fine signal when each apply
+was internally homogeneous (one address family, one architecture), used for
+the report's Scenario column and the status board's title. With one apply
+now producing a heterogeneous mix, that signal is gone: every instance in the
+same batch would get an identical, uninformative `scenario` value.
+
+**Decision:** `terraform-aws-ipv6-v2`'s `ec2.tf` tags every instance with
+`AddressFamily` and `Architecture` (read back in `aws.get_instances`).
+`InstanceInfo` gained matching `address_family`/`architecture` fields
+(default `"unknown"` - backward-compatible with a `--skip-terraform` run
+against instances predating these tags, or a state from the untouched v1
+repo) and a `category` property combining them (e.g. `"dual-x86_64"`).
+`run_scenario()` now sets `inst.scenario = inst.category` instead of the
+`scenario` function parameter - the parameter itself didn't go away, it's
+still used for the status board's title and the per-run log-directory name
+(still a meaningful "which var-file/apply produced this batch" label), it
+just no longer doubles as the per-*instance* category. The status board's
+Instance column and the report both show architecture/address family
+directly (appended to `display_name` on the board; separate sortable columns
+in the report) rather than only being inferable from `scenario`.
+
+The var-file loop itself (`_run_scenarios_with_terraform`) was deliberately
+*not* collapsed to assume exactly one var-file - it already handled an
+arbitrary-length list correctly (single apply, single destroy, for however
+many files are configured), so there was nothing to simplify there. Only
+`tests/e2e_config.toml`'s `var_files` value changed, from a 4-element list to
+1. If a future scenario genuinely needs a separate apply again (a different
+region, a different AWS account), the loop still supports it without code
+changes.
+
+**Consequences:** `Status.UNREACHABLE`/other-failure instances that never got
+far enough to have `address_family`/`architecture` populated would show
+`"unknown-unknown"` as their category - acceptable, since that's still an
+accurate (if uninformative) label for "we don't know what this was." Bumped
+`ThreadPoolExecutor`'s `max_workers` from the implicit `min(32, cpu_count+4)`
+(20 on a 16-core machine - below the ~26-34 instance concurrency now common
+in a single scenario) to an explicit `INSTANCE_THREAD_POOL_SIZE = 40`: these
+are I/O-bound (SSH/network) threads, not CPU-bound, so sizing off `cpu_count`
+undersold the safe concurrency ceiling.

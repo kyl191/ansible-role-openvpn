@@ -101,7 +101,7 @@ def wait_for_cloud_init(
     instance: InstanceInfo, key_path: Path | None, timeout: int = CLOUD_INIT_TIMEOUT
 ) -> bool:
     """SSH accepting connections only means sshd is up - it says nothing about whether
-    cloud-init's own package_update/package installs (see terraform-aws-ipv6's
+    cloud-init's own package_update/package installs (see terraform-aws-ipv6-v2's
     cloud-init-install-firewalld.yaml, which installs firewalld via package_update + packages)
     have actually finished. Confirmed for real: a run failed with "No firewall detected, install
     one before proceeding" because our own package_facts snapshot was taken before cloud-init had
