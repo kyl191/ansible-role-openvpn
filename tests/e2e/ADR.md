@@ -230,6 +230,20 @@ be killed as a false positive. If this turns out to matter for a particular
 instance type or task, raise `PROVISION_STALL_TIMEOUT` rather than removing
 the mechanism.
 
+**Correction (found investigating a real stall):** the original error
+message named the *last-seen* task as what was stuck - misleading, since a
+real run showed that task's own `skipping:`/`ok:` result line already in the
+log before the silence started. The task itself had finished; the actual gap
+was ansible taking >90s to produce the *next* task's banner at all - a
+connection-layer stall (SSH going quiet between tasks), not a stall inside
+whatever task happened to be named last. Fixed by tracking whether the
+current task's result line has already been seen (`current_task_done`) and
+phrasing the message accordingly: `"stuck on 'X'"` only if X is still
+mid-execution, `"stuck after 'X' finished, waiting for the next task"`
+otherwise. This matters for diagnosis - don't trust the task name in a stall
+message without checking `current_task_done`'s equivalent (whether a result
+line for it appears in the raw log) first.
+
 ## ADR-010: Isolate each subprocess's stdin
 
 **Status:** Accepted
